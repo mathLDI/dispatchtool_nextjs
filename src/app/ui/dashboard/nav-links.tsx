@@ -1,11 +1,8 @@
 
 'use client';
 
-import {
-  DocumentIcon,
-  CloudIcon,
-  CalculatorIcon,
-} from '@heroicons/react/24/outline';
+import { DocumentIcon, CloudIcon, CalculatorIcon } from '@heroicons/react/outline';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
@@ -24,8 +21,13 @@ const links = [
     icon: CalculatorIcon,
   },
   {
-    name: 'RCC Calculator',
-    href: '/dashboard/rccCalculator',
+    name: 'RCC Not Provided',
+    href: '/dashboard/firstPageRccNotProvided',
+    icon: CalculatorIcon
+  },
+  {
+    name: 'RCC Provided',
+    href: '/dashboard/firstPageRccProvided',
     icon: CalculatorIcon
   },
   {
