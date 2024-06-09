@@ -8,14 +8,13 @@ import PropTypes from "prop-types";
 import { contaminent } from '../../lib/component/functions/runwayType';
 import { RccToUse } from '../../lib/component/functions/finalRcc';
 
+import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 
 
 const FirstPageRccNotProvided = (props) => {
 
-
     const {
         initialRunwayConditionDescriptionGravel1, runwayConditionDescriptionGravel1Handler,
-        initialAircraftType, setAircraftTypeHandler,
         initialContaminationCoverage2, setContaminationCoverage2Handler,
         initialContaminationCoverage3, setContaminationCoverage3Handler,
         initialContaminationCoverage1, setContaminationCoverage1Handler,
@@ -33,6 +32,9 @@ const FirstPageRccNotProvided = (props) => {
         initialRunwayConditionDescriptionGravel3,
         initialRunwayConditionDescriptionPaved4
     ];
+
+    const { aircraftType, setAircraftType } = useRccContext();
+
 
     const allGravelRunwayConditionDescription = [initialRunwayConditionDescriptionGravel1, initialRunwayConditionDescriptionGravel3]
     const allPavedRunwayConditionDescription = [initialRunwayConditionDescriptionPaved2, initialRunwayConditionDescriptionPaved4]
@@ -119,7 +121,9 @@ const FirstPageRccNotProvided = (props) => {
     return (
 
         <div>
-            
+            <>{aircraftType}</>
+            <button onClick={() => setAircraftType("Boeing 989")}>Change Aircraft Type</button>
+
             <Card cardTitle={"RWYCC Not Provided"} status={null}>
                 {/**delete function below!!!!!! */}
                 { }
@@ -127,9 +131,9 @@ const FirstPageRccNotProvided = (props) => {
                     <div className="flex flex-row justify-between items-center p-2">
                         <div>Aircraft type:</div>
                         <ChoiceListbox
-                            value={initialAircraftType}
+                            value={aircraftType}
                             choices={buttonAircraftType}
-                            callback={setAircraftTypeHandler}
+                            callback={setAircraftType}
                             reset={resetListBox}
                             resetCallback={resetListbox1Handler}
                         />
