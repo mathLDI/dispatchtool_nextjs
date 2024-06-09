@@ -121,10 +121,6 @@ const FirstPageRccNotProvided = (props) => {
     return (
 
         <div>
-            <>{aircraftType}</>
-            <>{dropDownPavedOrGravel}</>
-            <button onClick={() => setAircraftType("Boeing 989")}>Change Aircraft Type</button>
-
             <Card cardTitle={"RWYCC Not Provided"} status={null}>
                 {/**delete function below!!!!!! */}
                 { }
