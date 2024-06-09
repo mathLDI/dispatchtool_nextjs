@@ -32,12 +32,34 @@ interface RccContextType {
   setCorrectedLandingDistance: (value: number) => void;
   runwayLength: number;
   setRunwayLength: (value: number) => void;
+  initialAircraftType: string;
+  setAircraftTypeHandler: (type: string) => void;
+  initialRunwayHeading: number;
+  setRunwayHeadingHandler: (heading: number) => void;
+  initialWindDirection: number;
+  setWindDirectionHandler: (direction: number) => void;
+  initialWindSpeed: number;
+  setWindSpeedHandler: (speed: number) => void;
+  initialMagneticVar: number;
+  setMagneticVarHandler: (variance: number) => void;
+  initialEastOrWestVar: string;
+  setEastOrWestVarHandler: (option: string) => void;
+  runwayHeading: number; // Add runwayHeading here
+  setRunwayHeading: (heading: number) => void; // Add setRunwayHeading here
+  windDirection: number;
+  setWindDirection: (direction: number) => void;
+  windSpeed: number;
+  setWindSpeed: (speed: number) => void;
+  magneticVar: number;
+  setMagneticVar: (variance: number) => void;
+  eastOrWestVar: string;
+  setEastOrWestVar: (option: string) => void;
 }
 
 // Create the context with a default value
 const RccContext = createContext<RccContextType | undefined>(undefined);
 
-// Custom hook to use the AircraftContext
+// Custom hook to use the RccContext
 export const useRccContext = () => {
   const context = useContext(RccContext);
   if (!context) {
@@ -63,6 +85,17 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [rwycc3, setRwycc3] = useState(6);
   const [correctedLandingDistance, setCorrectedLandingDistance] = useState(0);
   const [runwayLength, setRunwayLength] = useState(0);
+  const [initialAircraftType, setAircraftTypeHandler] = useState("");
+  const [initialRunwayHeading, setRunwayHeadingHandler] = useState(0);
+  const [initialWindDirection, setWindDirectionHandler] = useState(0);
+  const [initialWindSpeed, setWindSpeedHandler] = useState(0);
+  const [initialMagneticVar, setMagneticVarHandler] = useState(0);
+  const [initialEastOrWestVar, setEastOrWestVarHandler] = useState("");
+  const [runwayHeading, setRunwayHeading] = useState(0);
+  const [windDirection, setWindDirection] = useState(0);
+  const [windSpeed, setWindSpeed] = useState(0);
+  const [magneticVar, setMagneticVar] = useState(0);
+  const [eastOrWestVar, setEastOrWestVar] = useState("West");
 
   return (
     <RccContext.Provider value={{
@@ -81,6 +114,17 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       rwycc3, setRwycc3,
       correctedLandingDistance, setCorrectedLandingDistance,
       runwayLength, setRunwayLength,
+      initialAircraftType, setAircraftTypeHandler,
+      initialRunwayHeading, setRunwayHeadingHandler,
+      initialWindDirection, setWindDirectionHandler,
+      initialWindSpeed, setWindSpeedHandler,
+      initialMagneticVar, setMagneticVarHandler,
+      initialEastOrWestVar, setEastOrWestVarHandler,
+      runwayHeading, setRunwayHeading,
+      windDirection, setWindDirection,
+      windSpeed, setWindSpeed,
+      magneticVar, setMagneticVar,
+      eastOrWestVar, setEastOrWestVar,
     }}>
       {children}
     </RccContext.Provider>
