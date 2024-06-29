@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState } from 'react';
 
+// Define the shape of the context state
+interface Airport {
+  id: string;
+  name: string;
+  code: string;
+}
+
 interface RccContextType {
   aircraftType: string;
   setAircraftType: (type: string) => void;
@@ -53,16 +60,18 @@ interface RccContextType {
   setMagneticVar: (variance: number) => void;
   eastOrWestVar: string;
   setEastOrWestVar: (option: string) => void;
-  airportValues: Array<{ id: string, name: string, code: string }>; // Changed to array of objects
-  setAirportValues: (values: Array<{ id: string, name: string, code: string }>) => void;
-  weatherData: any; // Consider specifying a more detailed type if possible
+  airportValues: Airport[];
+  setAirportValues: (values: Airport[]) => void;
+  weatherData: any;
   setWeatherData: (data: any) => void;
-  addAirportValue: (newAirport: { id: string, name: string, code: string }) => void;
-  removeAirportValue: (indexToRemove: number) => void;
+  addAirportValue: (newAirport: Airport) => void;
+  removeAirportValue: (airportCode: string) => void;
 }
 
+// Create the context with a default value
 const RccContext = createContext<RccContextType | undefined>(undefined);
 
+// Custom hook to use the RccContext
 export const useRccContext = () => {
   const context = useContext(RccContext);
   if (!context) {
@@ -71,6 +80,7 @@ export const useRccContext = () => {
   return context;
 };
 
+// RccProvider component to wrap around parts of the app that need access to this context
 export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [aircraftType, setAircraftType] = useState("DHC-8");
   const [contaminationCoverage1, setContaminationCoverage1] = useState("");
@@ -98,16 +108,16 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [windSpeed, setWindSpeed] = useState(0);
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
-  const [airportValues, setAirportValues] = useState<Array<{ id: string, name: string, code: string }>>([]);
-  const [weatherData, setWeatherData] = useState(null);
+  const [airportValues, setAirportValues] = useState<Airport[]>([]);
+  const [weatherData, setWeatherData] = useState<any>(null);
 
   // Functions to manage airportValues array
-  const addAirportValue = (newAirport: { id: string, name: string, code: string }) => {
+  const addAirportValue = (newAirport: Airport) => {
     setAirportValues([...airportValues, newAirport]);
   };
 
-  const removeAirportValue = (indexToRemove: number) => {
-    setAirportValues(airportValues.filter((_, index) => index !== indexToRemove));
+  const removeAirportValue = (airportCode: string) => {
+    setAirportValues(airportValues.filter(airport => airport.code !== airportCode));
   };
 
   return (
@@ -138,10 +148,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       windSpeed, setWindSpeed,
       magneticVar, setMagneticVar,
       eastOrWestVar, setEastOrWestVar,
-      airportValues, setAirportValues, // Updated to array
+      airportValues, setAirportValues,
       weatherData, setWeatherData,
-      addAirportValue, // Added function
-      removeAirportValue, // Added function
+      addAirportValue,
+      removeAirportValue,
     }}>
       {children}
     </RccContext.Provider>

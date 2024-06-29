@@ -33,6 +33,9 @@ export default function ClientComponent({ fetchWeather }) {
     console.log(`Added airport: ${inputValue}`);
     const data = await fetchWeather(newAirport.code);
     setWeatherData(data);
+
+    // Clear the input value after submission
+    setInputValue('');
   };
 
   const handleAirportClick = async (airportCode) => {
@@ -46,21 +49,20 @@ export default function ClientComponent({ fetchWeather }) {
     <>
       <div className='flex'>
         <div className='p-5'>
-          <AirportSidebar onAirportClick={handleAirportClick} />
-        </div>
-
-        <div>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value.toUpperCase())}
-              maxLength={4}
-              className="border p-2 rounded"
-            />
-            <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded">Submit</button>
-            {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
-          </form>
+          <div className='sticky top-0'>
+            <form onSubmit={handleSubmit} className="mb-4">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value.toUpperCase())}
+                maxLength={4}
+                className="border p-2 rounded"
+              />
+              <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded">Submit</button>
+              {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
+            </form>
+            <AirportSidebar onAirportClick={handleAirportClick} />
+          </div>
         </div>
 
         <div className='p-5'>
