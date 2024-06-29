@@ -1,22 +1,27 @@
-"use client"
+import ClientComponent from './client-component';
 
-import React, { useState } from 'react';
-import { useRccContext } from '../RccCalculatorContext'; // Use relative path
+export default function Page() {
 
-const Page: React.FC = () => {
-  const { aircraftType, setAircraftType } = useRccContext();
 
-  console.log("aircraftType for page TSX:", aircraftType);
+  const handleFetchWeather = async (location: string) => {
+    
+    'use server';
+    const apiUrl = `https://plan.navcanada.ca/weather/api/alpha/?site=${location}&alpha=metar&_=1719605788106`;
+    console.log(`API URL: ${apiUrl}`);  // Log the API URL to confirm it's correct
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    return data;
+  };
 
   return (
     <div>
-      <p>Weather Page</p>
-      <div>
-        <p>Current Aircraft Type: {aircraftType}</p>
-        <button onClick={() => setAircraftType("Boeing 989")}>Change Aircraft Type</button>
-      </div>
+      <ClientComponent fetchWeather={handleFetchWeather} />
     </div>
   );
-};
+}
 
-export default Page;
+
+
+
+
+
