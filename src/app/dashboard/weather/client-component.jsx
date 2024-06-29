@@ -9,9 +9,7 @@ export default function ClientComponent({ fetchWeather }) {
   const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState('');
 
-  const {
-    airportValues, addAirportValue, weatherData, setWeatherData
-  } = useRccContext();
+  const { airportValues, addAirportValue, weatherData, setWeatherData } = useRccContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +35,18 @@ export default function ClientComponent({ fetchWeather }) {
     setWeatherData(data);
   };
 
+  const handleAirportClick = async (airportCode) => {
+    setError('');
+    console.log(`Fetching weather for airport: ${airportCode}`);
+    const data = await fetchWeather(airportCode);
+    setWeatherData(data);
+  };
+
   return (
     <>
       <div className='flex'>
         <div className='p-5'>
-          <AirportSidebar />
+          <AirportSidebar onAirportClick={handleAirportClick} />
         </div>
 
         <div>
