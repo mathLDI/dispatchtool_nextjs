@@ -5,19 +5,19 @@ import Card from '../../lib/component/Card';
 import { useState } from 'react';
 
 export default function ClientComponent({ fetchWeather }) {
-    const [inputValue, setInputValue] = useState('');
+    const [airportValue, setairportValue] = useState('');
     const [weatherData, setWeatherData] = useState(null);
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!inputValue.trim()) {
+        if (!airportValue.trim()) {
             setError('Please enter a valid location');
             return;
         }
         setError('');
-        console.log(`Input value: ${inputValue}`);
-        const data = await fetchWeather(inputValue);
+        console.log(`Input value: ${airportValue}`);
+        const data = await fetchWeather(airportValue);
         setWeatherData(data);
     };
 
@@ -31,8 +31,8 @@ export default function ClientComponent({ fetchWeather }) {
                 <form onSubmit={handleSubmit}>
                     <input
                         type="text"
-                        value={inputValue.toUpperCase()}
-                        onChange={(e) => setInputValue(e.target.value.toUpperCase())}
+                        value={airportValue.toUpperCase()}
+                        onChange={(e) => setairportValue(e.target.value.toUpperCase())}
                         maxLength={4}
                     />
                     <button type="submit">Submit</button>
