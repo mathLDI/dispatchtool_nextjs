@@ -2,12 +2,17 @@
 
 import Card from '../../lib/component/Card';
 
+import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 import { useState } from 'react';
 
 export default function ClientComponent({ fetchWeather }) {
-    const [airportValue, setairportValue] = useState('');
-    const [weatherData, setWeatherData] = useState(null);
+
     const [error, setError] = useState('');
+
+    const {
+        airportValue, setAirportValue, // Corrected the function name here
+        weatherData, setWeatherData      
+    } = useRccContext();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,34 +27,34 @@ export default function ClientComponent({ fetchWeather }) {
     };
 
     return (
-
-
-
-        <Card title="Weather" className="bg-blue-200" style={{ width: '300px' }}>
-
-            <div>
-                <form onSubmit={handleSubmit}>
+        <>
+        <div>
+        <form onSubmit={handleSubmit}>
                     <input
                         type="text"
                         value={airportValue.toUpperCase()}
-                        onChange={(e) => setairportValue(e.target.value.toUpperCase())}
+                        onChange={(e) => setAirportValue(e.target.value.toUpperCase())} // Corrected the function name here
                         maxLength={4}
                     />
                     <button type="submit">Submit</button>
                 </form>
-
+        </div>
+        
+        <h1 className='py-5'>METAR</h1>
+        <Card title="Weather" className="bg-blue-200" style={{ width: '300px' }}>
+            <div>
                 {error && <p className='bg-orange-400' style={{ color: 'red' }}>{error}</p>}
                 {weatherData && weatherData.data && weatherData.data.length > 0 && (
                     <div>
-                        <h3>Weather Data:</h3>
                         <p>{weatherData.data[0].text}</p>
                     </div>
                 )}
             </div>
-
-
         </Card>
 
 
+
+        </>
+        
     );
 }

@@ -54,6 +54,10 @@ interface RccContextType {
   setMagneticVar: (variance: number) => void;
   eastOrWestVar: string;
   setEastOrWestVar: (option: string) => void;
+  airportValue: string;
+  setAirportValue: (value: string) => void;
+  weatherData: any; // Consider specifying a more detailed type if possible
+  setWeatherData: (data: any) => void;
 }
 
 // Create the context with a default value
@@ -96,6 +100,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [windSpeed, setWindSpeed] = useState(0);
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
+  const [airportValue, setAirportValue] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
 
   return (
     <RccContext.Provider value={{
@@ -125,6 +131,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       windSpeed, setWindSpeed,
       magneticVar, setMagneticVar,
       eastOrWestVar, setEastOrWestVar,
+      airportValue, setAirportValue,
+      weatherData, setWeatherData,
     }}>
       {children}
     </RccContext.Provider>

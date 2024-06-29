@@ -2,7 +2,6 @@ import ClientComponent from './client-component';
 
 export default function Page() {
 
-
   const handleFetchWeather = async (location: string) => {
     
     'use server';
@@ -15,7 +14,9 @@ export default function Page() {
 
   return (
     <div>
+    
       <ClientComponent fetchWeather={handleFetchWeather} />
+     
     </div>
   );
 }
