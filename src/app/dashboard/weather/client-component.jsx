@@ -9,7 +9,7 @@ export default function ClientComponent({ fetchWeather }) {
   const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState('');
 
-  const { airportValues, addAirportValue, weatherData, setWeatherData } = useRccContext();
+  const { airportValues, addAirportValue, weatherData, setWeatherData, selectedAirport, setSelectedAirport } = useRccContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +30,7 @@ export default function ClientComponent({ fetchWeather }) {
     setError('');
     const newAirport = { id: inputValue.toUpperCase(), name: `Airport ${inputValue.toUpperCase()}`, code: inputValue.toUpperCase() };
     addAirportValue(newAirport);
+    setSelectedAirport(newAirport); // Set the newly added airport as the selected airport
     console.log(`Added airport: ${inputValue}`);
     const data = await fetchWeather(newAirport.code);
     setWeatherData(data);
@@ -108,6 +109,11 @@ export default function ClientComponent({ fetchWeather }) {
           </Card>
         </div>
       </div>
+      {selectedAirport && (
+        <div>
+          <h2>Selected Airport: {selectedAirport.name} ({selectedAirport.code})</h2>
+        </div>
+      )}
     </>
   );
 }

@@ -66,6 +66,8 @@ interface RccContextType {
   setWeatherData: (data: any) => void;
   addAirportValue: (newAirport: Airport) => void;
   removeAirportValue: (airportCode: string) => void;
+  selectedAirport: Airport | null;
+  setSelectedAirport: (airport: Airport | null) => void;
 }
 
 // Create the context with a default value
@@ -110,6 +112,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
   const [airportValues, setAirportValues] = useState<Airport[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -152,6 +155,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       weatherData, setWeatherData,
       addAirportValue,
       removeAirportValue,
+      selectedAirport, setSelectedAirport
     }}>
       {children}
     </RccContext.Provider>
