@@ -16,7 +16,6 @@ const FirstPageRccNotProvided = (props) => {
     const { } = props;
 
 
-
     const { aircraftType, setAircraftType } = useRccContext("");
     const { dropDownPavedOrGravel, setDropDownPavedOrGravel } = useRccContext("");
     const { contaminationCoverage1, setContaminationCoverage1 } = useRccContext("");
@@ -120,7 +119,7 @@ const FirstPageRccNotProvided = (props) => {
 
     return (
 
-        <div className="">
+        <div className="flex flex-col justify-center items-center  h-max w-full">
             <Card cardTitle={"RWYCC Not Provided"} status={null}>
                 {/**delete function below!!!!!! */}
                 { }
@@ -495,9 +494,11 @@ const FirstPageRccNotProvided = (props) => {
             </Card>
 
             {/****RWYCCC NOT PROVIDED CARS ABOVE****/}
+            <div >
+                <div className="text-center"> 1/8&quot; / 0.13in / 3mm</div>
+                <div className="text-center">COMPACTED SNOW ON A GRAVEL RWY = COMPACTED SNOW/GRAVEL MIX = NOT A CONTAMINANT</div>
+            </div>
 
-            <div className="text-center"> 1/8&quot; / 0.13in / 3mm</div>
-            <div className="text-center">COMPACTED SNOW ON A GRAVEL RWY = COMPACTED SNOW/GRAVEL MIX = NOT A CONTAMINANT</div>
 
         </div >
 
