@@ -78,7 +78,7 @@ const FirstPageRccProvided = (props) => {
 
     return (
 
-        <div>
+        <div >
 
 
             <Card cardTitle={"RWYCC Provided"} status={null}>

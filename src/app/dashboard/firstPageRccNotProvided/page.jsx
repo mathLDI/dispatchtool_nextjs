@@ -13,20 +13,20 @@ import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 
 const FirstPageRccNotProvided = (props) => {
 
-    const {} = props;
+    const { } = props;
 
 
 
     const { aircraftType, setAircraftType } = useRccContext("");
     const { dropDownPavedOrGravel, setDropDownPavedOrGravel } = useRccContext("");
-    const {contaminationCoverage1, setContaminationCoverage1} = useRccContext("");
-    const {contaminationCoverage2, setContaminationCoverage2} = useRccContext("");
-    const {contaminationCoverage3, setContaminationCoverage3} = useRccContext("");
-    const {contaminationCoverage4, setContaminationCoverage4} = useRccContext("");
-    const {runwayConditionDescriptionGravel1, setRunwayConditionDescriptionGravel1} = useRccContext("");
-    const {runwayConditionDescriptionPaved2, setRunwayConditionDescriptionPaved2} = useRccContext("");
-    const {runwayConditionDescriptionGravel3, setRunwayConditionDescriptionGravel3} = useRccContext("");
-    const {runwayConditionDescriptionPaved4, setRunwayConditionDescriptionPaved4} = useRccContext("");
+    const { contaminationCoverage1, setContaminationCoverage1 } = useRccContext("");
+    const { contaminationCoverage2, setContaminationCoverage2 } = useRccContext("");
+    const { contaminationCoverage3, setContaminationCoverage3 } = useRccContext("");
+    const { contaminationCoverage4, setContaminationCoverage4 } = useRccContext("");
+    const { runwayConditionDescriptionGravel1, setRunwayConditionDescriptionGravel1 } = useRccContext("");
+    const { runwayConditionDescriptionPaved2, setRunwayConditionDescriptionPaved2 } = useRccContext("");
+    const { runwayConditionDescriptionGravel3, setRunwayConditionDescriptionGravel3 } = useRccContext("");
+    const { runwayConditionDescriptionPaved4, setRunwayConditionDescriptionPaved4 } = useRccContext("");
 
 
 
@@ -120,7 +120,7 @@ const FirstPageRccNotProvided = (props) => {
 
     return (
 
-        <div>
+        <div className="">
             <Card cardTitle={"RWYCC Not Provided"} status={null}>
                 {/**delete function below!!!!!! */}
                 { }
