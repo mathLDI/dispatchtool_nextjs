@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 import AirportSidebar from '../../lib/component/AirportSidebar';
@@ -33,6 +33,7 @@ export default function ClientComponent({ fetchWeather }) {
     setSelectedAirport(newAirport); // Set the newly added airport as the selected airport
     console.log(`Added airport: ${inputValue}`);
     const data = await fetchWeather(newAirport.code);
+    console.log('Fetched Weather Data:', data);  // Log the fetched weather data
     setWeatherData(data);
 
     // Clear the input value after submission
@@ -43,8 +44,15 @@ export default function ClientComponent({ fetchWeather }) {
     setError('');
     console.log(`Fetching weather for airport: ${airportCode}`);
     const data = await fetchWeather(airportCode);
+    console.log('Fetched Weather Data:', data);  // Log the fetched weather data
     setWeatherData(data);
   };
+
+  useEffect(() => {
+    if (weatherData) {
+      console.log('Updated Weather Data:', weatherData);
+    }
+  }, [weatherData]);
 
   return (
     <>
@@ -71,9 +79,20 @@ export default function ClientComponent({ fetchWeather }) {
           <Card title="Weather" className="bg-blue-200" style={{ width: '300px' }}>
             <div>
               {weatherData && weatherData.data && weatherData.data.length > 0 ? (
-                <p>{weatherData.data.find(item => item.type === 'metar')?.text || 'No METAR data available'}</p>
+                weatherData.data
+                  .filter(item => item.type === 'metar')
+                  .sort((a, b) => {
+                    const timeA = a.text.match(/\d{4}Z/);
+                    const timeB = b.text.match(/\d{4}Z/);
+                    return timeB[0].localeCompare(timeA[0]);
+                  })
+                  .map((metar, index) => (
+                    <div key={index} className="mb-4"> {/* Add margin bottom for spacing */}
+                      <p>{metar.text}</p>
+                    </div>
+                  ))
               ) : (
-                <p>No weather data available</p>
+                <p>No METAR data available</p>
               )}
             </div>
           </Card>
