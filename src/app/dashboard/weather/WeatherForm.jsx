@@ -24,30 +24,30 @@ const WeatherForm = ({ fetchWeather }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Split input value by spaces and trim whitespace
     const airportCodes = inputValue.split(' ').map(code => code.trim());
-  
+
     // Validate each airport code
     for (const code of airportCodes) {
       if (!code || code.length !== 4) {
         setError(`Please enter valid ICAO airport codes separated by spaces`);
         return;
       }
-  
+
       // Check if the airport is already in the list
       const airportExists = airportValues.some((airport) => airport.code === code);
       if (airportExists) {
         setError(`Airport code ${code} already added`);
         return;
       }
-  
+
       // Add each new airport
       const newAirport = { id: code, name: `Airport ${code}`, code: code };
       addAirportValue(newAirport);
       console.log(`Added airport: ${code}`);
     }
-  
+
     setError('');
     // Select the first airport in the list for fetching weather data
     if (airportCodes.length > 0) {
@@ -57,7 +57,7 @@ const WeatherForm = ({ fetchWeather }) => {
       setWeatherData(data);
       setSelectedAirport({ id: firstAirportCode, name: `Airport ${firstAirportCode}`, code: firstAirportCode });
     }
-  
+
     // Clear the input value after submission
     setInputValue('');
   };
@@ -71,20 +71,21 @@ const WeatherForm = ({ fetchWeather }) => {
 
   return (
     <div className='flex-auto'>
-        <form onSubmit={handleSubmit} className="mb-4">
+      <form onSubmit={handleSubmit} className="mb-4">
+        <div className="relative">
           <input
             type="text"
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Enter ICAO codes"
-            className="border p-2 rounded"
+            className="border p-2 rounded " // Adjust padding to make space for the icon
           />
-          <div className='p-1'></div>
-          <button type="submit" className="p-2 bg-blue-500 text-white rounded flex items-center justify-center">
+          <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 p-2   rounded flex items-center justify-center">
             <SearchIcon className="h-5 w-5" />
-          </button>          {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
-        </form>
-        <AirportSidebar onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
+          </button>
+        </div>         {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
+      </form>
+      <AirportSidebar onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
     </div>
   );
 };
