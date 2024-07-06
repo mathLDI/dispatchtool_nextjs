@@ -49,8 +49,7 @@ const WeatherForm = ({ fetchWeather }) => {
   };
 
   return (
-    <div className=''>
-      <div className=''>
+    <div className='flex-auto'>
         <form onSubmit={handleSubmit} className="mb-4">
           <input
             type="text"
@@ -63,8 +62,7 @@ const WeatherForm = ({ fetchWeather }) => {
           <button type="submit" className=" p-2 bg-blue-500 text-white rounded">Submit</button>
           {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
         </form>
-        <AirportSidebar onAirportClick={handleAirportClick} />
-      </div>
+        <AirportSidebar onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
     </div>
   );
 };

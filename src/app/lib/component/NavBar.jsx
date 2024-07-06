@@ -54,11 +54,7 @@ export default function Navbar({ selectedNavItem, onNavItemClick, toggleDarkMode
 
             {/* Left Section - Logo */}
             <div className="flex items-center">
-              <img
-                className="h-20 w-auto"
-                src={logo}
-                alt="Air Creebec Logo"
-              />
+           {/*   <img src={logo} alt="logo" className="h-8 w-8" /> */}
             </div>
 
             {/* Middle Section - Navigation */}

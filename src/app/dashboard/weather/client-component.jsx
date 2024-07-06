@@ -14,10 +14,11 @@ export default function ClientComponent({ fetchWeather }) {
     }
   }, [weatherData]);
 
+
   return (
     <div className="flex h-full">
       
-      <div className="bg-rose-900 w-64 fixed top-0 bottom-0 p-5">
+      <div className="flex bg-rose-900  fixed top-0 bottom-0 p-5">
         <WeatherForm fetchWeather={fetchWeather} />
       </div>
 
@@ -73,12 +74,10 @@ export default function ClientComponent({ fetchWeather }) {
             )}
           </div>
         </Card>
-        {selectedAirport && (
-          <div>
-            <h2>Selected Airport: {selectedAirport.name} ({selectedAirport.code})</h2>
-          </div>
-        )}
+        
+       
       </div>
+
     </div>
   );
 }
