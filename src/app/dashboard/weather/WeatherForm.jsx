@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import AirportSidebar from '../../lib/component/AirportSidebar';
 import { useRccContext } from '../RccCalculatorContext';
+import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
+
 
 const WeatherForm = ({ fetchWeather }) => {
   const [error, setError] = useState('');
@@ -78,8 +80,9 @@ const WeatherForm = ({ fetchWeather }) => {
             className="border p-2 rounded"
           />
           <div className='p-1'></div>
-          <button type="submit" className=" p-2 bg-blue-500 text-white rounded">Submit</button>
-          {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
+          <button type="submit" className="p-2 bg-blue-500 text-white rounded flex items-center justify-center">
+            <SearchIcon className="h-5 w-5" />
+          </button>          {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
         </form>
         <AirportSidebar onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
     </div>
