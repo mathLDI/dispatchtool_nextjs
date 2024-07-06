@@ -116,7 +116,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
-    setAirportValues([...airportValues, newAirport]);
+    setAirportValues((currentValues) => [...currentValues, newAirport]);
   };
 
   const removeAirportValue = (airportCode: string) => {
