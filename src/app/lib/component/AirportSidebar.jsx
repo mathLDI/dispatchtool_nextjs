@@ -18,7 +18,7 @@ const AirportSidebar = ({ onAirportClick, setWeatherData }) => {
     
     if (selectedAirport && selectedAirport.code === airportCode) {
       if (updatedAirports.length > 0) {
-        const newSelectedAirport = updatedAirports[updatedAirports.length - 1];
+        const newSelectedAirport = updatedAirports[0]; // Select the first airport
         setSelectedAirport(newSelectedAirport);
         onAirportClick(newSelectedAirport.code);
       } else {
