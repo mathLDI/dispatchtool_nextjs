@@ -9,16 +9,27 @@ const WeatherForm = ({ fetchWeather }) => {
 
   const { airportValues, addAirportValue, setWeatherData, setSelectedAirport } = useRccContext();
 
+  // Function to handle input changes
+  const handleInputChange = (e) => {
+    const inputValue = e.target.value;
+    setInputValue(inputValue.toUpperCase());
+
+    // Clear error if input is empty
+    if (!inputValue.trim()) {
+      setError('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     // Split input value by spaces and trim whitespace
-    const airportCodes = inputValue.toUpperCase().split(' ').map(code => code.trim());
+    const airportCodes = inputValue.split(' ').map(code => code.trim());
   
     // Validate each airport code
     for (const code of airportCodes) {
       if (!code || code.length !== 4) {
-        setError(`Please enter valid 4-letter airport codes separated by spaces`);
+        setError(`Please enter valid ICAO airport codes separated by spaces`);
         return;
       }
   
@@ -62,8 +73,8 @@ const WeatherForm = ({ fetchWeather }) => {
           <input
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value.toUpperCase())}
-            placeholder="Enter airport codes separated by commas"
+            onChange={handleInputChange}
+            placeholder="Enter ICAO codes"
             className="border p-2 rounded"
           />
           <div className='p-1'></div>

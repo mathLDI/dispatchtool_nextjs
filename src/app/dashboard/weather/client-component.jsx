@@ -18,7 +18,7 @@ export default function ClientComponent({ fetchWeather }) {
   return (
     <div className="flex h-full">
       
-      <div className="flex bg-rose-900  fixed top-0 bottom-0 p-5">
+      <div className="flex bg-rose-900  fixed top-0 bottom-0 pt-3">
         <WeatherForm fetchWeather={fetchWeather} />
       </div>
 
