@@ -15,7 +15,11 @@ export default function ClientComponent({ fetchWeather }) {
   }, [weatherData]);
 
   return (
-    <div className="flex h-full bg-orange-700">
+
+
+    <div className="flex h-full">
+
+
       <div className="flex fixed top-0 bottom-0 pt-3">
         <AirportSearchForm fetchWeather={fetchWeather} />
       </div>

@@ -4,7 +4,7 @@
 //and display the list of airports that have been added
 
 import React, { useState } from 'react';
-import AirportSidebar from '../../lib/component/AirportSidebar';
+import AirportList from '../../lib/component/AirportList';
 import { useRccContext } from '../RccCalculatorContext';
 import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
 
@@ -89,7 +89,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
           </button>
         </div>         {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
       </form>
-      <AirportSidebar onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
+      <AirportList onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
     </div>
   );
 };

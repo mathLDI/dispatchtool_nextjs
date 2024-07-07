@@ -1,9 +1,12 @@
 'use client';
 
+//this component is used to display the list of airports that have been selected by the user.
+//The component is then used inside the AirportSearchForm component.
+
 import React from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext'; // Use relative path
 
-const AirportSidebar = ({ onAirportClick, setWeatherData }) => {
+const AirportList = ({ onAirportClick, setWeatherData }) => {
   const { airportValues, setAirportValues, setSelectedAirport, selectedAirport } = useRccContext();
 
   const handleAirportClick = (airport) => {
@@ -31,7 +34,7 @@ const AirportSidebar = ({ onAirportClick, setWeatherData }) => {
   return (
     <div className="w-full max-w-sm p-4 bg-white rounded-lg shadow-md">
       {/*<h2 className="text-lg font-bold mb-4 text-center">Selected Airports</h2>*/}
-      <ul className="space-y-2">
+      <ul className="flex  flex-row space-y-2">
         {airportValues.map((airport, index) => (
           <li
             key={index}
@@ -43,14 +46,14 @@ const AirportSidebar = ({ onAirportClick, setWeatherData }) => {
               {airport.code}
             </span>
             <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent li onClick from being called
-                removeAirportValue(airport.code);
-              }}
-              className="ml-0"
-            >
-              x
-            </button>
+  onClick={(e) => {
+    e.stopPropagation(); // Prevent li onClick from being called
+    removeAirportValue(airport.code);
+  }}
+  className="ml-2" // Added margin-left of 2 (tailwindcss class for spacing)
+>
+  x
+</button>
           </li>
         ))}
       </ul>
@@ -58,4 +61,4 @@ const AirportSidebar = ({ onAirportClick, setWeatherData }) => {
   );
 };
 
-export default AirportSidebar;
+export default AirportList;
