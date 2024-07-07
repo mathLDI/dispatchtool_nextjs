@@ -74,9 +74,9 @@ const AirportSearchForm = ({ fetchWeather }) => {
   };
 
   return (
-    <div className='flex-auto'>
-      <form onSubmit={handleSubmit} className="mb-4">
-        <div className="relative">
+    <div className='flex'>
+      <div className='flex-1 pt-4'>
+        <form onSubmit={handleSubmit} className="mb-4 relative">
           <input
             type="text"
             value={inputValue}
@@ -84,13 +84,19 @@ const AirportSearchForm = ({ fetchWeather }) => {
             placeholder="Enter ICAO codes"
             className="border p-2 rounded " // Adjust padding to make space for the icon
           />
-          <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 p-2   rounded flex items-center justify-center">
+          <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 p-2   rounded flex ">
             <SearchIcon className="h-5 w-5" />
           </button>
-        </div>         {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
-      </form>
-      <AirportList onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
+          {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
+        </form>
+      </div>
+      <div className='flex-1 '>
+        <AirportList onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
+      </div>
+
+
     </div>
+
   );
 };
 
