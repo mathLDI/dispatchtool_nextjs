@@ -1,11 +1,15 @@
-// src/app/dashboard/weather/WeatherForm.jsx
+// src/app/dashboard/weather/AirportSearchForm.jsx
+
+//this is the component that is used to search for airports 
+//and display the list of airports that have been added
+
 import React, { useState } from 'react';
 import AirportSidebar from '../../lib/component/AirportSidebar';
 import { useRccContext } from '../RccCalculatorContext';
 import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
 
 
-const WeatherForm = ({ fetchWeather }) => {
+const AirportSearchForm = ({ fetchWeather }) => {
   const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState('');
 
@@ -90,4 +94,4 @@ const WeatherForm = ({ fetchWeather }) => {
   );
 };
 
-export default WeatherForm;
+export default AirportSearchForm;

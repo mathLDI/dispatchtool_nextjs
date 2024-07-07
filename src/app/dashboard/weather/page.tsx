@@ -11,7 +11,7 @@ export default function Page() {
   };
 
   return (
-    <div className='h-full w-full flex'>
+    <div className='h-full w-full flex bg-rose-600'>
       <div className='h-full w-full'>
         <ClientComponent fetchWeather={handleFetchWeather} />
       </div>
