@@ -8,15 +8,19 @@ import AirportSearchForm from './AirportSearchForm'; // Import the new component
 /////////////////////////TAF FORMAT FUNCTION///////////////////////////
 // Updated function to format TAF text
 function formatTAF(tafText) {
-  const switchTerms = ["BECMG", "TEMPO", "PROB", "FM"];
-  const words = tafText.split(" ");
-  const processedWords = words.map((word, index) => {
-    if (switchTerms.includes(word)) {
-      return `${index > 0 ? '\n' : ''}${word}`;
-    }
-    return word;
-  });
-  return processedWords.join(" ").trim();
+  const switchTerms = ["BECMG", "TEMPO", "PROB30", "PROB40", "FM"];
+  const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
+
+  // Replace matched terms with a newline followed by the term
+  const formattedText = tafText.replace(regex, '\n$1').trim();
+
+  // Split the formatted text into lines to handle further formatting
+  const lines = formattedText.split('\n');
+
+  // Process each line to ensure proper alignment of weather elements
+  const processedLines = lines.map(line => line.trim().replace(/\s+/g, ' '));
+
+  return processedLines.join('\n');
 }
 ///////////////////////////////////////////////////////////////////////////////
 
