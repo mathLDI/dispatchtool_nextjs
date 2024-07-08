@@ -5,24 +5,35 @@ import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 import AirportSearchForm from './AirportSearchForm'; // Import the new component
 
-/////////////////////////TAF FORMAT FUNCTION///////////////////////////
-// Updated function to format TAF text
+// Function to format TAF text
 function formatTAF(tafText) {
+  if (!tafText) return '';
+
   const switchTerms = ["BECMG", "TEMPO", "PROB30", "PROB40", "FM"];
   const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
 
   // Replace matched terms with a newline followed by the term
-  const formattedText = tafText.replace(regex, '\n$1').trim();
+  const formattedText = tafText.replace(regex, '\n$1');
 
-  // Split the formatted text into lines to handle further formatting
+  // Split the formatted text into lines
   const lines = formattedText.split('\n');
 
-  // Process each line to ensure proper alignment of weather elements
-  const processedLines = lines.map(line => line.trim().replace(/\s+/g, ' '));
+  // Further process each line to ensure proper alignment of weather elements
+  const processedLines = [];
+  lines.forEach(line => {
+    const trimmedLine = line.trim();
+    if (switchTerms.some(term => trimmedLine.startsWith(term))) {
+      processedLines.push(trimmedLine);
+    } else if (processedLines.length > 0) {
+      const lastLine = processedLines.pop();
+      processedLines.push(lastLine + ' ' + trimmedLine);
+    } else {
+      processedLines.push(trimmedLine);
+    }
+  });
 
-  return processedLines.join('\n');
+  return processedLines.join('\n').trim();
 }
-///////////////////////////////////////////////////////////////////////////////
 
 export default function ClientComponent({ fetchWeather }) {
   const { weatherData, selectedAirport, setWeatherData } = useRccContext();
@@ -48,8 +59,8 @@ export default function ClientComponent({ fetchWeather }) {
       </div>
 
       <div className="flex-1 overflow-y-auto pt-16">
-        <div className="flex flex-wrap gap-4"> {/* Add flex-wrap and gap for responsiveness */}
-          <div className="flex-1 min-w-[500px]"> {/* Left container */}
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1 min-w-[500px]">
             <h1 className="py-5">METAR</h1>
             <Card title="Weather" className="bg-blue-200">
               <div>
@@ -87,7 +98,7 @@ export default function ClientComponent({ fetchWeather }) {
             </Card>
           </div>
           
-          <div className="flex-1 min-w-[500px]"> {/* Right container */}
+          <div className="flex-1 min-w-[500px]">
             <h1 className="py-5">NOTAM</h1>
             <Card title="Weather" className="bg-blue-200">
               <div>
