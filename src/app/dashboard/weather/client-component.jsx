@@ -37,9 +37,9 @@ function getFlightCategory(ceiling, visibility) {
     return { category: 'LIFR', color: 'text-pink-500' }; // Light pink for LIFR
   } else if (ceiling < 1000 || visibility < 3) {
     return { category: 'IFR', color: 'text-red-500' }; // Red for IFR
-  } else if (ceiling < 3000 || visibility < 5) {
+  } else if (ceiling < 3000 || visibility <= 5) {
     return { category: 'MVFR', color: 'text-blue-500' }; // Blue for MVFR
-  } else if (ceiling >= 3000 && visibility >= 5) {
+  } else if (ceiling >= 3000 && visibility > 5) {
     return { category: 'VFR', color: 'text-green-500' }; // Green for VFR
   } else {
     return { category: 'Unknown', color: 'text-gray-500' }; // Gray for Unknown
@@ -75,44 +75,45 @@ export default function ClientComponent({ fetchWeather }) {
             <h1 className="py-5">METAR</h1>
             <Card title="Weather" className="bg-blue-200">
               <div>
-                {weatherData && weatherData.data && weatherData.data.length > 0 ? (
-                  weatherData.data
-                    .filter((item) => item.type === 'metar')
-                    .sort((a, b) => {
-                      const timeA = a.text.match(/\d{4}Z/);
-                      const timeB = b.text.match(/\d{4}Z/);
-                      return timeB[0].localeCompare(timeA[0]);
-                    })
-                    .map((metar, index) => {
-                      const metarText = metar.text;
-                      const ceilingMatch = metarText.match(/(BKN|OVC|VV)(\d{3})/);
-                      const visibilityMatch = metarText.match(/(\d+(\s?\d?\/?\d*)?SM)/);
-                      const variableWindMatch = metarText.match(/\d{3}V\d{3}/);
+                {
+                  weatherData && weatherData.data && weatherData.data.length > 0 ? (
+                    weatherData.data
+                      .filter((item) => item.type === 'metar')
+                      .sort((a, b) => {
+                        const timeA = a.text.match(/\d{4}Z/);
+                        const timeB = b.text.match(/\d{4}Z/);
+                        return timeB[0].localeCompare(timeA[0]);
+                      })
+                      .map((metar, index) => {
+                        const metarText = metar.text;
+                        const ceilingMatch = metarText.match(/(BKN|OVC|VV)(\d{3})/);
+                        const visibilityMatch = metarText.match(/(\d+(\s?\d?\/?\d*)?SM)/);
 
-                      const ceiling = ceilingMatch ? parseInt(ceilingMatch[2]) * 100 : Infinity;
-                      const visibility = visibilityMatch ? parseFloat(visibilityMatch[1].replace(/\//, '.')) : Infinity;
+                        const ceiling = ceilingMatch ? parseInt(ceilingMatch[2]) * 100 : Infinity;
+                        const visibility = visibilityMatch ? parseFloat(visibilityMatch[1].replace(/\//, '.')) : Infinity;
 
-                      const { category, color } = getFlightCategory(ceiling, visibility);
+                        const { category, color } = getFlightCategory(ceiling, visibility);
 
-                      let formattedText = metarText;
-                      if ((category === 'IFR' || category === 'LIFR')) {
-                        if (ceilingMatch && (!variableWindMatch || metarText.indexOf(ceilingMatch[0]) < metarText.indexOf(variableWindMatch[0]))) {
-                          formattedText = formattedText.replace(ceilingMatch[0], `<strong>${ceilingMatch[0]}</strong>`);
+                        let formattedText = metarText;
+                        if (category === 'LIFR' || category === 'IFR') {
+                          if (ceilingMatch && (ceiling < 1000 || ceiling < 500)) {
+                            formattedText = formattedText.replace(ceilingMatch[0], `<strong>${ceilingMatch[0]}</strong>`);
+                          }
+                          if (visibilityMatch && (visibility < 3 || visibility < 1)) {
+                            formattedText = formattedText.replace(visibilityMatch[0], `<strong>${visibilityMatch[0]}</strong>`);
+                          }
                         }
-                        if (visibilityMatch) {
-                          formattedText = formattedText.replace(visibilityMatch[0], `<strong>${visibilityMatch[0]}</strong>`);
-                        }
-                      }
 
-                      return (
-                        <div key={index} className="mb-4">
-                          <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
-                        </div>
-                      );
-                    })
-                ) : (
-                  <p>No METAR data available</p>
-                )}
+                        return (
+                          <div key={index} className="mb-4">
+                            <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
+                          </div>
+                        );
+                      })
+                  ) : (
+                    <p>No METAR data available</p>
+                  )
+                }
               </div>
             </Card>
             <h1 className="py-5">TAF</h1>
@@ -130,7 +131,7 @@ export default function ClientComponent({ fetchWeather }) {
               </div>
             </Card>
           </div>
-          
+
           <div className="flex-1 min-w-[500px]">
             <h1 className="py-5">NOTAM</h1>
             <Card title="Weather" className="bg-blue-200">
