@@ -87,14 +87,15 @@ function getFlightCategory(ceiling, visibility) {
     return { category: 'LIFR', color: 'text-custom-lifr' }; // Custom pink for LIFR
   } else if (ceiling < 1000 || visibility < 3) {
     return { category: 'IFR', color: 'text-custom-ifr' }; // Red for IFR
-  } else if (ceiling < 3000 || visibility <= 5) {
+  } else if (ceiling <= 3000 || visibility <= 5) {
     return { category: 'MVFR', color: 'text-custom-mvfr' }; // Blue for MVFR
-  } else if (ceiling >= 3000 && visibility > 5) {
+  } else if (ceiling > 3000 && visibility > 5) {
     return { category: 'VFR', color: 'text-custom-vfr' }; // Custom green for VFR
   } else {
     return { category: 'Unknown', color: 'text-gray-500' }; // Gray for Unknown
   }
 }
+
 
 // Add the parseMETAR function here
 function parseMETAR(metarString) {
