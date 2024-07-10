@@ -17,6 +17,7 @@
 }
 
 body {
+  font-family: 'Helvetica', sans-serif;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -31,3 +32,38 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Additional classes for using the imported fonts */
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+.font-lusitana {
+  font-family: 'Lusitana', serif;
+}
+
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+
+.text-custom-lifr {
+  color: #ff40ff;
+}
+
+.text-custom-ifr {
+  color: #ff2700;; /* Replace with the exact hex code if different */
+}
+
+.text-custom-vfr {
+  color: #07c502;; /* Replace with the exact hex code if different */
+}
+
+.text-custom-mvfr {
+  color: #236ed8;; /* Replace with the exact hex code if different */
+}
+
+
+

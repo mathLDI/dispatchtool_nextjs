@@ -6,6 +6,7 @@ import { RccProvider } from './RccCalculatorContext';
 import { createPortal } from 'react-dom';
 import GlobalModalContent from '../lib/component/GlobalModalContent';
 import { LockClosedIcon, LockOpenIcon, CalculatorIcon } from '@heroicons/react/outline';
+import { inter, lusitana, roboto } from '../ui/fonts';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -43,11 +44,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     alignItems: 'center',
     padding: '24px',
     overflow: 'auto',
+    fontFamily: 'Roboto, sans-serif', // Set Roboto as the main font
   };
 
   return (
     <RccProvider>
-      <div className="flex min-h-screen">
+      <div className={`flex min-h-screen ${roboto.className}`}>
         <div
           style={sideNavStyles}
           onMouseEnter={() => setIsHovered(true)}
