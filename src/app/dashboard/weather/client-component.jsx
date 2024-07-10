@@ -12,7 +12,7 @@ function formatMetarText(metarText, category) {
   const visibilityRegex = /\b(\d+\/?\d*SM|\d+\/\d+SM)\b/;
   
   // Define specific terms to highlight
-  const termsToHighlight = ["\\+TSRA","\\TSRA","\\-TSRA","TS", "\\+TS", "\\-TS", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
+  const termsToHighlight = ["TS", "\\+TS", "\\-TS", "\\+TSRA", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
   const termsRegex = new RegExp(`(${termsToHighlight.join('|')})`, 'g');
 
   // Find matches for ceiling, visibility, and specific terms
@@ -136,11 +136,11 @@ export default function ClientComponent({ fetchWeather }) {
                   weatherData && weatherData.data && weatherData.data.length > 0 ? (
                     // Inside your component rendering logic for METAR data
                     weatherData.data
-                      .filter((item) => item.type === 'metar')
+                      .filter((item) => item.type === 'metar' || item.type === 'speci')
                       .sort((a, b) => {
-                        const timeA = a.text.match(/\d{4}Z/);
-                        const timeB = b.text.match(/\d{4}Z/);
-                        return timeB[0].localeCompare(timeA[0]);
+                        const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
+                        const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
+                        return timeB.localeCompare(timeA);
                       })
                       .map((metar, index) => {
                         const metarText = metar.text;
