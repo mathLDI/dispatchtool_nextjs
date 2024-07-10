@@ -12,7 +12,7 @@ function formatMetarText(metarText, category) {
   const visibilityRegex = /\b(\d+\/?\d*SM|\d+\/\d+SM)\b/;
   
   // Define specific terms to highlight
-  const termsToHighlight = ["TS", "\\+TS", "\\-TS", "\\+TSRA", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
+  const termsToHighlight = ["\\+SHRA", "\\-SHRA", "\\SHRA", "\\+TSRA", "\\-TSRA", "\\TSRA", "TS", "\\+TS", "\\-TS", "\\+BLSN", "BLSN", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
   const termsRegex = new RegExp(`(${termsToHighlight.join('|')})`, 'g');
 
   // Find matches for ceiling, visibility, and specific terms
@@ -38,7 +38,7 @@ function formatMetarText(metarText, category) {
   return metarText;
 }
 
-// Function to format TAF text
+// Function to format TAF text and apply flight category colors per line
 function formatTAF(tafText) {
   if (!tafText) return '';
 
@@ -61,7 +61,24 @@ function formatTAF(tafText) {
     }
   });
 
-  return processedLines.join('\n').trim();
+  return processedLines.map((line, index) => {
+    let ceiling = Infinity;
+    let visibility = Infinity;
+
+    const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
+    const visibilityMatch = line.match(/\b(\d+\/?\d*SM|\d+\/\d+SM)\b/);
+
+    if (ceilingMatch) {
+      ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
+    }
+    if (visibilityMatch) {
+      visibility = parseFloat(visibilityMatch[0].replace(/\//, '.'));
+    }
+
+    const { color } = getFlightCategory(ceiling, visibility);
+
+    return <p key={index} className={color}>{line}</p>;
+  });
 }
 
 // Function to determine flight category and corresponding text color
@@ -172,10 +189,6 @@ export default function ClientComponent({ fetchWeather }) {
               <div>
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   formatTAF(weatherData.data.find((item) => item.type === 'taf')?.text || 'No TAF data available')
-                    .split('\n')
-                    .map((line, index) => (
-                      <p key={index}>{line}</p>
-                    ))
                 ) : (
                   <p>No weather data available</p>
                 )}
