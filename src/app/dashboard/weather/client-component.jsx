@@ -64,16 +64,20 @@ function formatTAF(tafText) {
     let visibility = Infinity;
 
     const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(/\b(\d+\/?\d*SM|\d+\/\d+SM)\b/);
+    const visibilityMatch = line.match(/\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM)\b/);
 
     if (ceilingMatch) {
       ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
     }
     if (visibilityMatch) {
-      visibility = parseFloat(visibilityMatch[0].replace(/\//, '.'));
+      visibility = visibilityMatch[0].includes('/') 
+        ? parseFloat(visibilityMatch[0].split('/')[0]) / parseFloat(visibilityMatch[0].split('/')[1]) 
+        : parseFloat(visibilityMatch[0].replace('SM', ''));
     }
 
+    console.log(`Line: ${line}, Ceiling: ${ceiling}, Visibility: ${visibility}`);
     const { category, color } = getFlightCategory(ceiling, visibility);
+    console.log(`Category: ${category}, Color: ${color}`);
 
     if (index === 0) {
       firstLineCategory = category;
@@ -105,6 +109,7 @@ function getFlightCategory(ceiling, visibility) {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
+
 
 function parseMETAR(metarString) {
   const components = metarString.split(' ');
