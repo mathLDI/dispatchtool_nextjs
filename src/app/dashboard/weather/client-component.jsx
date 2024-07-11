@@ -9,7 +9,7 @@ function formatMetarText(metarText, ceiling, visibility, category) {
   const ceilingRegex = /\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/;
   const visibilityRegex = /\b(\d+\s?\d?\/?\d*SM|\d+\/\d+SM)\b/;
 
-  const termsToHighlight = ["\\+SHRA", "\\-SHRA", "\\SHRA", "\\+TSRA","\\TSRA", "\\-TSRA", "\\VCTS","\\+RA","RA", "TS", "\\+TS", "\\-TS", "\\+BLSN", "BLSN", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
+  const termsToHighlight = ["\\+SHRA", "\\-SHRA", "\\SHRA", "\\+TSRA", "\\TSRA", "\\-TSRA", "\\VCTS", "\\+RA", "RA", "TS", "\\+TS", "\\-TS", "\\+BLSN", "BLSN", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
   const termsRegex = new RegExp(`(${termsToHighlight.join('|')})`, 'g');
 
   const ceilingMatch = metarText.match(ceilingRegex);
@@ -54,6 +54,11 @@ function formatTAF(tafText) {
     }
   });
 
+  let currentCategory = 'Unknown';
+  let currentColor = 'text-gray-500';
+  let firstLineCategory = 'Unknown';
+  let firstLineColor = 'text-gray-500';
+
   return processedLines.map((line, index) => {
     let ceiling = Infinity;
     let visibility = Infinity;
@@ -68,9 +73,21 @@ function formatTAF(tafText) {
       visibility = parseFloat(visibilityMatch[0].replace(/\//, '.'));
     }
 
-    const { color } = getFlightCategory(ceiling, visibility);
+    const { category, color } = getFlightCategory(ceiling, visibility);
 
-    return <p key={index} className={color}>{line}</p>;
+    if (index === 0) {
+      firstLineCategory = category;
+      firstLineColor = color;
+    }
+
+    if (line.startsWith('FM')) {
+      currentCategory = category;
+      currentColor = color;
+    }
+
+    const lineColor = ceiling !== Infinity || visibility !== Infinity ? color : (currentColor !== 'text-gray-500' ? currentColor : firstLineColor);
+
+    return <p key={index} className={lineColor}>{line}</p>;
   });
 }
 
