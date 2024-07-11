@@ -152,6 +152,11 @@ export default function ClientComponent({ fetchWeather }) {
     }
   }, [weatherData]);
 
+  const extractTextBeforeFR = (text) => {
+    const frIndex = text.indexOf('FR:');
+    return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
+  };
+
   return (
     <div className="flex h-full">
       <div className="fixed z-10">
@@ -209,13 +214,18 @@ export default function ClientComponent({ fetchWeather }) {
               <div>
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   weatherData.data.filter((item) => item.type === 'notam').length > 0 ? (
-                    weatherData.data.filter((item) => item.type === 'notam').map((notam, index) => (
-                      <div key={index} className="mb-4">
-                        {notam.text.split('\n').map((line, lineIndex) => (
-                          <p key={lineIndex} className="mb-1">{line}</p>
-                        ))}
-                      </div>
-                    ))
+                    weatherData.data.filter((item) => item.type === 'notam').map((notam, index) => {
+                      const notamText = JSON.parse(notam.text);
+                      const displayText = extractTextBeforeFR(notamText.raw);
+
+                      return (
+                        <div key={index} className="mb-4">
+                          {displayText.split('\n').map((line, lineIndex) => (
+                            <p key={lineIndex} className="mb-1">{line}</p>
+                          ))}
+                        </div>
+                      );
+                    })
                   ) : (
                     <p>No NOTAM data available</p>
                   )
