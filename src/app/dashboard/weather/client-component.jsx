@@ -9,7 +9,7 @@ function formatMetarText(metarText, ceiling, visibility, category) {
   const ceilingRegex = /\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/;
   const visibilityRegex = /\b(\d+\s?\d?\/?\d*SM|\d+\/\d+SM)\b/;
 
-  const termsToHighlight = ["\\+SHRA", "\\-SHRA", "\\SHRA", "\\+TSRA", "\\-TSRA", "\\TSRA", "TS", "\\+TS", "\\-TS", "\\+BLSN", "BLSN", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
+  const termsToHighlight = ["\\+SHRA", "\\-SHRA", "\\SHRA", "\\+TSRA","\\TSRA", "\\-TSRA", "\\VCTS","\\+RA","RA", "TS", "\\+TS", "\\-TS", "\\+BLSN", "BLSN", "SN", "\\+SN", "LLWS", "CB", "SQ", "FC", "BL", "SH", "\\+SH", "\\-SH", "GR", "\\+FZ", "FZ"];
   const termsRegex = new RegExp(`(${termsToHighlight.join('|')})`, 'g');
 
   const ceilingMatch = metarText.match(ceilingRegex);
