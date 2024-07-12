@@ -66,8 +66,8 @@ function formatTAF(tafText) {
       ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
     }
     if (visibilityMatch) {
-      visibility = visibilityMatch[0].includes('/') 
-        ? parseFloat(visibilityMatch[0].split('/')[0]) / parseFloat(visibilityMatch[0].split('/')[1]) 
+      visibility = visibilityMatch[0].includes('/')
+        ? parseFloat(visibilityMatch[0].split('/')[0]) / parseFloat(visibilityMatch[0].split('/')[1])
         : parseFloat(visibilityMatch[0].replace('SM', ''));
     }
 
@@ -138,29 +138,46 @@ function parseNotamDate(dateString) {
   const minute = parseInt(dateString.slice(8, 10), 10);
   return new Date(Date.UTC(year, month, day, hour, minute));
 }
+function categorizeNotams(notams) {
+  const now = new Date();
+  const todayStart = new Date(now);
+  todayStart.setUTCHours(0, 0, 0, 0); // Set to the start of the day in UTC
+  const todayEnd = new Date(now);
+  todayEnd.setUTCHours(23, 59, 59, 999); // Set to the end of the day in UTC
 
-function filterActiveNotams(notams) {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0); // Set to the start of the day in UTC
-  const tomorrow = new Date(today);
-  tomorrow.setUTCDate(today.getUTCDate() + 1);
+  const last7Days = new Date(todayStart);
+  last7Days.setUTCDate(todayStart.getUTCDate() - 7);
 
-  return notams.filter(notam => {
+  const last30Days = new Date(todayStart);
+  last30Days.setUTCDate(todayStart.getUTCDate() - 30);
+
+  const futureNotams = [];
+  const todayNotams = [];
+  const last7DaysNotams = [];
+  const last30DaysNotams = [];
+  const olderNotams = [];
+
+  notams.forEach(notam => {
     const startMatch = notam.text.match(/B\)\s*(\d{10})/);
-    const endMatch = notam.text.match(/C\)\s*(\d{10})/);
 
-    if (!startMatch || !endMatch) return false;
+    if (!startMatch) return;
 
     const startDate = parseNotamDate(startMatch[1]);
-    const endDate = parseNotamDate(endMatch[1]);
 
-    console.log(`NOTAM Start Date: ${startDate}`);
-    console.log(`NOTAM End Date: ${endDate}`);
-    console.log(`Today's Date: ${today}`);
-    console.log(`Tomorrow's Date: ${tomorrow}`);
-
-    return startDate < tomorrow && endDate >= today;
+    if (startDate > now) {
+      futureNotams.push({ ...notam, startDate });
+    } else if (startDate >= todayStart && startDate <= todayEnd) {
+      todayNotams.push({ ...notam, startDate });
+    } else if (startDate > last7Days) {
+      last7DaysNotams.push({ ...notam, startDate });
+    } else if (startDate > last30Days) {
+      last30DaysNotams.push({ ...notam, startDate });
+    } else {
+      olderNotams.push({ ...notam, startDate });
+    }
   });
+
+  return { futureNotams, todayNotams, last7DaysNotams, last30DaysNotams, olderNotams };
 }
 
 export default function ClientComponent({ fetchWeather }) {
@@ -185,8 +202,31 @@ export default function ClientComponent({ fetchWeather }) {
     return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
   };
 
-  const activeNotams = weatherData ? filterActiveNotams(weatherData.data.filter(item => item.type === 'notam')) : [];
+  const categorizedNotams = weatherData ? categorizeNotams(weatherData.data.filter(item => item.type === 'notam')) : {};
 
+  const renderNotams = (notams, title) => (
+    <div>
+      <h2 className="text-lg font-bold">{title}</h2>
+      {notams.length > 0 ? (
+        notams.map((notam, index) => {
+          const notamText = JSON.parse(notam.text);
+          const displayText = extractTextBeforeFR(notamText.raw);
+  
+          return (
+            <div key={index} className="mb-4">
+              {displayText.split('\n').map((line, lineIndex) => (
+                <p key={lineIndex} className="mb-1">{line}</p>
+              ))}
+              <p>Start Date: {notam.startDate.toUTCString()}</p>
+            </div>
+          );
+        })
+      ) : (
+        <p>No NOTAM data available</p>
+      )}
+    </div>
+  );
+  
   return (
     <div className="flex h-full">
       <div className="fixed z-10">
@@ -199,31 +239,29 @@ export default function ClientComponent({ fetchWeather }) {
             <h1 className="py-5">METAR</h1>
             <Card title="Weather" className="bg-blue-200">
               <div>
-                {
-                  weatherData && weatherData.data && weatherData.data.length > 0 ? (
-                    weatherData.data
-                      .filter((item) => item.type === 'metar' || item.type === 'speci')
-                      .sort((a, b) => {
-                        const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
-                        const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
-                        return timeB.localeCompare(timeA);
-                      })
-                      .map((metar, index) => {
-                        const parsedMetar = parseMETAR(metar.text);
-                        const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
+                {weatherData && weatherData.data && weatherData.data.length > 0 ? (
+                  weatherData.data
+                    .filter((item) => item.type === 'metar' || item.type === 'speci')
+                    .sort((a, b) => {
+                      const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
+                      const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
+                      return timeB.localeCompare(timeA);
+                    })
+                    .map((metar, index) => {
+                      const parsedMetar = parseMETAR(metar.text);
+                      const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
 
-                        const formattedText = formatMetarText(metarString, ceiling, visibilityValue, category);
+                      const formattedText = formatMetarText(metarString, ceiling, visibilityValue, category);
 
-                        return (
-                          <div key={index} className="mb-4">
-                            <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
-                          </div>
-                        );
-                      })
-                  ) : (
-                    <p>No METAR data available</p>
-                  )
-                }
+                      return (
+                        <div key={index} className="mb-4">
+                          <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <p>No METAR data available</p>
+                )}
               </div>
             </Card>
             <h1 className="py-5">TAF</h1>
@@ -241,64 +279,11 @@ export default function ClientComponent({ fetchWeather }) {
           <div className="flex-1 min-w-[500px]">
             <h1 className="py-5">NOTAM</h1>
             <Card title="Weather" className="bg-blue-200">
-              <div>
-                <h2 className="text-lg font-bold">TODAY</h2>
-                {activeNotams.length > 0 ? (
-                  activeNotams.map((notam, index) => {
-                    const notamText = JSON.parse(notam.text);
-                    const displayText = extractTextBeforeFR(notamText.raw);
-                    const startMatch = notam.text.match(/B\)\s*(\d{10})/);
-                    const endMatch = notam.text.match(/C\)\s*(\d{10})/);
-
-                    if (!startMatch || !endMatch) return null;
-
-                    const startDate = parseNotamDate(startMatch[1]);
-                    const endDate = parseNotamDate(endMatch[1]);
-
-                    return (
-                      <div key={index} className="mb-4">
-                        {displayText.split('\n').map((line, lineIndex) => (
-                          <p key={lineIndex} className="mb-1">{line}</p>
-                        ))}
-                        <p>Start Date: {startDate.toUTCString()}</p>
-                        <p>End Date: {endDate.toUTCString()}</p>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p>No active NOTAMs for today</p>
-                )}
-                <h2 className="text-lg font-bold mt-4">ALL</h2>
-                {weatherData && weatherData.data && weatherData.data.length > 0 ? (
-                  weatherData.data.filter((item) => item.type === 'notam').length > 0 ? (
-                    weatherData.data.filter((item) => item.type === 'notam').map((notam, index) => {
-                      const notamText = JSON.parse(notam.text);
-                      const displayText = extractTextBeforeFR(notamText.raw);
-                      const startMatch = notam.text.match(/B\)\s*(\d{10})/);
-                      const endMatch = notam.text.match(/C\)\s*(\d{10})/);
-
-                      if (!startMatch || !endMatch) return null;
-
-                      const startDate = parseNotamDate(startMatch[1]);
-                      const endDate = parseNotamDate(endMatch[1]);
-
-                      return (
-                        <div key={index} className="mb-4">
-                          {displayText.split('\n').map((line, lineIndex) => (
-                            <p key={lineIndex} className="mb-1">{line}</p>
-                          ))}
-                          <p>Start Date: {startDate.toUTCString()}</p>
-                          <p>End Date: {endDate.toUTCString()}</p>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p>No NOTAM data available</p>
-                  )
-                ) : (
-                  <p>No weather data available</p>
-                )}
-              </div>
+              {renderNotams(categorizedNotams.futureNotams || [], 'FUTURE')}
+              {renderNotams(categorizedNotams.todayNotams || [], 'TODAY')}
+              {renderNotams(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+              {renderNotams(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+              {renderNotams(categorizedNotams.olderNotams || [], 'OLDER')}
             </Card>
           </div>
         </div>
