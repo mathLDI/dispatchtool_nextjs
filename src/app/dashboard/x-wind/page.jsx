@@ -81,8 +81,6 @@ const SecondPageCrosswindCalculator = () => {
     }, []); // assuming aircraftType is the state you are updating
 
 
-    console.log("CrosswindComponent:", CrosswindComp)
-
     return (
 
         <div>

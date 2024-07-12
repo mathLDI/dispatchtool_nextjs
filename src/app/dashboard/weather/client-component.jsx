@@ -15,10 +15,6 @@ function formatMetarText(metarText, ceiling, visibility, category) {
   const ceilingMatch = metarText.match(ceilingRegex);
   const visibilityMatch = metarText.match(visibilityRegex);
 
-  console.log('Category:', category);
-  console.log('Ceiling Match:', ceilingMatch);
-  console.log('Visibility Match:', visibilityMatch);
-
   if (category === 'LIFR' || category === 'IFR') {
     if (ceiling < 1000 && ceilingMatch) {
       metarText = metarText.replace(ceilingMatch[0], `<strong>${ceilingMatch[0]}</strong>`);
@@ -75,9 +71,7 @@ function formatTAF(tafText) {
         : parseFloat(visibilityMatch[0].replace('SM', ''));
     }
 
-    console.log(`Line: ${line}, Ceiling: ${ceiling}, Visibility: ${visibility}`);
     const { category, color } = getFlightCategory(ceiling, visibility);
-    console.log(`Category: ${category}, Color: ${color}`);
 
     if (index === 0) {
       firstLineCategory = category;
@@ -96,7 +90,6 @@ function formatTAF(tafText) {
 }
 
 function getFlightCategory(ceiling, visibility) {
-  console.log(`Evaluating flight category with ceiling: ${ceiling}, visibility: ${visibility}`);
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
   } else if (ceiling < 1000 || visibility < 3) {
@@ -109,7 +102,6 @@ function getFlightCategory(ceiling, visibility) {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
-
 
 function parseMETAR(metarString) {
   const components = metarString.split(' ');
@@ -135,9 +127,40 @@ function parseMETAR(metarString) {
   }
 
   const { category, color } = getFlightCategory(ceiling, visibilityValue);
-  console.log(`Parsed METAR: ${metarString}`);
-  console.log(`Ceiling: ${ceiling}, Visibility: ${visibilityValue}, Category: ${category}, Color: ${color}`);
   return { metarString, ceiling, visibilityValue, category, color };
+}
+
+function parseNotamDate(dateString) {
+  const year = parseInt('20' + dateString.slice(0, 2), 10);
+  const month = parseInt(dateString.slice(2, 4), 10) - 1; // Months are 0-based in JS Date
+  const day = parseInt(dateString.slice(4, 6), 10);
+  const hour = parseInt(dateString.slice(6, 8), 10);
+  const minute = parseInt(dateString.slice(8, 10), 10);
+  return new Date(Date.UTC(year, month, day, hour, minute));
+}
+
+function filterActiveNotams(notams) {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0); // Set to the start of the day in UTC
+  const tomorrow = new Date(today);
+  tomorrow.setUTCDate(today.getUTCDate() + 1);
+
+  return notams.filter(notam => {
+    const startMatch = notam.text.match(/B\)\s*(\d{10})/);
+    const endMatch = notam.text.match(/C\)\s*(\d{10})/);
+
+    if (!startMatch || !endMatch) return false;
+
+    const startDate = parseNotamDate(startMatch[1]);
+    const endDate = parseNotamDate(endMatch[1]);
+
+    console.log(`NOTAM Start Date: ${startDate}`);
+    console.log(`NOTAM End Date: ${endDate}`);
+    console.log(`Today's Date: ${today}`);
+    console.log(`Tomorrow's Date: ${tomorrow}`);
+
+    return startDate < tomorrow && endDate >= today;
+  });
 }
 
 export default function ClientComponent({ fetchWeather }) {
@@ -161,6 +184,8 @@ export default function ClientComponent({ fetchWeather }) {
     const frIndex = text.indexOf('FR:');
     return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
   };
+
+  const activeNotams = weatherData ? filterActiveNotams(weatherData.data.filter(item => item.type === 'notam')) : [];
 
   return (
     <div className="flex h-full">
@@ -217,17 +242,53 @@ export default function ClientComponent({ fetchWeather }) {
             <h1 className="py-5">NOTAM</h1>
             <Card title="Weather" className="bg-blue-200">
               <div>
+                <h2 className="text-lg font-bold">TODAY</h2>
+                {activeNotams.length > 0 ? (
+                  activeNotams.map((notam, index) => {
+                    const notamText = JSON.parse(notam.text);
+                    const displayText = extractTextBeforeFR(notamText.raw);
+                    const startMatch = notam.text.match(/B\)\s*(\d{10})/);
+                    const endMatch = notam.text.match(/C\)\s*(\d{10})/);
+
+                    if (!startMatch || !endMatch) return null;
+
+                    const startDate = parseNotamDate(startMatch[1]);
+                    const endDate = parseNotamDate(endMatch[1]);
+
+                    return (
+                      <div key={index} className="mb-4">
+                        {displayText.split('\n').map((line, lineIndex) => (
+                          <p key={lineIndex} className="mb-1">{line}</p>
+                        ))}
+                        <p>Start Date: {startDate.toUTCString()}</p>
+                        <p>End Date: {endDate.toUTCString()}</p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>No active NOTAMs for today</p>
+                )}
+                <h2 className="text-lg font-bold mt-4">ALL</h2>
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   weatherData.data.filter((item) => item.type === 'notam').length > 0 ? (
                     weatherData.data.filter((item) => item.type === 'notam').map((notam, index) => {
                       const notamText = JSON.parse(notam.text);
                       const displayText = extractTextBeforeFR(notamText.raw);
+                      const startMatch = notam.text.match(/B\)\s*(\d{10})/);
+                      const endMatch = notam.text.match(/C\)\s*(\d{10})/);
+
+                      if (!startMatch || !endMatch) return null;
+
+                      const startDate = parseNotamDate(startMatch[1]);
+                      const endDate = parseNotamDate(endMatch[1]);
 
                       return (
                         <div key={index} className="mb-4">
                           {displayText.split('\n').map((line, lineIndex) => (
                             <p key={lineIndex} className="mb-1">{line}</p>
                           ))}
+                          <p>Start Date: {startDate.toUTCString()}</p>
+                          <p>End Date: {endDate.toUTCString()}</p>
                         </div>
                       );
                     })

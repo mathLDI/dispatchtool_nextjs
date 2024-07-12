@@ -49,7 +49,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
       // Add each new airport
       const newAirport = { id: code, name: `Airport ${code}`, code: code };
       addAirportValue(newAirport);
-      console.log(`Added airport: ${code}`);
+    
     }
 
     setError('');
@@ -57,7 +57,6 @@ const AirportSearchForm = ({ fetchWeather }) => {
     if (airportCodes.length > 0) {
       const firstAirportCode = airportCodes[0];
       const data = await fetchWeather(firstAirportCode);
-      console.log('Fetched Weather Data:', data); // Log the fetched weather data
       setWeatherData(data);
       setSelectedAirport({ id: firstAirportCode, name: `Airport ${firstAirportCode}`, code: firstAirportCode });
     }
@@ -68,7 +67,6 @@ const AirportSearchForm = ({ fetchWeather }) => {
 
   const handleAirportClick = async (airportCode) => {
     const data = await fetchWeather(airportCode);
-    console.log('Fetched Weather Data for:', airportCode, data); // Log the fetched weather data
     setWeatherData(data);
     setSelectedAirport({ id: airportCode, name: `Airport ${airportCode}`, code: airportCode });
   };
