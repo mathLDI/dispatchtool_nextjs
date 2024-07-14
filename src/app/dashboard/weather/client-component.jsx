@@ -204,14 +204,23 @@ export default function ClientComponent({ fetchWeather }) {
 
   const categorizedNotams = weatherData ? categorizeNotams(weatherData.data.filter(item => item.type === 'notam')) : {};
 
-  const renderNotams = (notams, title) => (
-    <div>
-      <h2 className="text-lg font-bold">{title}</h2>
-      {notams.length > 0 ? (
-        notams.map((notam, index) => {
-          const notamText = JSON.parse(notam.text);
-          const displayText = extractTextBeforeFR(notamText.raw);
-  
+
+  ///FUNCTION for NOTAMs with Q-Line that have an "A" and "AE///"
+
+ ///FUNCTION for NOTAMs with Q-Line that have an "A"///
+const renderNotamsAandAE = (notams, title) => (
+  <div>
+    <h2 className="text-lg font-bold">{title}</h2>
+    {notams.length > 0 ? (
+      notams.map((notam, index) => {
+        const notamText = JSON.parse(notam.text);
+        const displayText = extractTextBeforeFR(notamText.raw);
+
+        // Better regex to ensure correct parsing: Match everything after 'Q)' until the fifth '/'
+        const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+
+        // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'A'
+        if (qLineMatch && qLineMatch[2].startsWith('A')) {
           return (
             <div key={index} className="mb-4">
               {displayText.split('\n').map((line, lineIndex) => (
@@ -220,12 +229,79 @@ export default function ClientComponent({ fetchWeather }) {
               <p>Start Date: {notam.startDate.toUTCString()}</p>
             </div>
           );
-        })
-      ) : (
-        <p>No NOTAM data available</p>
-      )}
-    </div>
-  );
+        }
+        return null; // Don't render this NOTAM if it doesn't meet the condition
+      })
+    ) : (
+      <p>No NOTAM data available</p>
+    )}
+  </div>
+);
+
+///FUNCTION for NOTAMs with Q-Line that have an "E"///
+const renderNotamsE = (notams, title) => (
+  <div>
+    <h2 className="text-lg font-bold">{title}</h2>
+    {notams.length > 0 ? (
+      notams.map((notam, index) => {
+        const notamText = JSON.parse(notam.text);
+        const displayText = extractTextBeforeFR(notamText.raw);
+
+        // Better regex to ensure correct parsing: Match everything after 'Q)' until the fifth '/'
+        const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+
+        // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'E'
+        if (qLineMatch && qLineMatch[2].startsWith('E')) {
+          return (
+            <div key={index} className="mb-4">
+              {displayText.split('\n').map((line, lineIndex) => (
+                <p key={lineIndex} className="mb-1">{line}</p>
+              ))}
+              <p>Start Date: {notam.startDate.toUTCString()}</p>
+            </div>
+          );
+        }
+        return null; // Don't render this NOTAM if it doesn't meet the condition
+      })
+    ) : (
+      <p>No NOTAM data available</p>
+    )}
+  </div>
+);
+
+///FUNCTION for NOTAMs with Q-Line that have a "W"///
+const renderNotamsW = (notams, title) => (
+  <div>
+    <h2 className="text-lg font-bold">{title}</h2>
+    {notams.length > 0 ? (
+      notams.map((notam, index) => {
+        const notamText = JSON.parse(notam.text);
+        const displayText = extractTextBeforeFR(notamText.raw);
+
+        // Better regex to ensure correct parsing: Match everything after 'Q)' until the fifth '/'
+        const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+
+        // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'W'
+        if (qLineMatch && qLineMatch[2].startsWith('W')) {
+          return (
+            <div key={index} className="mb-4">
+              {displayText.split('\n').map((line, lineIndex) => (
+                <p key={lineIndex} className="mb-1">{line}</p>
+              ))}
+              <p>Start Date: {notam.startDate.toUTCString()}</p>
+            </div>
+          );
+        }
+        return null; // Don't render this NOTAM if it doesn't meet the condition
+      })
+    ) : (
+      <p>No NOTAM data available</p>
+    )}
+  </div>
+);
+
+
+
   
   return (
     <div className="flex h-full">
@@ -276,16 +352,44 @@ export default function ClientComponent({ fetchWeather }) {
             </Card>
           </div>
 
-          <div className="flex-1 min-w-[500px]">
+          <div className="flex  min-w-[500px]">
             <h1 className="py-5">NOTAM</h1>
-            <Card title="Weather" className="bg-blue-200">
-              {renderNotams(categorizedNotams.futureNotams || [], 'FUTURE')}
-              {renderNotams(categorizedNotams.todayNotams || [], 'TODAY')}
-              {renderNotams(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
-              {renderNotams(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
-              {renderNotams(categorizedNotams.olderNotams || [], 'OLDER')}
+            
+            <div>
+            <h1 className="py-5">AERODROME</h1>
+
+            <Card title="NOTAM AERODROME" className="bg-blue-200">
+              {renderNotamsAandAE(categorizedNotams.futureNotams || [], 'FUTURE')}
+              {renderNotamsAandAE(categorizedNotams.todayNotams || [], 'TODAY')}
+              {renderNotamsAandAE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+              {renderNotamsAandAE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+              {renderNotamsAandAE(categorizedNotams.olderNotams || [], 'OLDER')}
+            </Card>
+            </div>
+          <div>
+          <h1 className="py-5">ENROUTE</h1>
+
+          <Card title="NOTAM ENROUTE" className="bg-blue-200">
+              {renderNotamsE(categorizedNotams.futureNotams || [], 'FUTURE')}
+              {renderNotamsE(categorizedNotams.todayNotams || [], 'TODAY')}
+              {renderNotamsE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+              {renderNotamsE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+              {renderNotamsE(categorizedNotams.olderNotams || [], 'OLDER')}
             </Card>
           </div>
+           <div>
+           <h1 className="py-5">WARNING</h1>
+
+           <Card title="NOTAM WARNING" className="bg-blue-200">
+              {renderNotamsW(categorizedNotams.futureNotams || [], 'FUTURE')}
+              {renderNotamsW(categorizedNotams.todayNotams || [], 'TODAY')}
+              {renderNotamsW(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+              {renderNotamsW(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+              {renderNotamsW(categorizedNotams.olderNotams || [], 'OLDER')}
+            </Card>
+           </div>
+          </div>
+
         </div>
       </div>
     </div>
