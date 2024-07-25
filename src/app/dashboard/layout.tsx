@@ -7,10 +7,7 @@ import { createPortal } from 'react-dom';
 import GlobalModalContent from '../lib/component/GlobalModalContent';
 import { LockClosedIcon, LockOpenIcon, CalculatorIcon } from '@heroicons/react/outline';
 import { inter, lusitana, roboto } from '../ui/fonts';
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
+interface LayoutProps {/*...*/}
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
@@ -66,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <div style={mainContentStyle}>
           {children}
-          <button onClick={() => setShowModal(true)} className="fixed bottom-4 right-4 px-4 py-2 bg-blue-500 text-white rounded flex items-center">
+          <button onClick={() => setShowModal(!showModal)} className="fixed bottom-4 right-4 px-4 py-2 bg-blue-500 text-white rounded flex items-center">
             X-Wind
             <CalculatorIcon className="h-5 w-5 text-white ml-2" />
           </button>
