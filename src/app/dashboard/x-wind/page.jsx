@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import Card from '../../lib/component/Card';
@@ -65,40 +67,44 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
     }, []);
 
     return (
-        <div className="flex flex-col bg-amber-500 p-4 space-y-4">
-            <Card cardTitle={"Crosswind Calculator"} status={null}>
+        <div className="flex flex-col flex-wrap bg-amber-500 p-4 space-x-4"> {/* Use flex-wrap to allow wrapping */}
+
+            <Card cardTitle={"Crosswind Calculator"} status={null} className="w-full sm:w-auto">
                 <div className="space-y-4">
-                    <div className="flex flex-row justify-between items-center">
-                        <div>Aircraft type: </div>
-                        <ChoiceListbox
-                            value={aircraftType}
-                            choices={buttonAircraftType}
-                            callback={setAircraftType}
-                            reset={resetListBox}
-                            resetCallback={resetListbox1Handler}
-                        />
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                        <div>Runway Heading:</div>
-                        <input
-                            className="flex bg-white border rounded p-1"
-                            type="number"
-                            max={360}
-                            min={0}
-                            value={runwayHeading}
-                            onChange={(e) => {
-                                const v = e.target.value;
-                                if (!isNaN(v) && v >= 0 && v <= 360) {
-                                    setRunwayHeading(v);
-                                }
-                            }}
-                            onFocus={onFocus}
-                            onBlur={onBlur}
-                        />
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                        <div>Magnetic Variation:</div>
-                        <div className="flex items-center space-x-2">
+
+                    <div className="flex flex-col">
+                        <div className="flex justify-between items-center mb-2">
+                            <div>Aircraft type: </div>
+                            <ChoiceListbox
+                                value={aircraftType}
+                                choices={buttonAircraftType}
+                                callback={setAircraftType}
+                                reset={resetListBox}
+                                resetCallback={resetListbox1Handler}
+                            />
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2">
+                            <div>Runway Heading:</div>
+                            <input
+                                className="bg-white border rounded p-1 w-24"
+                                type="number"
+                                max={360}
+                                min={0}
+                                value={runwayHeading}
+                                onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (!isNaN(v) && v >= 0 && v <= 360) {
+                                        setRunwayHeading(v);
+                                    }
+                                }}
+                                onFocus={onFocus}
+                                onBlur={onBlur}
+                            />
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2">
+                            <div>Magnetic Variation:</div>
                             <ChoiceListbox
                                 value={eastOrWestVar}
                                 choices={buttonEastOrWest}
@@ -107,7 +113,7 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
                                 resetCallback={resetListbox1Handler}
                             />
                             <input
-                                className="flex bg-white border rounded p-1"
+                                className="bg-white border rounded p-1 w-16 ml-2"
                                 type="number"
                                 max={20}
                                 min={0}
@@ -122,66 +128,69 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
                                 onBlur={onBlur}
                             />
                         </div>
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                        <div>Wind Direction:</div>
-                        <input
-                            className="flex bg-white border rounded p-1"
-                            type="number"
-                            max={360}
-                            min={0}
-                            value={integerWindDirection}
-                            onChange={(e) => {
-                                const v = e.target.value;
-                                if (!isNaN(v) && v >= 0 && v <= 360) {
-                                    setWindDirection(v);
-                                }
-                            }}
-                            onFocus={onFocus}
-                            onBlur={onBlur}
-                        />
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                        <div>Wind Speed:</div>
-                        <input
-                            className="flex bg-white border rounded p-1"
-                            type="number"
-                            max={200}
-                            min={0}
-                            value={integerWindSpeed}
-                            onChange={(e) => {
-                                const v = e.target.value;
-                                if (!isNaN(v) && v >= 0) {
-                                    setWindSpeed(v);
-                                }
-                            }}
-                            onFocus={onFocus}
-                            onBlur={onBlur}
-                        />
-                    </div>
-                    <div>
-                        <CustomButton
-                            title={"Reset"} onClickCallback={resetButtonHandler} />
+
+                        <div className="flex justify-between items-center mb-2">
+                            <div>Wind Direction:</div>
+                            <input
+                                className="bg-white border rounded p-1 w-24"
+                                type="number"
+                                max={360}
+                                min={0}
+                                value={integerWindDirection}
+                                onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (!isNaN(v) && v >= 0 && v <= 360) {
+                                        setWindDirection(v);
+                                    }
+                                }}
+                                onFocus={onFocus}
+                                onBlur={onBlur}
+                            />
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2">
+                            <div>Wind Speed:</div>
+                            <input
+                                className="bg-white border rounded p-1 w-24"
+                                type="number"
+                                max={200}
+                                min={0}
+                                value={integerWindSpeed}
+                                onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (!isNaN(v) && v >= 0) {
+                                        setWindSpeed(v);
+                                    }
+                                }}
+                                onFocus={onFocus}
+                                onBlur={onBlur}
+                            />
+                        </div>
+
+                        <div>
+                            <CustomButton
+                                title={"Reset"} onClickCallback={resetButtonHandler} />
+                        </div>
                     </div>
                 </div>
             </Card>
-            <div>
-                <Card cardTitle={"Results Crosswind"} status={callDxp}>
-                    <div className="space-y-2">
-                        <div className="flex flex-row justify-between">
-                            <div>{HeadwindTailwindComp < 0 ? 'Tailwind:' : 'Headwind:'}</div>
-                            <div>{HeadwindTailwindComponentNoNegOneDigit} kts</div>
-                        </div>
-                        <div className="flex flex-row justify-between">
-                            <div>
-                                {CrosswindComp === 0 ? 'No Crosswind:' : (CrosswindComp < 0 ? 'Left Crosswind:' : 'Right Crosswind:')}
-                            </div>
-                            <div>{CrosswindComponentNoNegOneDigit} kts</div>
-                        </div>
+
+            <Card cardTitle={"Results Crosswind"} status={callDxp} className="w-full sm:w-auto">
+                <div className="space-y-2">
+                    <div className="flex justify-between">
+                        <div>{HeadwindTailwindComp < 0 ? 'Tailwind:' : 'Headwind:'}</div>
+                        <div>{HeadwindTailwindComponentNoNegOneDigit} kts</div>
                     </div>
-                </Card>
-            </div>
-            <div className="space-y-2">
+                    <div className="flex justify-between">
+                        <div>
+                            {CrosswindComp === 0 ? 'No Crosswind:' : (CrosswindComp < 0 ? 'Left Crosswind:' : 'Right Crosswind:')}
+                        </div>
+                        <div>{CrosswindComponentNoNegOneDigit} kts</div>
+                    </div>
+                </div>
+            </Card>
+
+            <div className="space-y-2 w-full sm:w-auto">
                 {aircraftType === "DHC-8" && CrosswindComponentNoNegOneDigit > 36 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Crosswind
