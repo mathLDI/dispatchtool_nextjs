@@ -313,7 +313,7 @@ const renderNotamsW = (notams, title) => (
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[500px]">
             <h1 className="py-5">METAR</h1>
-            <Card title="Weather" className="bg-blue-200">
+            <Card title="Weather">
               <div>
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   weatherData.data
@@ -341,7 +341,7 @@ const renderNotamsW = (notams, title) => (
               </div>
             </Card>
             <h1 className="py-5">TAF</h1>
-            <Card title="Weather" className="bg-blue-200">
+            <Card title="Weather">
               <div>
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   formatTAF(weatherData.data.find((item) => item.type === 'taf')?.text || 'No TAF data available')

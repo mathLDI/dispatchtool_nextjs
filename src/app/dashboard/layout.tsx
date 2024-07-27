@@ -7,7 +7,10 @@ import { createPortal } from 'react-dom';
 import GlobalModalContent from '../lib/component/GlobalModalContent';
 import { LockClosedIcon, LockOpenIcon, CalculatorIcon } from '@heroicons/react/outline';
 import { inter, lusitana, roboto } from '../ui/fonts';
-interface LayoutProps {/*...*/}
+interface LayoutProps {
+  children: React.ReactNode;
+  // ... other properties
+}
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [showModal, setShowModal] = useState(false);

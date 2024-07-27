@@ -67,7 +67,7 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
     }, []);
 
     return (
-        <div className="flex flex-col flex-wrap bg-amber-500 p-4 space-x-4"> {/* Use flex-wrap to allow wrapping */}
+        <div className="flex flex-col flex-wrap p-4 space-x-4"> {/* Use flex-wrap to allow wrapping */}
 
             <Card cardTitle={"Crosswind Calculator"} status={null} className="w-full sm:w-auto">
                 <div className="space-y-4">
@@ -105,7 +105,7 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
 
                         <div className="flex justify-between items-center mb-2">
                             <div>Magnetic Variation:</div>
-                            
+
                             <ChoiceListbox
                                 value={eastOrWestVar}
                                 choices={buttonEastOrWest}
