@@ -105,6 +105,7 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
 
                         <div className="flex justify-between items-center mb-2">
                             <div>Magnetic Variation:</div>
+                            
                             <ChoiceListbox
                                 value={eastOrWestVar}
                                 choices={buttonEastOrWest}

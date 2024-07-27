@@ -23,7 +23,7 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
   }, [reset]);
 
   return (
-    <div className={width === undefined ? "w-72" : width}>
+    <div className={width === undefined ? "w-28" : width}>
       <Listbox value={selected} onChange={changeHandler}>
         <div className="relative">
           <ListboxButton
