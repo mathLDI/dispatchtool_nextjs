@@ -204,10 +204,31 @@ export default function ClientComponent({ fetchWeather }) {
 
   const categorizedNotams = weatherData ? categorizeNotams(weatherData.data.filter(item => item.type === 'notam')) : {};
 
+// Function to format the date as "Mon, 05 Jul 2024 14:20:00"
+function formatLocalDate(date) {
+  // Use Intl.DateTimeFormat for custom format order
+  const options = {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  };
 
-  ///FUNCTION for NOTAMs with Q-Line that have an "A" and "AE///"
+  // Formatting the date and time
+  const dateTimeFormat = new Intl.DateTimeFormat('en-US', options);
+  const parts = dateTimeFormat.formatToParts(date);
 
- ///FUNCTION for NOTAMs with Q-Line that have an "A"///
+  // Arrange the parts into the desired format: "Mon, 05 Jul 2024 14:20:00"
+  const formattedDate = `${parts.find(part => part.type === 'weekday').value}, ${parts.find(part => part.type === 'day').value} ${parts.find(part => part.type === 'month').value} ${parts.find(part => part.type === 'year').value} ${parts.find(part => part.type === 'hour').value}:${parts.find(part => part.type === 'minute').value}:${parts.find(part => part.type === 'second').value}`;
+
+  return formattedDate;
+}
+
+///FUNCTION for NOTAMs with Q-Line that have an "A"///
 const renderNotamsAandAE = (notams, title) => (
   <div>
     <h2 className="text-lg font-bold">{title}</h2>
@@ -221,12 +242,15 @@ const renderNotamsAandAE = (notams, title) => (
 
         // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'A'
         if (qLineMatch && qLineMatch[2].startsWith('A')) {
+          const localTime = formatLocalDate(notam.startDate); // Format local time
+
           return (
             <div key={index} className="mb-4">
               {displayText.split('\n').map((line, lineIndex) => (
                 <p key={lineIndex} className="mb-1">{line}</p>
               ))}
-              <p>Start Date: {notam.startDate.toUTCString()}</p>
+              <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+              <p>Start Date (Local): {localTime}</p>
             </div>
           );
         }
@@ -252,12 +276,15 @@ const renderNotamsE = (notams, title) => (
 
         // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'E'
         if (qLineMatch && qLineMatch[2].startsWith('E')) {
+          const localTime = formatLocalDate(notam.startDate); // Format local time
+
           return (
             <div key={index} className="mb-4">
               {displayText.split('\n').map((line, lineIndex) => (
                 <p key={lineIndex} className="mb-1">{line}</p>
               ))}
-              <p>Start Date: {notam.startDate.toUTCString()}</p>
+              <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+              <p>Start Date (Local): {localTime}</p>
             </div>
           );
         }
@@ -283,12 +310,15 @@ const renderNotamsW = (notams, title) => (
 
         // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'W'
         if (qLineMatch && qLineMatch[2].startsWith('W')) {
+          const localTime = formatLocalDate(notam.startDate); // Format local time
+
           return (
             <div key={index} className="mb-4">
               {displayText.split('\n').map((line, lineIndex) => (
                 <p key={lineIndex} className="mb-1">{line}</p>
               ))}
-              <p>Start Date: {notam.startDate.toUTCString()}</p>
+              <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+              <p>Start Date (Local): {localTime}</p>
             </div>
           );
         }
@@ -299,6 +329,7 @@ const renderNotamsW = (notams, title) => (
     )}
   </div>
 );
+
 
 
 
