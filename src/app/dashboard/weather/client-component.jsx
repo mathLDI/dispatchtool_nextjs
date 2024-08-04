@@ -104,7 +104,7 @@ function formatTAF(tafText) {
     if (visibilityMatch) {
       visibility = visibilityMatch[0].includes('/')
         ? parseFloat(visibilityMatch[0].split('/')[0]) /
-          parseFloat(visibilityMatch[0].split('/')[1])
+        parseFloat(visibilityMatch[0].split('/')[1])
         : parseFloat(visibilityMatch[0].replace('SM', ''));
     }
 
@@ -124,8 +124,8 @@ function formatTAF(tafText) {
       ceiling !== Infinity || visibility !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
-        ? currentColor
-        : firstLineColor;
+          ? currentColor
+          : firstLineColor;
 
     return (
       <p key={index} className={lineColor}>
@@ -212,7 +212,6 @@ function formatLocalDate(date) {
 
   return formattedDate;
 }
-
 function categorizeNotams(notams) {
   const now = new Date();
   const todayStart = new Date(now);
@@ -261,6 +260,7 @@ function categorizeNotams(notams) {
     olderNotams,
   };
 }
+
 
 export default function ClientComponent({ fetchWeather }) {
   const { weatherData, selectedAirport, setWeatherData } = useRccContext();
@@ -361,19 +361,27 @@ export default function ClientComponent({ fetchWeather }) {
   );
 
   ///FUNCTION for NOTAMs with Q-Line that have a "W"///
-  const renderNotamsW = (notams, title) => (
-    <div>
-      <h2 className="text-lg font-bold">{title}</h2>
-      {notams.length > 0 ? (
-        notams.map((notam, index) => {
-          const notamText = JSON.parse(notam.text);
-          const displayText = extractTextBeforeFR(notamText.raw);
+  const renderNotamsW = (notams, title) => {
+    const notamsToRender = notams.filter(notam => {
+      const notamText = JSON.parse(notam.text);
+      const displayText = extractTextBeforeFR(notamText.raw);
 
-          // Better regex to ensure correct parsing: Match everything after 'Q)' until the fifth '/'
-          const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+      // Regex to match everything after 'Q)' until the fifth '/'
+      const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
 
-          // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'W'
-          if (qLineMatch && qLineMatch[2].startsWith('W')) {
+      // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'W'
+      return qLineMatch && qLineMatch[2].startsWith('W');
+    });
+
+    return (
+      <div>
+        <h2 className="text-lg font-bold">{title}</h2>
+        {notamsToRender.length === 0 ? (
+          <p>No NOTAM data available!!</p>
+        ) : (
+          notamsToRender.map((notam, index) => {
+            const notamText = JSON.parse(notam.text);
+            const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate); // Format local time
 
             return (
@@ -387,14 +395,15 @@ export default function ClientComponent({ fetchWeather }) {
                 <p>Start Date (Local): {localTime}</p>
               </div>
             );
-          }
-          return null; // Don't render this NOTAM if it doesn't meet the condition
-        })
-      ) : (
-        <p>No NOTAM data available</p>
-      )}
-    </div>
-  );
+          })
+        )}
+      </div>
+    );
+  };
+
+  console.log('categorizedNotams.futureNotams:::', categorizedNotams.futureNotams);
+  console.log('categorizedNotams.last7DaysNotams:::', categorizedNotams.last7DaysNotams);
+
 
   return (
     <div className="flex h-full">
@@ -455,7 +464,7 @@ export default function ClientComponent({ fetchWeather }) {
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                   formatTAF(
                     weatherData.data.find((item) => item.type === 'taf')?.text ||
-                      'No TAF data available'
+                    'No TAF data available'
                   )
                 ) : (
                   <p>No weather data available</p>
@@ -516,14 +525,8 @@ export default function ClientComponent({ fetchWeather }) {
               <Card title="NOTAM WARNING" className="bg-blue-200">
                 {renderNotamsW(categorizedNotams.futureNotams || [], 'FUTURE')}
                 {renderNotamsW(categorizedNotams.todayNotams || [], 'TODAY')}
-                {renderNotamsW(
-                  categorizedNotams.last7DaysNotams || [],
-                  'LAST 7 DAYS'
-                )}
-                {renderNotamsW(
-                  categorizedNotams.last30DaysNotams || [],
-                  'LAST 30 DAYS'
-                )}
+                {renderNotamsW(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+                {renderNotamsW(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
                 {renderNotamsW(categorizedNotams.olderNotams || [], 'OLDER')}
               </Card>
             </div>
