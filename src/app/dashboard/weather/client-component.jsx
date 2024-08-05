@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -212,6 +212,7 @@ function formatLocalDate(date) {
 
   return formattedDate;
 }
+
 function categorizeNotams(notams) {
   const now = new Date();
   const todayStart = new Date(now);
@@ -261,9 +262,10 @@ function categorizeNotams(notams) {
   };
 }
 
-
 export default function ClientComponent({ fetchWeather }) {
   const { weatherData, selectedAirport, setWeatherData } = useRccContext();
+
+  const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
 
   useEffect(() => {
     if (selectedAirport) {
@@ -287,6 +289,48 @@ export default function ClientComponent({ fetchWeather }) {
   const categorizedNotams = weatherData
     ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
     : {};
+
+    const handleNotamTypeChange = (newNotamType) => {
+      setSelectedNotamType(newNotamType);
+    };
+    
+
+  const renderNotamCard = () => {
+    switch (selectedNotamType) {
+      case 'AERODROME':
+        return (
+          <Card title="NOTAM AERODROME" className="bg-blue-200">
+            {renderNotamsAandAE(categorizedNotams.futureNotams || [], 'FUTURE')}
+            {renderNotamsAandAE(categorizedNotams.todayNotams || [], 'TODAY')}
+            {renderNotamsAandAE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+            {renderNotamsAandAE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+            {renderNotamsAandAE(categorizedNotams.olderNotams || [], 'OLDER')}
+          </Card>
+        );
+      case 'ENROUTE':
+        return (
+          <Card title="NOTAM ENROUTE" className="bg-blue-200">
+            {renderNotamsE(categorizedNotams.futureNotams || [], 'FUTURE')}
+            {renderNotamsE(categorizedNotams.todayNotams || [], 'TODAY')}
+            {renderNotamsE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+            {renderNotamsE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+            {renderNotamsE(categorizedNotams.olderNotams || [], 'OLDER')}
+          </Card>
+        );
+      case 'WARNING':
+        return (
+          <Card title="NOTAM WARNING" className="bg-blue-200">
+            {renderNotamsW(categorizedNotams.futureNotams || [], 'FUTURE')}
+            {renderNotamsW(categorizedNotams.todayNotams || [], 'TODAY')}
+            {renderNotamsW(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
+            {renderNotamsW(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
+            {renderNotamsW(categorizedNotams.olderNotams || [], 'OLDER')}
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
 
   ///FUNCTION for NOTAMs with Q-Line that have an "A"///
   const renderNotamsAandAE = (notams, title) => {
@@ -329,8 +373,6 @@ export default function ClientComponent({ fetchWeather }) {
     );
   };
 
-
-
   ///FUNCTION for NOTAMs with Q-Line that have an "E"///
   const renderNotamsE = (notams, title) => {
     const notamsToRender = notams.filter(notam => {
@@ -371,7 +413,6 @@ export default function ClientComponent({ fetchWeather }) {
       </div>
     );
   };
-
 
   ///FUNCTION for NOTAMs with Q-Line that have a "W"///
   const renderNotamsW = (notams, title) => {
@@ -414,10 +455,6 @@ export default function ClientComponent({ fetchWeather }) {
     );
   };
 
-  console.log('categorizedNotams.futureNotams:::', categorizedNotams.futureNotams);
-  console.log('categorizedNotams.last7DaysNotams:::', categorizedNotams.last7DaysNotams);
-
-
   return (
     <div className="flex h-full">
       <div className="fixed z-10">
@@ -426,7 +463,7 @@ export default function ClientComponent({ fetchWeather }) {
 
       <div className="flex-1 overflow-y-auto pt-16">
         <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[500px]">
+          <div className="flex-1 bg-lime-500 min-w-[500px]">
             <h1 className="py-5">METAR</h1>
             <Card title="Weather">
               <div>
@@ -486,43 +523,21 @@ export default function ClientComponent({ fetchWeather }) {
             </Card>
           </div>
 
-          <div className="flex  min-w-[500px]">
-            <h1 className="py-5">NOTAM</h1>
+          <div className="flex-1 bg-yellow-50 flex-col min-w-[500px]">
 
-            <div>
-              <h1 className="py-5">AERODROME</h1>
+  <div className="mb-4">
+    <label className="font-bold mr-2">Select NOTAM Type:</label>
+    <div>
+    <button onClick={() => handleNotamTypeChange('AERODROME')} className="p-2 border rounded mr-2">AERODROME</button>
+<button onClick={() => handleNotamTypeChange('ENROUTE')} className="p-2 border rounded mr-2">ENROUTE</button>
+<button onClick={() => handleNotamTypeChange('WARNING')} className="p-2 border rounded">WARNING</button>
 
-              <Card title="NOTAM AERODROME" className="bg-blue-200">
-                {renderNotamsAandAE(categorizedNotams.futureNotams || [], 'FUTURE')}
-                {renderNotamsAandAE(categorizedNotams.todayNotams || [], 'TODAY')}
-                {renderNotamsAandAE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
-                {renderNotamsAandAE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
-                {renderNotamsAandAE(categorizedNotams.olderNotams || [], 'OLDER')}
-              </Card>
-            </div>
-            <div>
-              <h1 className="py-5">ENROUTE</h1>
+    </div>
+  </div>
 
-              <Card title="NOTAM ENROUTE" className="bg-blue-200">
-                {renderNotamsE(categorizedNotams.futureNotams || [], 'FUTURE')}
-                {renderNotamsE(categorizedNotams.todayNotams || [], 'TODAY')}
-                {renderNotamsE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
-                {renderNotamsE(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
-                {renderNotamsE(categorizedNotams.olderNotams || [], 'OLDER')}
-              </Card>
-            </div>
-            <div>
-              <h1 className="py-5">WARNING</h1>
+  {renderNotamCard()}
+</div>
 
-              <Card title="NOTAM WARNING" className="bg-blue-200">
-                {renderNotamsW(categorizedNotams.futureNotams || [], 'FUTURE')}
-                {renderNotamsW(categorizedNotams.todayNotams || [], 'TODAY')}
-                {renderNotamsW(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
-                {renderNotamsW(categorizedNotams.last30DaysNotams || [], 'LAST 30 DAYS')}
-                {renderNotamsW(categorizedNotams.olderNotams || [], 'OLDER')}
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </div>
