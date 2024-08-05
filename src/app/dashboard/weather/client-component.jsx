@@ -263,9 +263,9 @@ function categorizeNotams(notams) {
 }
 
 export default function ClientComponent({ fetchWeather }) {
-  const { weatherData, selectedAirport, setWeatherData } = useRccContext();
+  const { weatherData, selectedAirport, setWeatherData,
+    selectedNotamType, setSelectedNotamType } = useRccContext();
 
-  const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
 
   useEffect(() => {
     if (selectedAirport) {
@@ -290,10 +290,10 @@ export default function ClientComponent({ fetchWeather }) {
     ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
     : {};
 
-    const handleNotamTypeChange = (newNotamType) => {
-      setSelectedNotamType(newNotamType);
-    };
-    
+  const handleNotamTypeChange = (newNotamType) => {
+    setSelectedNotamType(newNotamType);
+  };
+
 
   const renderNotamCard = () => {
     switch (selectedNotamType) {
@@ -525,18 +525,32 @@ export default function ClientComponent({ fetchWeather }) {
 
           <div className="flex-1 bg-yellow-50 flex-col min-w-[500px]">
 
-  <div className="mb-4">
-    <label className="font-bold mr-2">Select NOTAM Type:</label>
-    <div>
-    <button onClick={() => handleNotamTypeChange('AERODROME')} className="p-2 border rounded mr-2">AERODROME</button>
-<button onClick={() => handleNotamTypeChange('ENROUTE')} className="p-2 border rounded mr-2">ENROUTE</button>
-<button onClick={() => handleNotamTypeChange('WARNING')} className="p-2 border rounded">WARNING</button>
-
-    </div>
+          <div className="mb-4">
+  <label className="font-bold mr-2">Select NOTAM Type:</label>
+  <div className="flex space-x-2">
+    <button
+      onClick={() => handleNotamTypeChange('AERODROME')}
+      className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+    >
+      AERODROME
+    </button>
+    <button
+      onClick={() => handleNotamTypeChange('ENROUTE')}
+      className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+    >
+      ENROUTE
+    </button>
+    <button
+      onClick={() => handleNotamTypeChange('WARNING')}
+      className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+    >
+      WARNING
+    </button>
   </div>
-
-  {renderNotamCard()}
 </div>
+
+            {renderNotamCard()}
+          </div>
 
         </div>
       </div>

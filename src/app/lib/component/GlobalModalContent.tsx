@@ -20,7 +20,7 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose }) => {
   return (
     <>
       <Draggable disabled={disabled}>
-      <div className="flex flex-col fixed z-50  rounded-lg shadow-lg bg-white bg-opacity-85" style={{ top: '20%', left: '50%', transform: 'translate(-50%, -20%)' }}>
+      <div className="flex flex-col fixed z-50  rounded-lg shadow-lg bg-white bg-opacity-90" style={{ top: '20%', left: '50%', transform: 'translate(-50%, -20%)' }}>
       <div className="cursor-move">
           </div>
           <div>
