@@ -299,7 +299,7 @@
       switch (selectedNotamType) {
         case 'AERODROME':
           return (
-            <Card title="NOTAM AERODROME" className="bg-blue-200">
+            <Card title="NOTAM AERODROME" className="h-full">
               {renderNotamsAandAE(categorizedNotams.futureNotams || [], 'FUTURE')}
               {renderNotamsAandAE(categorizedNotams.todayNotams || [], 'TODAY')}
               {renderNotamsAandAE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
@@ -309,7 +309,7 @@
           );
         case 'ENROUTE':
           return (
-            <Card title="NOTAM ENROUTE" className="bg-blue-200">
+            <Card title="NOTAM ENROUTE" className="h-full">
               {renderNotamsE(categorizedNotams.futureNotams || [], 'FUTURE')}
               {renderNotamsE(categorizedNotams.todayNotams || [], 'TODAY')}
               {renderNotamsE(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
@@ -319,7 +319,7 @@
           );
         case 'WARNING':
           return (
-            <Card title="NOTAM WARNING" className="bg-blue-200">
+            <Card title="NOTAM WARNING" className="h-full">
               {renderNotamsW(categorizedNotams.futureNotams || [], 'FUTURE')}
               {renderNotamsW(categorizedNotams.todayNotams || [], 'TODAY')}
               {renderNotamsW(categorizedNotams.last7DaysNotams || [], 'LAST 7 DAYS')}
@@ -457,61 +457,60 @@
 
     return (
       <div className="flex h-full">
-        <div className="fixed z-10">
-          <AirportSearchForm fetchWeather={fetchWeather} />
-        </div>
-
-        <div className="flex-1 overflow-y-auto pt-16">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 bg-lime-500 min-w-[500px]">
-              <h1 className="font-bold py-5 text-lg">METAR</h1>
-
-              <Card title="METAR">
-                <div>
-                  {weatherData && weatherData.data && weatherData.data.length > 0 ? (
-                    weatherData.data
-                      .filter(
-                        (item) => item.type === 'metar' || item.type === 'speci'
-                      )
-                      .sort((a, b) => {
-                        const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
-                        const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
-                        return timeB.localeCompare(timeA);
-                      })
-                      .map((metar, index) => {
-                        const parsedMetar = parseMETAR(metar.text);
-                        const {
-                          metarString,
-                          ceiling,
-                          visibilityValue,
-                          category,
-                          color,
-                        } = parsedMetar;
-
-                        const formattedText = formatMetarText(
-                          metarString,
-                          ceiling,
-                          visibilityValue,
-                          category
-                        );
-
-                        return (
-                          <div key={index} className="mb-4">
-                            <p
-                              className={color}
-                              dangerouslySetInnerHTML={{ __html: formattedText }}
-                            ></p>
-                          </div>
-                        );
-                      })
-                  ) : (
-                    <p>No METAR data available</p>
-                  )}
-                </div>
+      <div className="fixed z-10">
+        <AirportSearchForm fetchWeather={fetchWeather} />
+      </div>
+    
+      <div className="flex-1 overflow-y-auto pt-16">
+        <div className="flex flex-row justify-between">
+          {/* Left Column for METAR and TAF */}
+          <div className="flex flex-col  w-full md:min-w-[500px] flex-grow">
+            <h1 className="font-bold py-5 text-lg">METAR</h1>
+            <div className="flex">
+              <Card title="METAR" className="h-full">
+                {weatherData && weatherData.data && weatherData.data.length > 0 ? (
+                  weatherData.data
+                    .filter((item) => item.type === 'metar' || item.type === 'speci')
+                    .sort((a, b) => {
+                      const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
+                      const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
+                      return timeB.localeCompare(timeA);
+                    })
+                    .map((metar, index) => {
+                      const parsedMetar = parseMETAR(metar.text);
+                      const {
+                        metarString,
+                        ceiling,
+                        visibilityValue,
+                        category,
+                        color,
+                      } = parsedMetar;
+    
+                      const formattedText = formatMetarText(
+                        metarString,
+                        ceiling,
+                        visibilityValue,
+                        category
+                      );
+    
+                      return (
+                        <div key={index} className="mb-4">
+                          <p
+                            className={color}
+                            dangerouslySetInnerHTML={{ __html: formattedText }}
+                          ></p>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <p>No METAR data available</p>
+                )}
               </Card>
-
-              <h1 className="font-bold py-5 text-lg">TAF</h1>
-              <Card title="TAF">
+            </div>
+    
+            <h1 className="font-bold  text-lg">TAF</h1>
+            <div className="flex-grow">
+              <Card title="TAF" className="h-full">
                 <div>
                   {weatherData && weatherData.data && weatherData.data.length > 0 ? (
                     formatTAF(
@@ -524,38 +523,42 @@
                 </div>
               </Card>
             </div>
+          </div>
 
-            <div className="flex-1 py-5 bg-yellow-50 flex-col min-w-[500px]">
-
-              <div className="mb-4">
-                <label className="font-bold mr-2 text-lg">NOTAM</label>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleNotamTypeChange('AERODROME')}
-                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                  >
-                    AERODROME
-                  </button>
-                  <button
-                    onClick={() => handleNotamTypeChange('ENROUTE')}
-                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                  >
-                    ENROUTE
-                  </button>
-                  <button
-                    onClick={() => handleNotamTypeChange('WARNING')}
-                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                  >
-                    WARNING
-                  </button>
-                </div>
+          <div title='spacer between METAR/TAF and NOTAM' className='p-2'></div>
+    
+          {/* Right Column for NOTAM */}
+          <div className="flex flex-col py-5  w-full md:min-w-[500px] flex-grow">
+            <div className="mb-4">
+              <label className="font-bold mr-2 text-lg">NOTAM</label>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleNotamTypeChange('AERODROME')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  AERODROME
+                </button>
+                <button
+                  onClick={() => handleNotamTypeChange('ENROUTE')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  ENROUTE
+                </button>
+                <button
+                  onClick={() => handleNotamTypeChange('WARNING')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  WARNING
+                </button>
               </div>
-
-              {renderNotamCard()}
             </div>
-
+    
+            {renderNotamCard()}
           </div>
         </div>
       </div>
+    </div>
+    
+    
     );
   }
