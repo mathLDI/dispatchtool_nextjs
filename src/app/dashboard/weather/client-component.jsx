@@ -334,46 +334,66 @@ export default function ClientComponent({ fetchWeather }) {
 
   ///FUNCTION for NOTAMs with Q-Line that have an "A"///
   const renderNotamsAandAE = (notams, title) => {
-    const notamsToRender = notams.filter(notam => {
+    const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-
-      // Regex to match everything after 'Q)' until the fifth '/'
+  
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-
-      // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'A'
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-
+  
     return (
       <div>
-        <h2 className="text-lg font-bold bg-gray-100 file:rounded">{title}</h2>
-        <div className='py-1'></div>
+        <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
-          <p className='py-1'>No Applicable NOTAMs</p>
+          <p>No Applicable NOTAMs</p>
         ) : (
           notamsToRender.map((notam, index) => {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            const lines = displayText.split('\n');
+  
+            // Parse the expiration date using the C) field
+            const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
+            const expirationDate = expirationMatch
+              ? parseNotamDate(expirationMatch[1])
+              : null;
+            const localExpirationDate = expirationDate
+              ? new Date(
+                  expirationDate.getTime() -
+                    expirationDate.getTimezoneOffset() * 60000
+                )
+              : null;
+  
+            const lines = displayText.split("\n");
             let inBold = false;
-            const processedLines = lines.map(line => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
+            const processedLines = lines.map((line) => {
+              if (line.includes("E)")) inBold = true;
+              if (line.includes("F)")) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-
+  
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
+                  <p
+                    key={lineIndex}
+                    className="mb-1"
+                    dangerouslySetInnerHTML={{ __html: line }}
+                  ></p>
                 ))}
-                <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                {expirationDate && (
+                  <>
+                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                  </>
+                )}
                 {/* Divider below each NOTAM entry except the last one */}
-                {index !== notamsToRender.length - 1 && <hr className="my-2 border-gray-300" />}
+                {index !== notamsToRender.length - 1 && (
+                  <hr className="my-2 border-gray-300" />
+                )}
               </div>
             );
           })
@@ -381,6 +401,7 @@ export default function ClientComponent({ fetchWeather }) {
       </div>
     );
   };
+  
 
   ///FUNCTION for NOTAMs with Q-Line that have an "E"///
   const renderNotamsE = (notams, title) => {
@@ -395,33 +416,56 @@ export default function ClientComponent({ fetchWeather }) {
 
     return (
       <div>
-        <h2 className="text-lg font-bold bg-gray-100 file:rounded">{title}</h2>
-        <div className='py-1'></div>
+        <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
-          <p className='py-1'>No Applicable NOTAMs</p>
+          <p>No Applicable NOTAMs</p>
         ) : (
           notamsToRender.map((notam, index) => {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            const lines = displayText.split('\n');
+  
+            // Parse the expiration date using the C) field
+            const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
+            const expirationDate = expirationMatch
+              ? parseNotamDate(expirationMatch[1])
+              : null;
+            const localExpirationDate = expirationDate
+              ? new Date(
+                  expirationDate.getTime() -
+                    expirationDate.getTimezoneOffset() * 60000
+                )
+              : null;
+  
+            const lines = displayText.split("\n");
             let inBold = false;
-            const processedLines = lines.map(line => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
+            const processedLines = lines.map((line) => {
+              if (line.includes("E)")) inBold = true;
+              if (line.includes("F)")) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-
+  
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
+                  <p
+                    key={lineIndex}
+                    className="mb-1"
+                    dangerouslySetInnerHTML={{ __html: line }}
+                  ></p>
                 ))}
-                <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                {expirationDate && (
+                  <>
+                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                  </>
+                )}
                 {/* Divider below each NOTAM entry except the last one */}
-                {index !== notamsToRender.length - 1 && <hr className="my-2 border-gray-300" />}
+                {index !== notamsToRender.length - 1 && (
+                  <hr className="my-2 border-gray-300" />
+                )}
               </div>
             );
           })
@@ -446,33 +490,56 @@ export default function ClientComponent({ fetchWeather }) {
 
     return (
       <div>
-        <h2 className="text-lg font-bold bg-gray-100 file:rounded">{title}</h2>
-        <div className='py-1'></div>
+        <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
-          <p className='py-1'>No Applicable NOTAMs</p>
+          <p>No Applicable NOTAMs</p>
         ) : (
           notamsToRender.map((notam, index) => {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            const lines = displayText.split('\n');
+  
+            // Parse the expiration date using the C) field
+            const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
+            const expirationDate = expirationMatch
+              ? parseNotamDate(expirationMatch[1])
+              : null;
+            const localExpirationDate = expirationDate
+              ? new Date(
+                  expirationDate.getTime() -
+                    expirationDate.getTimezoneOffset() * 60000
+                )
+              : null;
+  
+            const lines = displayText.split("\n");
             let inBold = false;
-            const processedLines = lines.map(line => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
+            const processedLines = lines.map((line) => {
+              if (line.includes("E)")) inBold = true;
+              if (line.includes("F)")) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-
+  
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
+                  <p
+                    key={lineIndex}
+                    className="mb-1"
+                    dangerouslySetInnerHTML={{ __html: line }}
+                  ></p>
                 ))}
-                <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                {expirationDate && (
+                  <>
+                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                  </>
+                )}
                 {/* Divider below each NOTAM entry except the last one */}
-                {index !== notamsToRender.length - 1 && <hr className="my-2 border-gray-300" />}
+                {index !== notamsToRender.length - 1 && (
+                  <hr className="my-2 border-gray-300" />
+                )}
               </div>
             );
           })
