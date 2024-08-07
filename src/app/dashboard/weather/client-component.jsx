@@ -354,14 +354,20 @@
             notamsToRender.map((notam, index) => {
               const notamText = JSON.parse(notam.text);
               const displayText = extractTextBeforeFR(notamText.raw);
-              const localTime = formatLocalDate(notam.startDate); // Format local time
-
+              const localTime = formatLocalDate(notam.startDate);
+    
+              const lines = displayText.split('\n');
+              let inBold = false;
+              const processedLines = lines.map(line => {
+                if (line.includes('E)')) inBold = true;
+                if (line.includes('F)')) inBold = false;
+                return inBold ? `<strong>${line}</strong>` : line;
+              });
+    
               return (
                 <div key={index} className="mb-4">
-                  {displayText.split('\n').map((line, lineIndex) => (
-                    <p key={lineIndex} className="mb-1">
-                      {line}
-                    </p>
+                  {processedLines.map((line, lineIndex) => (
+                    <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
                   ))}
                   <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
                   <p>Start Date (Local): {localTime}</p>
@@ -378,14 +384,12 @@
       const notamsToRender = notams.filter(notam => {
         const notamText = JSON.parse(notam.text);
         const displayText = extractTextBeforeFR(notamText.raw);
-
-        // Regex to match everything after 'Q)' until the fifth '/'
+    
+        // Check if the Q-Line indicates 'E'
         const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-
-        // Check if the match is successful and the sixth segment (after the fourth slash) starts with 'E'
         return qLineMatch && qLineMatch[2].startsWith('E');
       });
-
+    
       return (
         <div>
           <h2 className="text-lg font-bold">{title}</h2>
@@ -395,14 +399,20 @@
             notamsToRender.map((notam, index) => {
               const notamText = JSON.parse(notam.text);
               const displayText = extractTextBeforeFR(notamText.raw);
-              const localTime = formatLocalDate(notam.startDate); // Format local time
-
+              const localTime = formatLocalDate(notam.startDate);
+    
+              const lines = displayText.split('\n');
+              let inBold = false;
+              const processedLines = lines.map(line => {
+                if (line.includes('E)')) inBold = true;
+                if (line.includes('F)')) inBold = false;
+                return inBold ? `<strong>${line}</strong>` : line;
+              });
+    
               return (
                 <div key={index} className="mb-4">
-                  {displayText.split('\n').map((line, lineIndex) => (
-                    <p key={lineIndex} className="mb-1">
-                      {line}
-                    </p>
+                  {processedLines.map((line, lineIndex) => (
+                    <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
                   ))}
                   <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
                   <p>Start Date (Local): {localTime}</p>
@@ -413,6 +423,7 @@
         </div>
       );
     };
+    
 
     ///FUNCTION for NOTAMs with Q-Line that have a "W"///
     const renderNotamsW = (notams, title) => {
@@ -436,14 +447,20 @@
             notamsToRender.map((notam, index) => {
               const notamText = JSON.parse(notam.text);
               const displayText = extractTextBeforeFR(notamText.raw);
-              const localTime = formatLocalDate(notam.startDate); // Format local time
-
+              const localTime = formatLocalDate(notam.startDate);
+    
+              const lines = displayText.split('\n');
+              let inBold = false;
+              const processedLines = lines.map(line => {
+                if (line.includes('E)')) inBold = true;
+                if (line.includes('F)')) inBold = false;
+                return inBold ? `<strong>${line}</strong>` : line;
+              });
+    
               return (
                 <div key={index} className="mb-4">
-                  {displayText.split('\n').map((line, lineIndex) => (
-                    <p key={lineIndex} className="mb-1">
-                      {line}
-                    </p>
+                  {processedLines.map((line, lineIndex) => (
+                    <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
                   ))}
                   <p>Start Date (UTC): {notam.startDate.toUTCString()}</p>
                   <p>Start Date (Local): {localTime}</p>
