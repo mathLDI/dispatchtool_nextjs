@@ -382,12 +382,12 @@ export default function ClientComponent({ fetchWeather }) {
                     dangerouslySetInnerHTML={{ __html: line }}
                   ></p>
                 ))}
-                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
-                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className='text-blue-800'>Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {/* Divider below each NOTAM entry except the last one */}
@@ -454,12 +454,12 @@ export default function ClientComponent({ fetchWeather }) {
                     dangerouslySetInnerHTML={{ __html: line }}
                   ></p>
                 ))}
-                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
-                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className='text-blue-800'>Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {/* Divider below each NOTAM entry except the last one */}
@@ -528,12 +528,12 @@ export default function ClientComponent({ fetchWeather }) {
                     dangerouslySetInnerHTML={{ __html: line }}
                   ></p>
                 ))}
-                <p className='text-blue-800'>Start Date (UTC): {notam.startDate.toUTCString()}</p>
-                <p className='text-blue-800'>Start Date (Local): {localTime}</p>
+                <p className='text-blue-800'>Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className='text-blue-800'>Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className='text-blue-800'>Expires Date (UTC): {expirationDate.toUTCString()}</p>
-                    <p className='text-blue-800'>Expires Date (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className='text-blue-800'>Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className='text-blue-800'>Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {/* Divider below each NOTAM entry except the last one */}
