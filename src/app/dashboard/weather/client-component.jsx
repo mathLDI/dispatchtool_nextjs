@@ -305,6 +305,11 @@ export default function ClientComponent({ fetchWeather }) {
   };
 
   const filterAndHighlightNotams = (notams) => {
+    // Define regex for each category of terms to be highlighted
+    const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/gi;
+    const lifrTerms = /\b(AUTH|RSC|SERVICE)\b/gi;
+    const mvfrTerms = /\b(TWY CLOSED)\b/gi;
+
     // First filter by search term, then highlight
     return notams
       .filter((notam) => {
@@ -313,8 +318,22 @@ export default function ClientComponent({ fetchWeather }) {
       })
       .map((notam) => {
         const notamText = JSON.parse(notam.text).raw;
-        const regex = new RegExp(`(${searchTerm})`, 'gi'); // Case-insensitive regex for search term
-        const highlightedText = notamText.replace(regex, '<mark>$1</mark>'); // Highlight matches
+
+        // Highlight different terms with different classes
+        let highlightedText = notamText
+          .replace(ifrTerms, '<span class="text-custom-ifr">$&</span>')
+          .replace(lifrTerms, '<span class="text-custom-lifr">$&</span>')
+          .replace(mvfrTerms, '<span class="text-custom-mvfr">$&</span>');
+
+        // Highlight search terms separately
+        if (searchTerm) {
+          const searchTermRegex = new RegExp(`(${searchTerm})`, 'gi');
+          highlightedText = highlightedText.replace(
+            searchTermRegex,
+            '<mark>$1</mark>'
+          );
+        }
+
         return { ...notam, highlightedText }; // Add highlighted text to notam
       });
   };
