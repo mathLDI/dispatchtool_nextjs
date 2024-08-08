@@ -680,19 +680,19 @@ export default function ClientComponent({ fetchWeather }) {
                   onClick={() => handleNotamTypeChange('AERODROME')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  AERODROME | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'A')}
+                  AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A')}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  ENROUTE | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'E')}
+                  ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E')}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  WARNING | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'W')}
+                  WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W')}
                 </button>
               </div>
 
