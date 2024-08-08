@@ -68,9 +68,11 @@ interface RccContextType {
   removeAirportValue: (airportCode: string) => void;
   selectedAirport: Airport | null;
   setSelectedAirport: (airport: Airport | null) => void;
-
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
+
+  searchTerm: string; // Add searchTerm
+  setSearchTerm: (term: string) => void; // Add setter for searchTerm
 
 
 
@@ -119,9 +121,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [airportValues, setAirportValues] = useState<Airport[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
-
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
-
+  const [searchTerm, setSearchTerm] = useState(''); // Add state for searchTerm
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -166,6 +167,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       removeAirportValue,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
+      searchTerm, setSearchTerm
+
     }}>
       {children}
     </RccContext.Provider>
