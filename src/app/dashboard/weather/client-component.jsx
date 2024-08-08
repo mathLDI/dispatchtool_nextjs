@@ -319,6 +319,16 @@ export default function ClientComponent({ fetchWeather }) {
       });
   };
 
+  const countFilteredNotams = (notams, type) => {
+    const filteredNotams = filterAndHighlightNotams(notams);
+    return filteredNotams.filter((notam) => {
+      const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
+      const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+      if (!qLineMatch) return false;
+      return qLineMatch[2].startsWith(type);
+    }).length;
+  };
+
   const renderNotamCard = () => {
     switch (selectedNotamType) {
       case 'AERODROME':
@@ -651,19 +661,19 @@ export default function ClientComponent({ fetchWeather }) {
                   onClick={() => handleNotamTypeChange('AERODROME')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  AERODROME
+                  AERODROME | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'A')}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  ENROUTE
+                  ENROUTE | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'E')}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  WARNING
+                  WARNING | {countFilteredNotams(categorizedNotams.futureNotams.concat(categorizedNotams.todayNotams, categorizedNotams.last7DaysNotams, categorizedNotams.last30DaysNotams, categorizedNotams.olderNotams), 'W')}
                 </button>
               </div>
 
