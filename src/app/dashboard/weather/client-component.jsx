@@ -762,7 +762,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                         : 'bg-gray-200 text-black hover:bg-gray-300'
                     }`}
                   >
-                    Clouds
+                    CLDS & WX
                   </button>
                   <button
                     onClick={() => setGfaType('TURBC')}
@@ -772,7 +772,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                         : 'bg-gray-200 text-black hover:bg-gray-300'
                     }`}
                   >
-                    Turbulence
+                    ICG & TURB
                   </button>
                 </div>
 
