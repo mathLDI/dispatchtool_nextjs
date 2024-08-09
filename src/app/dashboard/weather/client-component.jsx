@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -306,7 +306,37 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSelectedTimestamp
   } = useRccContext();
 
+  const [leftWidth, setLeftWidth] = useState(50); // Start with 50% width for the left column
+  const containerRef = useRef(null);
+  const resizerRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
 
+  const handleMouseMove = (e) => {
+    if (!isResizing || !containerRef.current) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+    setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80)); // Limit resizing to between 20% and 80%
+  };
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   useEffect(() => {
     if (selectedAirport) {
@@ -685,17 +715,20 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   return (
-    <div className="flex h-screen"> {/* Ensures the component takes full viewport height */}
+    <div className="flex h-screen" ref={containerRef}> {/* Ensures the component takes full viewport height */}
       <div className="fixed z-10">
         <AirportSearchForm fetchWeather={fetchWeather} />
       </div>
 
       <div className="flex-1 overflow-hidden pt-16"> {/* Manages overflow at the column level */}
-        <div className="flex flex-row justify-between h-full"> {/* Ensures flex children stretch to full height of their parent */}
+        <div className="flex flex-row h-full "> {/* Ensures flex children stretch to full height of their parent */}
 
           {/* Left Column for METAR and TAF */}
-          <div className="flex flex-col w-full md:min-w-[500px] flex-grow overflow-y-auto" > {/* Outer container for METAR and TAF with overflow */}
-            <h1 className="font-bold py-5 text-lg">METAR</h1>
+          <div
+            className="flex flex-col overflow-y-auto p-2"
+            style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
+          >
+            <h1 className="font-bold text-lg">METAR</h1>
             <div className="flex">
               <Card title="METAR" className="h-full">
                 {weatherData && weatherData.data && weatherData.data.length > 0 ? (
@@ -756,66 +789,74 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
             <h1 className="font-bold text-lg">GFA</h1>
             <div className="flex-grow">
-            <Card title="GFA" className="h-full">
-  <div className="flex justify-center mb-2">
-    <button
-      onClick={() => setGfaType('CLDWX')}
-      className={`px-4 py-2 rounded ${
-        gfaType === 'CLDWX'
-          ? 'bg-blue-500 text-white'
-          : 'bg-gray-200 text-black hover:bg-gray-300'
-      }`}
-    >
-      Clouds
-    </button>
-    <button
-      onClick={() => setGfaType('TURBC')}
-      className={`px-4 py-2 rounded ${
-        gfaType === 'TURBC'
-          ? 'bg-blue-500 text-white'
-          : 'bg-gray-200 text-black hover:bg-gray-300'
-      }`}
-    >
-      Turbulence
-    </button>
-  </div>
+              <Card title="GFA" className="h-full">
+                <div className="flex justify-center mb-2">
+                  <button
+                    onClick={() => setGfaType('CLDWX')}
+                    className={`px-4 py-2 rounded ${
+                      gfaType === 'CLDWX'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-black hover:bg-gray-300'
+                    }`}
+                  >
+                    Clouds
+                  </button>
+                  <button
+                    onClick={() => setGfaType('TURBC')}
+                    className={`px-4 py-2 rounded ${
+                      gfaType === 'TURBC'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-black hover:bg-gray-300'
+                    }`}
+                  >
+                    Turbulence
+                  </button>
+                </div>
 
-  {/* Display the image */}
-  <div className="flex justify-center items-center flex-grow">
-    <img
-      src={getImageUrl()}
-      alt="GFA Image"
-      className="w-full h-full object-contain" // Ensures image takes full space and maintains aspect ratio
-    />
-  </div>
+                {/* Display the image */}
+                <div className="flex justify-center items-center flex-grow">
+                  <img
+                    src={getImageUrl()}
+                    alt="GFA Image"
+                    className="w-full h-full object-contain" // Ensures image takes full space and maintains aspect ratio
+                  />
+                </div>
 
-  <div className="flex justify-center mt-2 space-x-4">
-    {gfaData &&
-      getLastFrames(JSON.parse(gfaData.data[0].text).frame_lists).map(
-        (frame, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedTimestamp(index)}
-            className={`px-4 py-2 rounded ${
-              selectedTimestamp === index
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
-          >
-            {formatValidityTime(frame)}
-          </button>
-        )
-      )}
-  </div>
-</Card>
-
+                <div className="flex justify-center mt-2 space-x-4">
+                  {gfaData &&
+                    getLastFrames(JSON.parse(gfaData.data[0].text).frame_lists).map(
+                      (frame, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedTimestamp(index)}
+                          className={`px-4 py-2 rounded ${
+                            selectedTimestamp === index
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-200 text-black hover:bg-gray-300'
+                          }`}
+                        >
+                          {formatValidityTime(frame)}
+                        </button>
+                      )
+                    )}
+                </div>
+              </Card>
             </div>
           </div>
 
-          <div title='spacer between METAR/TAF and NOTAM' className='p-2'></div>
+          {/* Resizer */}
+          <div
+            ref={resizerRef}
+            className="w-1 bg-gray-500 cursor-col-resize"
+            onMouseDown={() => setIsResizing(true)}
+          />
 
           {/* Right Column for NOTAM */}
-          <div className="flex flex-col py-5 w-full md:min-w-[500px] flex-grow overflow-y-auto" >
+          <div
+            className="flex flex-col p-2 overflow-y-auto"
+            style={{ width: `${100 - leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
+          >
+            
             <div className="mb-4">
               <label className="font-bold mr-2 text-lg">NOTAM</label>
               <div className="flex space-x-2">
