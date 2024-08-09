@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -262,7 +262,34 @@ function categorizeNotams(notams) {
   };
 }
 
-export default function ClientComponent({ fetchWeather }) {
+// Define GFA issuance times and valid times
+const issuanceTimes = [
+  { issuance: '2330', valid: ['0000', '0600', '1200'] },
+  { issuance: '0530', valid: ['0600', '1200', '1800'] },
+  { issuance: '1130', valid: ['1200', '1800', '0000'] },
+  { issuance: '1730', valid: ['1800', '0000', '0600'] },
+];
+
+// Function to get the current UTC time in HHMM format
+const getCurrentUTCTime = () => {
+  const now = new Date();
+  const hours = now.getUTCHours().toString().padStart(2, '0');
+  const minutes = now.getUTCMinutes().toString().padStart(2, '0');
+  return `${hours}${minutes}`;
+};
+
+// Function to determine the current batch of GFA images
+const getCurrentBatch = () => {
+  const currentTime = getCurrentUTCTime();
+  for (let i = issuanceTimes.length - 1; i >= 0; i--) {
+    if (currentTime >= issuanceTimes[i].issuance) {
+      return issuanceTimes[i].valid;
+    }
+  }
+  return issuanceTimes[issuanceTimes.length - 1].valid; // Default to the last batch if no match
+};
+
+export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
     weatherData,
     selectedAirport,
@@ -273,13 +300,56 @@ export default function ClientComponent({ fetchWeather }) {
     setSearchTerm,
   } = useRccContext();
 
+  const [gfaType, setGfaType] = useState('CLDWX'); // Default to Clouds
+  const [gfaData, setGfaData] = useState(null);
+  const [selectedTimestamp, setSelectedTimestamp] = useState(0);
+
   useEffect(() => {
     if (selectedAirport) {
       fetchWeather(selectedAirport.code).then((data) => {
         setWeatherData(data);
       });
+
+      fetchGFA(selectedAirport.code, gfaType).then((data) => {
+        console.log('GFA Data:::', data); // Log the fetched GFA data
+        setGfaData(data);
+      });
     }
-  }, [selectedAirport, fetchWeather, setWeatherData]);
+  }, [selectedAirport, gfaType, fetchWeather, fetchGFA, setWeatherData]);
+
+  // Helper function to get the frames from the last frame list
+  const getLastFrames = (frameLists) => {
+    const lastFrameList = frameLists[frameLists.length - 1];
+    return lastFrameList.frames;
+  };
+
+  // Helper function to get the image URL from GFA data
+  const getImageUrl = () => {
+    if (!gfaData || !gfaData.data || gfaData.data.length === 0) return '';
+
+    // Parse the GFA text field to get frame lists
+    const frameLists = JSON.parse(gfaData.data[0].text).frame_lists;
+
+    console.log('Frame Lists:::::', frameLists);
+
+    // Get the frames from the last frame list
+    const lastFrames = getLastFrames(frameLists);
+
+    // Get the selected frame based on the selected timestamp
+    const selectedFrame = lastFrames[selectedTimestamp];
+
+    // Extract the image ID from the selected frame
+    const imageId = selectedFrame?.images[0]?.id;
+
+    // Construct the image URL using the extracted image ID
+    return imageId ? `https://plan.navcanada.ca/weather/images/${imageId}.image` : '';
+  };
+
+  // Helper function to format the validity time
+  const formatValidityTime = (frame) => {
+    const date = new Date(frame.sv);
+    return `${date.getUTCDate()} ${date.toLocaleString('en-US', { month: 'short' })} @ ${date.getUTCHours().toString().padStart(2, '0')}00Z`;
+  };
 
   useEffect(() => {
     if (weatherData) {
@@ -607,6 +677,7 @@ export default function ClientComponent({ fetchWeather }) {
 
       <div className="flex-1 overflow-hidden pt-16"> {/* Manages overflow at the column level */}
         <div className="flex flex-row justify-between h-full"> {/* Ensures flex children stretch to full height of their parent */}
+
           {/* Left Column for METAR and TAF */}
           <div className="flex flex-col w-full md:min-w-[500px] flex-grow overflow-y-auto" style={{ maxHeight: '80vh' }}> {/* Outer container for METAR and TAF with overflow */}
             <h1 className="font-bold py-5 text-lg">METAR</h1>
@@ -664,6 +735,41 @@ export default function ClientComponent({ fetchWeather }) {
                   ) : (
                     <p>No weather data available</p>
                   )}
+                </div>
+              </Card>
+            </div>
+
+            <h1 className="font-bold text-lg">GFA</h1>
+            <div className="flex-grow">
+              <Card title="GFA" className="h-full">
+                <div className="flex justify-center mb-2">
+                  <button
+                    onClick={() => setGfaType('CLDWX')}
+                    className={`px-4 py-2 rounded ${gfaType === 'CLDWX' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                  >
+                    Clouds
+                  </button>
+                  <button
+                    onClick={() => setGfaType('TURBC')}
+                    className={`px-4 py-2 rounded ${gfaType === 'TURBC' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                  >
+                    Turbulence
+                  </button>
+                </div>
+
+                {/* Display the image */}
+                <img src={getImageUrl()} alt="GFA Image" />
+
+                <div className="flex justify-center mt-2 space-x-4">
+                  {gfaData && getLastFrames(JSON.parse(gfaData.data[0].text).frame_lists).map((frame, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedTimestamp(index)}
+                      className={`bg-gray-200 text-black px-4 py-2 rounded ${selectedTimestamp === index ? 'bg-blue-300' : ''}`}
+                    >
+                      {formatValidityTime(frame)}
+                    </button>
+                  ))}
                 </div>
               </Card>
             </div>
