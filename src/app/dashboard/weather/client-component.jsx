@@ -694,7 +694,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         <div className="flex flex-row justify-between h-full"> {/* Ensures flex children stretch to full height of their parent */}
 
           {/* Left Column for METAR and TAF */}
-          <div className="flex flex-col w-full md:min-w-[500px] flex-grow overflow-y-auto" style={{ maxHeight: '80vh' }}> {/* Outer container for METAR and TAF with overflow */}
+          <div className="flex flex-col w-full md:min-w-[500px] flex-grow overflow-y-auto" > {/* Outer container for METAR and TAF with overflow */}
             <h1 className="font-bold py-5 text-lg">METAR</h1>
             <div className="flex">
               <Card title="METAR" className="h-full">
@@ -796,7 +796,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           <div title='spacer between METAR/TAF and NOTAM' className='p-2'></div>
 
           {/* Right Column for NOTAM */}
-          <div className="flex flex-col py-5 w-full md:min-w-[500px] flex-grow overflow-y-auto" style={{ maxHeight: '80vh' }}>
+          <div className="flex flex-col py-5 w-full md:min-w-[500px] flex-grow overflow-y-auto" >
             <div className="mb-4">
               <label className="font-bold mr-2 text-lg">NOTAM</label>
               <div className="flex space-x-2">
