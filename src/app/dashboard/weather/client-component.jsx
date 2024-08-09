@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -298,11 +298,15 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSelectedNotamType,
     searchTerm,
     setSearchTerm,
+    gfaType, 
+    setGfaType, 
+    gfaData, 
+    setGfaData, 
+    selectedTimestamp, 
+    setSelectedTimestamp
   } = useRccContext();
 
-  const [gfaType, setGfaType] = useState('CLDWX'); // Default to Clouds
-  const [gfaData, setGfaData] = useState(null);
-  const [selectedTimestamp, setSelectedTimestamp] = useState(0);
+
 
   useEffect(() => {
     if (selectedAirport) {
@@ -347,19 +351,19 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     return imageId ? `https://plan.navcanada.ca/weather/images/${imageId}.image` : '';
   };
 
-// Helper function to format the validity time for display
-const formatValidityTime = (frame) => {
-  // Manually parse the 'sv' time using Date.UTC to ensure UTC interpretation
-  const [datePart, timePart] = frame.sv.split('T');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute, second] = timePart.replace('Z', '').split(':').map(Number);
-  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-  const utcHours = utcDate.getUTCHours().toString().padStart(2, '0');
-  const dayStr = utcDate.getUTCDate().toString().padStart(2, '0');
-  const monthStr = utcDate.toLocaleString('en-US', { month: 'short' });
+  // Helper function to format the validity time for display
+  const formatValidityTime = (frame) => {
+    // Manually parse the 'sv' time using Date.UTC to ensure UTC interpretation
+    const [datePart, timePart] = frame.sv.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute, second] = timePart.replace('Z', '').split(':').map(Number);
+    const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    const utcHours = utcDate.getUTCHours().toString().padStart(2, '0');
+    const dayStr = utcDate.getUTCDate().toString().padStart(2, '0');
+    const monthStr = utcDate.toLocaleString('en-US', { month: 'short' });
 
-  return `${dayStr} ${monthStr} @ ${utcHours}00Z`; // Format as "DD MMM @ HH00Z"
-};
+    return `${dayStr} ${monthStr} @ ${utcHours}00Z`; // Format as "DD MMM @ HH00Z"
+  };
 
 
   useEffect(() => {
@@ -756,13 +760,13 @@ const formatValidityTime = (frame) => {
                 <div className="flex justify-center mb-2">
                   <button
                     onClick={() => setGfaType('CLDWX')}
-                    className={`px-4 py-2 rounded ${gfaType === 'CLDWX' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    className={`px-4 py-2 rounded ${gfaType === 'CLDWX' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
                   >
                     Clouds
                   </button>
                   <button
                     onClick={() => setGfaType('TURBC')}
-                    className={`px-4 py-2 rounded ${gfaType === 'TURBC' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    className={`px-4 py-2 rounded ${gfaType === 'TURBC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
                   >
                     Turbulence
                   </button>
@@ -776,7 +780,10 @@ const formatValidityTime = (frame) => {
                     <button
                       key={index}
                       onClick={() => setSelectedTimestamp(index)}
-                      className={`bg-gray-200 text-black px-4 py-2 rounded ${selectedTimestamp === index ? 'bg-blue-300' : ''}`}
+                      className={`px-4 py-2 rounded ${selectedTimestamp === index
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 text-black hover:bg-gray-300'
+                        }`}
                     >
                       {formatValidityTime(frame)}
                     </button>

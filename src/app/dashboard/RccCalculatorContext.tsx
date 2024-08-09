@@ -70,10 +70,14 @@ interface RccContextType {
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
-
   searchTerm: string; // Add searchTerm
   setSearchTerm: (term: string) => void; // Add setter for searchTerm
-
+  gfaType: string;
+  setGfaType: (type: string) => void;
+  gfaData: any;
+  setGfaData: (data: any) => void;
+  selectedTimestamp: number;
+  setSelectedTimestamp: (timestamp: number) => void;
 
 
 }
@@ -123,6 +127,9 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
   const [searchTerm, setSearchTerm] = useState(''); // Add state for searchTerm
+  const [gfaType, setGfaType] = useState('CLDWX'); // Default to Clouds
+  const [gfaData, setGfaData] = useState<any>(null);
+  const [selectedTimestamp, setSelectedTimestamp] = useState(0);
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -167,7 +174,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       removeAirportValue,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
-      searchTerm, setSearchTerm
+      searchTerm, setSearchTerm,
+      gfaType, setGfaType, // Include GFA states
+      gfaData, setGfaData,
+      selectedTimestamp, setSelectedTimestamp,
 
     }}>
       {children}
