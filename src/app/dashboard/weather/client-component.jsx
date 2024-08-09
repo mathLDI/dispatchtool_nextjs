@@ -323,6 +323,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     return lastFrameList.frames;
   };
 
+
+
   // Helper function to get the image URL from GFA data
   const getImageUrl = () => {
     if (!gfaData || !gfaData.data || gfaData.data.length === 0) return '';
@@ -345,11 +347,20 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     return imageId ? `https://plan.navcanada.ca/weather/images/${imageId}.image` : '';
   };
 
-  // Helper function to format the validity time
-  const formatValidityTime = (frame) => {
-    const date = new Date(frame.sv);
-    return `${date.getUTCDate()} ${date.toLocaleString('en-US', { month: 'short' })} @ ${date.getUTCHours().toString().padStart(2, '0')}00Z`;
-  };
+// Helper function to format the validity time for display
+const formatValidityTime = (frame) => {
+  // Manually parse the 'sv' time using Date.UTC to ensure UTC interpretation
+  const [datePart, timePart] = frame.sv.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute, second] = timePart.replace('Z', '').split(':').map(Number);
+  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  const utcHours = utcDate.getUTCHours().toString().padStart(2, '0');
+  const dayStr = utcDate.getUTCDate().toString().padStart(2, '0');
+  const monthStr = utcDate.toLocaleString('en-US', { month: 'short' });
+
+  return `${dayStr} ${monthStr} @ ${utcHours}00Z`; // Format as "DD MMM @ HH00Z"
+};
+
 
   useEffect(() => {
     if (weatherData) {
