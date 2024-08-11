@@ -1,10 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext'; // Use relative path
 
 const AirportList = ({ onAirportClick, setWeatherData }) => {
-  const { airportValues, setAirportValues, setSelectedAirport, selectedAirport } = useRccContext();
+  const {
+    airportValues,
+    setAirportValues,
+    setSelectedAirport,
+    selectedAirport,
+    airportCategories,
+  } = useRccContext();
+
+  useEffect(() => {
+    // Log airportCategories to the console whenever it changes
+    console.log('Airport Categories from AirportList:::', airportCategories);
+  }, [airportCategories]);
 
   const handleAirportClick = (airport) => {
     setSelectedAirport(airport);
@@ -30,28 +41,39 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
 
   return (
     <div className="w-full max-w-sm p-3 rounded-lg">
-      <ul className="flex gap-2 ">
-        {airportValues.map((airport, index) => (
-          <li
-            key={index}
-            onClick={() => handleAirportClick(airport)}
-            className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
-              } cursor-pointer`}
-          >
-            <span>{airport.code}</span>
+      <ul className="flex gap-2">
+        {airportValues.map((airport, index) => {
+          const categoryInfo = airportCategories[airport.code] || {};
+          const dotColorClass = categoryInfo.color || 'text-gray-500'; // Default to gray if no color is found
 
-            {/* button below (x) */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent li onClick from being called
-                removeAirportValue(airport.code);
-              }}
-              className="ml-2 relative"
+          return (
+            <li
+              key={index}
+              onClick={() => handleAirportClick(airport)}
+              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
+                } cursor-pointer`}
             >
-              <div className='shadow-sm border hover:scale-110 transition-transform duration-150'>x</div>
-            </button>
-          </li>
-        ))}
+              <span>{airport.code}</span>
+
+              {/* button below (x) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent li onClick from being called
+                  removeAirportValue(airport.code);
+                }}
+                className="ml-1 relative"
+              >
+             
+              </button>
+
+              {/* Dot with category color */}
+              <span className={` ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
+                &#9679;
+              </span>     
+              <div className='shadow-sm ml-1 border hover:scale-110 transition-transform duration-150'>x</div>      
+               </li>
+          );
+        })}
       </ul>
     </div>
   );

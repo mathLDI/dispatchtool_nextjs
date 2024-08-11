@@ -10,6 +10,7 @@ export default function Page() {
     const response = await fetch(apiUrl);
     const data = await response.json();
     return data;
+    
   };
 
   // Define the server-side function to fetch GFA data
@@ -22,6 +23,8 @@ export default function Page() {
     return data;
   };
 
+
+
   return (
     <div className="h-full w-full flex">
       <div className="h-full w-full">
@@ -30,3 +33,4 @@ export default function Page() {
     </div>
   );
 }
+

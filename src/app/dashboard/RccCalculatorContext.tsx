@@ -78,6 +78,10 @@ interface RccContextType {
   setGfaData: (data: any) => void;
   selectedTimestamp: number;
   setSelectedTimestamp: (timestamp: number) => void;
+  allWeatherData: any;
+  setAllWeatherData: (data: any) => void;
+  airportCategories: Record<string, { category: string; color: string }>;
+  setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
 
 
 }
@@ -130,6 +134,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [gfaType, setGfaType] = useState('CLDWX'); // Default to Clouds
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
+  const [allWeatherData, setAllWeatherData] = useState<any>({});
+  const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -178,6 +184,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       gfaType, setGfaType, // Include GFA states
       gfaData, setGfaData,
       selectedTimestamp, setSelectedTimestamp,
+      allWeatherData, setAllWeatherData,
+      airportCategories, setAirportCategories,
 
     }}>
       {children}
