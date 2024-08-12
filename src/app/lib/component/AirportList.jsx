@@ -41,7 +41,7 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
 
   return (
     <div className="w-full max-w-sm p-3 rounded-lg">
-      <ul className="flex gap-2">
+      <ul className="flex gap-2 flex-nowrap">
         {airportValues.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500'; // Default to gray if no color is found
@@ -50,28 +50,25 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
             <li
               key={index}
               onClick={() => handleAirportClick(airport)}
-              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
+              className={`flex items-center bg-gray-100 dark:bg-gray-700 justify-between p-2 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
                 } cursor-pointer`}
             >
               <span>{airport.code}</span>
 
-              {/* button below (x) */}
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent li onClick from being called
                   removeAirportValue(airport.code);
                 }}
-                className="ml-1 relative"
+                className="flex items-center ml-1 relative"
               >
-             
+                {/* Dot with category color */}
+                <span className={`mr-2 ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
+                  &#9679;
+                </span>
+                <div className='shadow-sm border hover:scale-110 transition-transform duration-150'>x</div>
               </button>
-
-              {/* Dot with category color */}
-              <span className={` ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
-                &#9679;
-              </span>     
-              <div className='shadow-sm ml-1 border hover:scale-110 transition-transform duration-150'>x</div>      
-               </li>
+            </li>
           );
         })}
       </ul>
