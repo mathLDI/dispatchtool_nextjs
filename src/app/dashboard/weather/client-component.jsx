@@ -23,20 +23,20 @@ import {
 
 // Example function to fetch weather data for all airports
 //async function fetchAllWeatherData() {
- // const weatherData = {};
+// const weatherData = {};
 
-  // Simulate fetching weather data for each airport
- // for (const airport of airportValues) {
- //   try {
-  //    const response = await fetch(`/api/weather/${airport.code}`); // Replace with your actual API endpoint
-   //   const data = await response.json();
-  //    weatherData[airport.code] = data;
-  //  } catch (error) {
-  //    console.error(`Failed to fetch weather data for ${airport.code}:`, error);
-  //  }
-  //}
+// Simulate fetching weather data for each airport
+// for (const airport of airportValues) {
+//   try {
+//    const response = await fetch(`/api/weather/${airport.code}`); // Replace with your actual API endpoint
+//   const data = await response.json();
+//    weatherData[airport.code] = data;
+//  } catch (error) {
+//    console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+//  }
+//}
 //
- // return weatherData;
+// return weatherData;
 //}
 
 
@@ -220,7 +220,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     switch (selectedNotamType) {
       case 'AERODROME':
         return (
-          <Card title="NOTAM AERODROME" className="h-full">
+          <Card title="NOTAM AERODROME" status={null} className="h-full">
             {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
             {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
             {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
@@ -230,7 +230,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         );
       case 'ENROUTE':
         return (
-          <Card title="NOTAM ENROUTE" className="h-full">
+          <Card title="NOTAM ENROUTE" status={null} className="h-full  ">
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
@@ -240,7 +240,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         );
       case 'WARNING':
         return (
-          <Card title="NOTAM WARNING" className="h-full">
+          <Card title="NOTAM WARNING" status={null} className="h-full  ">
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
@@ -341,21 +341,21 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           >
             <h1 className="font-bold text-lg">METAR</h1>
             <div className="flex">
-              <Card title="METAR" className="h-full">
+              <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={weatherData} />
               </Card>
             </div>
 
             <h1 className="font-bold text-lg">TAF</h1>
             <div className="flex-grow">
-              <Card title="TAF" className="h-full">
+              <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={weatherData} />
               </Card>
             </div>
 
             <h1 className="font-bold text-lg">GFA</h1>
             <div className="flex-grow">
-              <Card title="GFA" className="h-full">
+              <Card title="GFA" status={null} className="h-full">
                 <div className="flex justify-center mb-2">
                   <button
                     onClick={() => setGfaType('CLDWX')}
