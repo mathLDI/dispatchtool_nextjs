@@ -74,6 +74,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     // Fetch weather data for all airports in airportValues when the component mounts
     const fetchWeatherData = async () => {
       const data = {};
+  
       for (const airport of airportValues) {
         try {
           const responseData = await fetchWeather(airport.code);
@@ -85,9 +86,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       console.log('Fetched weather data:', data); // Log fetched data
       setAllWeatherData(data);
     };
-
-    fetchWeatherData();
+  
+    // Only fetch if there are airports in the list
+    if (airportValues.length > 0) {
+      fetchWeatherData();
+    }
   }, [fetchWeather, airportValues]);
+  
+
 
   useEffect(() => {
     // Call allAirportsFlightCategory whenever allWeatherData changes
