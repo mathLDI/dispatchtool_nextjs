@@ -27,6 +27,8 @@ const FirstPageRccProvided = (props) => {
     const [resetListBox, setResetListBox] = useState(false);
     const integerRunwayLength = parseInt(runwayLength, 10);
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
+    const [isExpanded, setIsExpanded] = useState(false);
+
 
     const resetButtonHandler = () => {
         setResetListBox(true);
@@ -73,143 +75,169 @@ const FirstPageRccProvided = (props) => {
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
     return (
-        <div>
-            <Card cardTitle={"RWYCC Provided"} status={null} className="sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]">
+        <div className="flex flex-col flex-wrap p-4 space-x-4">
+
+
+            <div className="flex-1" name="calculator"  >
+
+                <Card cardTitle={"RWYCC Provided"} status={null} className=" w-full sm:w-auto">
+                    <div>
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div>Aircraft type:</div>
+                            <ChoiceListbox
+                                value={aircraftType}
+                                choices={buttonAircraftType}
+                                callback={setAircraftType}
+                                reset={resetListBox}
+                                resetCallback={resetListbox1Handler} 
+                                />
+                        </div>
+
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div>RWYCC: </div>
+                            <ChoiceListbox
+                                value={rwycc1}
+                                choices={rwyccChoices}
+                                callback={setRwycc1}
+                                reset={resetListBox}
+                                resetCallback={resetListbox1Handler} />
+                            <ChoiceListbox
+                                value={rwycc2}
+                                choices={rwyccChoices}
+                                callback={setRwycc2}
+                                reset={resetListBox}
+                                resetCallback={resetListbox1Handler} />
+                            <ChoiceListbox
+                                value={rwycc3}
+                                choices={rwyccChoices}
+                                callback={setRwycc3}
+                                reset={resetListBox}
+                                resetCallback={resetListbox1Handler} />
+                        </div>
+
+                        <div className="flex flex-row justify-between items-center p-2 ">
+                            <div>Corrected TLR Landing Distance:</div>
+                            <input
+                                className="flex dark:bg-black"
+                                type="number"
+                                max={99999}
+                                min={1000}
+                                value={integerCorrectedLandingDistance} // Replace 'yourValueState' with the state you want to manage the input's value
+                                onChange={(e) => {
+                                    // Handle input value changes here
+                                    const v = e.target.value;
+                                    // You can add validation here to ensure the number is not longer than 5 digits
+                                    if (!isNaN(v) && v >= 0) {
+                                        setCorrectedLandingDistance(v); // Update the state with the new value
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div>Landing Runway Length:</div>
+                            <input
+                                className="flex dark:bg-black"
+                                type="number"
+                                max={99999}
+                                min={1000}
+                                value={integerRunwayLength} // Replace 'yourValueState' with the state you want to manage the input's value
+                                onChange={(e) => {
+                                    // Handle input value changes here
+                                    const v = e.target.value;
+                                    // Ensure the input value is a non-negative number
+                                    if (!isNaN(v) && v >= 0) {
+                                        setRunwayLength(v); // Update the state with the new value
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="p-2">
+                            <CustomButton
+                                title={"Reset RCC and Distances"} onClickCallback={resetButtonHandler} />
+                        </div>
+                    </div>
+                </Card>
+
                 <div>
-                    <div className="flex flex-row justify-between items-center p-2">
-                        <div>Aircraft type:</div>
-                        <ChoiceListbox
-                            value={aircraftType}
-                            choices={buttonAircraftType}
-                            callback={setAircraftType}
-                            reset={resetListBox}
-                            resetCallback={resetListbox1Handler} />
-                    </div>
-
-                    <div className="flex flex-row justify-between items-center p-2">
-                        <div>RWYCC: </div>
-                        <ChoiceListbox
-                            value={rwycc1}
-                            choices={rwyccChoices}
-                            callback={setRwycc1}
-                            reset={resetListBox}
-                            resetCallback={resetListbox1Handler} />
-                        <ChoiceListbox
-                            value={rwycc2}
-                            choices={rwyccChoices}
-                            callback={setRwycc2}
-                            reset={resetListBox}
-                            resetCallback={resetListbox1Handler} />
-                        <ChoiceListbox
-                            value={rwycc3}
-                            choices={rwyccChoices}
-                            callback={setRwycc3}
-                            reset={resetListBox}
-                            resetCallback={resetListbox1Handler} />
-                    </div>
-
-                    <div className="flex flex-row justify-between items-center p-2 ">
-                        <div>Corrected TLR Landing Distance:</div>
-                        <input
-                            className="flex dark:bg-black"
-                            type="number"
-                            max={99999}
-                            min={1000}
-                            value={integerCorrectedLandingDistance} // Replace 'yourValueState' with the state you want to manage the input's value
-                            onChange={(e) => {
-                                // Handle input value changes here
-                                const v = e.target.value;
-                                // You can add validation here to ensure the number is not longer than 5 digits
-                                if (!isNaN(v) && v >= 0) {
-                                    setCorrectedLandingDistance(v); // Update the state with the new value
+                    <Card cardTitle={"Results Takeoff"} status={callDxp} className="w-full sm:w-auto">
+                        <div>
+                            <div className="flex flex-row justify-between p-2">
+                                <div>RCC code:</div>
+                                {CorrectedLandingRwyccToUse === "Corrected distance is longer than runway length!" || CorrectedLandingRwyccToUse === "Enter Distances" ? "" :
+                                    <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
+                                        {lowestRcc}
+                                    </div>
                                 }
-                            }}
-                        />
-                    </div>
+                            </div>
 
-                    <div className="flex flex-row justify-between items-center p-2">
-                        <div>Landing Runway Length:</div>
-                        <input
-                            className="flex dark:bg-black"
-                            type="number"
-                            max={99999}
-                            min={1000}
-                            value={integerRunwayLength} // Replace 'yourValueState' with the state you want to manage the input's value
-                            onChange={(e) => {
-                                // Handle input value changes here
-                                const v = e.target.value;
-                                // Ensure the input value is a non-negative number
-                                if (!isNaN(v) && v >= 0) {
-                                    setRunwayLength(v); // Update the state with the new value
-                                }
-                            }}
-                        />
-                    </div>
-
-                    <div className="p-2">
-                        <CustomButton
-                            title={"Reset RCC and Distances"} onClickCallback={resetButtonHandler} />
-                    </div>
-                </div>
-            </Card>
-
-            <div>
-                <Card cardTitle={"Results Takeoff"} status={callDxp} className="sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]">
-                    <div>
-                        <div className="flex flex-row justify-between p-2">
-                            <div>RCC code:</div>
-                            {CorrectedLandingRwyccToUse === "Corrected distance is longer than runway length!" || CorrectedLandingRwyccToUse === "Enter Distances" ? "" :
+                            <div className="flex flex-row justify-between p-2">
+                                <div>Max crosswind:</div>
                                 <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
-                                    {lowestRcc}
+                                    {selectedRccToMaxXwindLandingTakeoff}
                                 </div>
-                            }
-                        </div>
-
-                        <div className="flex flex-row justify-between p-2">
-                            <div>Max crosswind:</div>
-                            <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
-                                {selectedRccToMaxXwindLandingTakeoff}
                             </div>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+                </div>
+
+                <div>
+                    <Card cardTitle={"Results Landing"} status={callDxp} className="w-full sm:w-auto">
+                        <div>
+                            <div className="flex flex-row justify-between p-2">
+                                <div>RCC code:</div>
+                                <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
+                                    {CorrectedLandingRwyccToUse}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-row justify-between p-2">
+                                <div>Max crosswind:</div>
+                                <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
+                                    {selectedRccToMaxXwindLanding}
+                                </div>
+                            </div>
+                            <div style={{ marginBottom: '10px' }}>
+                                {ldgDistLongerRwyLgth === true &&
+                                    (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Corrected distance is longer than runway length!
+                                    </div>)}
+                            </div>
+
+                            <div style={{ marginBottom: '10px' }}>
+                                {enterDistances === true &&
+                                    (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Enter Distances
+                                    </div>)}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
             </div>
 
-            <div>
-                <Card cardTitle={"Results Landing"} status={callDxp} className="sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]">
-                    <div>
-                        <div className="flex flex-row justify-between p-2">
-                            <div>RCC code:</div>
-                            <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
-                                {CorrectedLandingRwyccToUse}
-                            </div>
-                        </div>
+            <div className="flex-1" name="depth_info">
 
-                        <div className="flex flex-row justify-between p-2">
-                            <div>Max crosswind:</div>
-                            <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
-                                {selectedRccToMaxXwindLanding}
-                            </div>
+                <div className="text-center">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 underline">
+                        {isExpanded ? "Hide Depth Info" : "Show Depth Info"}
+                    </button>
+                    {isExpanded && (
+                        <div className="mt-2">
+                            <div>1/8&quot; / 0.13in / 3mm</div>
+                            <div>COMPACTED SNOW ON A GRAVEL RWY =</div>
+                            <div>COMPACTED SNOW/GRAVEL MIX = </div>
+                            <div>NOT A CONTAMINANT </div>
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            {ldgDistLongerRwyLgth === true &&
-                                (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                    Corrected distance is longer than runway length!
-                                </div>)}
-                        </div>
+                    )}
+                </div>
 
-                        <div style={{ marginBottom: '10px' }}>
-                            {enterDistances === true &&
-                                (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                    Enter Distances
-                                </div>)}
-                        </div>
-                    </div>
-                </Card>
+
             </div>
 
-            <div className="text-center"> 1/8&quot; / 0.13in / 3mm</div>
-            <div className="text-center">COMPACTED SNOW ON A GRAVEL RWY = COMPACTED SNOW/GRAVEL MIX = NOT A CONTAMINANT</div>
+
+
         </div>
     );
 }

@@ -101,10 +101,10 @@ export const useRccContext = () => {
 // RccProvider component to wrap around parts of the app that need access to this context
 export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [aircraftType, setAircraftType] = useState("DHC-8");
-  const [contaminationCoverage1, setContaminationCoverage1] = useState("");
-  const [contaminationCoverage2, setContaminationCoverage2] = useState("");
-  const [contaminationCoverage3, setContaminationCoverage3] = useState("");
-  const [contaminationCoverage4, setContaminationCoverage4] = useState("");
+  const [contaminationCoverage1, setContaminationCoverage1] = useState(" ");
+  const [contaminationCoverage2, setContaminationCoverage2] = useState(" ");
+  const [contaminationCoverage3, setContaminationCoverage3] = useState(" ");
+  const [contaminationCoverage4, setContaminationCoverage4] = useState(" ");
   const [runwayConditionDescriptionGravel1, setRunwayConditionDescriptionGravel1] = useState("SELECT GRAVEL CONTAMINANT");
   const [runwayConditionDescriptionPaved2, setRunwayConditionDescriptionPaved2] = useState("SELECT PAVED CONTAMINANT");
   const [runwayConditionDescriptionGravel3, setRunwayConditionDescriptionGravel3] = useState("SELECT GRAVEL CONTAMINANT");

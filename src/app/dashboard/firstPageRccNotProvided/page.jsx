@@ -31,6 +31,8 @@ const FirstPageRccNotProvided = (props) => {
     const contaminationCoverage3List = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
     const [callDxp] = useState(null);
     const [resetListBox, setResetListBox] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+
 
     const resetButtonHandler = () => {
         setResetListBox(true);
@@ -104,352 +106,368 @@ const FirstPageRccNotProvided = (props) => {
     ];
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            <Card cardTitle={"RWYCC Not Provided"} status={null} className="sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]">
-                <div>
-                    <div className="flex flex-wrap justify-between items-center p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3">Aircraft type:</div>
-                        <div className="w-full md:w-1/2 lg:w-2/3">
+
+        <div className="flex flex-col flex-wrap p-4 space-x-4">
+
+            <div className="flex-1" name="rwyccNotProvided"  >
+
+                <Card cardTitle={"RWYCC Not Provided"} status={null} className="w-full sm:w-auto">
+                    <div>
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div>Aircraft type:</div>
                             <ChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
-                                width={"w-full"}
+                               
                             />
                         </div>
-                    </div>
 
-                    <div className="flex flex-wrap justify-between items-center p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3">Runway type:</div>
-                        <div className="w-full md:w-1/2 lg:w-2/3">
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div>Runway type:</div>
                             <ChoiceListbox
                                 value={dropDownPavedOrGravel}
                                 choices={["GRAVEL", "PAVED"]}
                                 callback={setDropDownPavedOrGravel}
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
-                                width={"w-full"}
+                               
                             />
-                        </div>
-                    </div>
 
-                    {dropDownPavedOrGravel === "PAVED" && (
-                        <div className="flex flex-wrap justify-between items-center p-2">
-                            <div className="w-full md:w-1/2 lg:w-1/3">Contaminant 1:</div>
-                            <div className="w-full md:w-1/2 lg:w-2/3">
-                                <ChoiceListbox
-                                    value={runwayConditionDescriptionPaved2}
-                                    choices={contaminantChoices}
-                                    callback={setRunwayConditionDescriptionPaved2}
-                                    reset={resetListBox}
-                                    resetCallback={resetListbox1Handler}
-                                    width={"w-full"}
-                                />
-                            </div>
-                            <div className="w-full md:w-1/2 lg:w-1/3 mt-2 md:mt-0">Percent Coverage 1:</div>
-                            <div className="w-full md:w-1/2 lg:w-2/3">
-                                <ChoiceListbox
-                                    value={contaminationCoverage2}
-                                    choices={contaminationCoverage2List}
-                                    callback={setContaminationCoverage2}
-                                    reset={resetListBox}
-                                    resetCallback={resetListbox1Handler}
-                                    width={"w-full"}
-                                />
-                            </div>
                         </div>
-                    )}
 
-                    {runwayConditionDescriptionPaved2 !== "SELECT PAVED CONTAMINANT" && dropDownPavedOrGravel === "PAVED"
-                        && runwayConditionDescriptionPaved2 !== 'Dry Snow or Wet Snow (Any depth) over 100% Compacted Snow' &&
-                        runwayConditionDescriptionPaved2 !== '100% Compacted Snow: -15ºC and Colder OAT' &&
-                        runwayConditionDescriptionPaved2 !== '100% Compact Snow: Warmer than -15ºC OAT' &&
-                        runwayConditionDescriptionPaved2 !== 'Water on top of 100% Compacted Snow'
-                        && rcc.topPercentageSelect !== 0 && (contaminationCoverage2 !== 0 && contaminationCoverage2 !== 100) && (
-                            <div className="flex flex-wrap justify-between items-center p-2 mb-2">
-                                <div className="w-full md:w-1/2 lg:w-1/3">Contaminant 2:</div>
-                                <div className="w-full md:w-1/2 lg:w-2/3">
+                        {dropDownPavedOrGravel === "PAVED" && (
+
+                            <div className="flex flex-row justify-between items-center p-2">
+
+                               
+                                    <div>Contaminant 1:</div>
+                                    <ChoiceListbox
+                                        value={runwayConditionDescriptionPaved2}
+                                        choices={contaminantChoices}
+                                        callback={setRunwayConditionDescriptionPaved2}
+                                        reset={resetListBox}
+                                        resetCallback={resetListbox1Handler}
+                                       
+                                    />
+                               
+
+                                    <div >Percent Coverage 1:</div>
+                                    <ChoiceListbox
+                                        value={contaminationCoverage2}
+                                        choices={contaminationCoverage2List}
+                                        callback={setContaminationCoverage2}
+                                        reset={resetListBox}
+                                        resetCallback={resetListbox1Handler}
+                                    />
+
+
+
+                            </div>
+                        )}
+
+                        {runwayConditionDescriptionPaved2 !== "SELECT PAVED CONTAMINANT" && dropDownPavedOrGravel === "PAVED"
+                            && runwayConditionDescriptionPaved2 !== 'Dry Snow or Wet Snow (Any depth) over 100% Compacted Snow' &&
+                            runwayConditionDescriptionPaved2 !== '100% Compacted Snow: -15ºC and Colder OAT' &&
+                            runwayConditionDescriptionPaved2 !== '100% Compact Snow: Warmer than -15ºC OAT' &&
+                            runwayConditionDescriptionPaved2 !== 'Water on top of 100% Compacted Snow'
+                            && rcc.topPercentageSelect !== 0 && (contaminationCoverage2 !== 0 && contaminationCoverage2 !== 100) && (
+                                <div className="flex flex-row justify-between items-center p-2">
+                                    <div>Contaminant 2:</div>
                                     <ChoiceListbox
                                         value={runwayConditionDescriptionPaved4}
                                         choices={contaminantChoicesExclude100}
                                         callback={setRunwayConditionDescriptionPaved4}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={"w-full"}
+                                       
                                     />
-                                </div>
-                                <div className="w-full md:w-1/2 lg:w-1/3 mt-2 md:mt-0">Percent Coverage 2:</div>
-                                <div className="w-full md:w-1/2 lg:w-2/3">
+
+                                    <div>Percent Coverage 2:</div>
                                     <ChoiceListbox
                                         value={contaminationCoverage4}
                                         choices={contaminationCoverage3List}
                                         callback={setContaminationCoverage4}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={"w-full"}
                                     />
-                                </div>
-                            </div>
-                        )}
 
-                    {dropDownPavedOrGravel === "GRAVEL" && (
-                        <div className="flex flex-wrap justify-between items-center p-2">
-                            <div className="w-full md:w-1/2 lg:w-1/3">Contaminant 1:</div>
-                            <div className="w-full md:w-1/2 lg:w-2/3">
+                                </div>
+                            )}
+
+                        {dropDownPavedOrGravel === "GRAVEL" && (
+                            <div className="flex flex-row justify-between items-center p-2">
+                                <div>Contaminant 1:</div>
+<div className="flex-grow">
                                 <ChoiceListbox
                                     value={runwayConditionDescriptionGravel1}
                                     choices={contaminantChoices}
                                     callback={setRunwayConditionDescriptionGravel1}
                                     reset={resetListBox}
                                     resetCallback={resetListbox1Handler}
-                                    width={"w-full"}
                                 />
-                            </div>
-                            <div className="w-full md:w-1/2 lg:w-1/3 mt-2 md:mt-0">Percent Coverage 1:</div>
-                            <div className="w-full md:w-1/2 lg:w-2/3">
+</div>
+
+                                <div>Percent Coverage 1:</div>
+
                                 <ChoiceListbox
                                     value={contaminationCoverage1}
                                     choices={contaminationCoverage2List}
                                     callback={setContaminationCoverage1}
                                     reset={resetListBox}
                                     resetCallback={resetListbox1Handler}
-                                    width={"w-full"}
                                 />
-                            </div>
-                        </div>
-                    )}
 
-                    {runwayConditionDescriptionGravel1 !== "SELECT GRAVEL CONTAMINANT" && dropDownPavedOrGravel === "GRAVEL"
-                        && (contaminationCoverage1 !== 0 && contaminationCoverage1 !== 100) && (
-                            <div className="flex flex-wrap justify-between items-center p-2 mb-2">
-                                <div className="w-full md:w-1/2 lg:w-1/3">Contaminant 2:</div>
-                                <div className="w-full md:w-1/2 lg:w-2/3">
+                            </div>
+                        )}
+
+                        {runwayConditionDescriptionGravel1 !== "SELECT GRAVEL CONTAMINANT" && dropDownPavedOrGravel === "GRAVEL"
+                            && (contaminationCoverage1 !== 0 && contaminationCoverage1 !== 100) && (
+                                <div className="flex flex-row justify-between items-center p-2">
+                                    <div>Contaminant 2:</div>
                                     <ChoiceListbox
                                         value={runwayConditionDescriptionGravel3}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionGravel3}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={"w-full"}
+                                        
                                     />
-                                </div>
-                                <div className="w-full md:w-1/2 lg:w-1/3 mt-2 md:mt-0">Percent Coverage 2:</div>
-                                <div className="w-full md:w-1/2 lg:w-2/3">
+
+                                    <div>Percent Coverage 2:</div>
+
                                     <ChoiceListbox
                                         value={contaminationCoverage3}
                                         choices={contaminationCoverage3List}
                                         callback={setContaminationCoverage3}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={"w-full"}
+                                       
                                     />
-                                </div>
-                            </div>
-                        )}
 
-                    <div className="p-2">
-                        <CustomButton
-                            title={"Reset"} onClickCallback={resetButtonHandler} />
-                    </div>
-                </div>
-            </Card>
-
-            <Card cardTitle={"Results"} status={callDxp} className="sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]">
-                <div>
-                    <div className="flex flex-wrap justify-between p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3">RCC code:</div>
-                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
-                            {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
-                                <div className="flex text-white dark:text-gray-900">
-                                    {rcc.result}
                                 </div>
-                            ) : (
-                                rcc.result
                             )}
+
+                        <div className="p-2">
+                            <CustomButton
+                                title={"Reset"} onClickCallback={resetButtonHandler} />
                         </div>
                     </div>
+                </Card>
 
-                    <div className="flex flex-wrap justify-between p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3">Max crosswind:</div>
-                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
-                            {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
-                                <div className="text-white dark:text-gray-900">
-                                    {selectedRccToMaxXwind} kts
+                <Card cardTitle={"Results"} status={callDxp} className="w-full sm:w-auto">
+                    <div>
+                        <div className="flex flex-wrap justify-between p-2">
+                            <div className="w-full md:w-1/2 lg:w-1/3">RCC code:</div>
+                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                                {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
+                                    <div className="flex text-white dark:text-gray-900">
+                                        {rcc.result}
+                                    </div>
+                                ) : (
+                                    rcc.result
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-between p-2">
+                            <div className="w-full md:w-1/2 lg:w-1/3">Max crosswind:</div>
+                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                                {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
+                                    <div className="text-white dark:text-gray-900">
+                                        {selectedRccToMaxXwind} kts
+                                    </div>
+                                ) : (
+                                    rcc.result === 0 ? 'NO GO' : `${selectedRccToMaxXwind} kts`
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="mb-2">
+                            {performanceCheck === true && aircraftType === "DHC-8" && rcc.totalPercentage <= 100 && OneHundredPercentCompactedSnow === false && rcc.result !== 0 && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Dispatch may have to verify the takeoff or Landing distances on the DASH8
                                 </div>
-                            ) : (
-                                rcc.result === 0 ? 'NO GO' : `${selectedRccToMaxXwind} kts`
                             )}
                         </div>
-                    </div>
 
-                    <div className="mb-2">
-                        {performanceCheck === true && aircraftType === "DHC-8" && rcc.totalPercentage <= 100 && OneHundredPercentCompactedSnow === false && rcc.result !== 0 && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Dispatch may have to verify the takeoff or Landing distances on the DASH8
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {SeventyPercentBareAndDryUpgrade === true && dropDownPavedOrGravel === "PAVED" && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Code 0 does not need to be considered when the runway is 70% bare and dry or 70% bare and wet, in this case upgrade code 0 to 1. Dispatch may have to verify the takeoff or Landing distances on the DASH8
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {SeventyPercentBareAndDryUpgrade === true && dropDownPavedOrGravel === "PAVED" && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Code 0 does not need to be considered when the runway is 70% bare and dry or 70% bare and wet, in this case upgrade code 0 to 1. Dispatch may have to verify the takeoff or Landing distances on the DASH8
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {SeventyPercentBareAndDryUpgrade === true && dropDownPavedOrGravel === "GRAVEL" && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Code 0 does not need to be considered when the runway is 70% Compacted snow/gravel Mix, in this case upgrade code 0 to 1. Dispatch may have to verify the takeoff or Landing distances on the DASH8
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {SeventyPercentBareAndDryUpgrade === true && dropDownPavedOrGravel === "GRAVEL" && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Code 0 does not need to be considered when the runway is 70% Compacted snow/gravel Mix, in this case upgrade code 0 to 1. Dispatch may have to verify the takeoff or Landing distances on the DASH8
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {(runwayConditionDescriptionPaved2.includes("100") || runwayConditionDescriptionPaved4.includes("100")) && dropDownPavedOrGravel === "PAVED" && rcc.topPercentageSelect !== 100 && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Runway must be completely covered with Compacted Snow to select this contaminant. If that is the case, select 100%
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {(runwayConditionDescriptionPaved2.includes("100") || runwayConditionDescriptionPaved4.includes("100")) && dropDownPavedOrGravel === "PAVED" && rcc.topPercentageSelect !== 100 && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Runway must be completely covered with Compacted Snow to select this contaminant. If that is the case, select 100%
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {rcc.totalPercentage > 100 && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Contaminant(s) over 100%!
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {rcc.totalPercentage > 100 && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Contaminant(s) over 100%!
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allPavedRunwayConditionDescription.includes('Dry Snow more than 1.0 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Dry Snow Depth = 2.0 in
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allPavedRunwayConditionDescription.includes('Dry Snow more than 1.0 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Dry Snow Depth = 2.0 in
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {dropDownPavedOrGravel === "GRAVEL" && rcc.result !== 0 && allGravelRunwayConditionDescription.includes('Dry Snow more than 1.0 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Dry Snow Depth = 2.0 in
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="mb-2">
-                        {dropDownPavedOrGravel === "GRAVEL" && rcc.result !== 0 && allGravelRunwayConditionDescription.includes('Dry Snow more than 1.0 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Dry Snow Depth = 2.0 in
-                            </div>
-                        )}
-                    </div>
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && rcc.result !== 0 && rcc.totalPercentage < 40 && dropDownPavedOrGravel === "GRAVEL" &&
+                                allGravelRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth over Compacted snow/gravel mix') && (
+                                    <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Max Wet Snow Depth = 1.0 in
+                                    </div>
+                                )}
+                        </div>
 
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && rcc.result !== 0 && rcc.totalPercentage < 40 && dropDownPavedOrGravel === "GRAVEL" &&
-                            allGravelRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth over Compacted snow/gravel mix') && (
+                        <div className="mb-2">
+                            {aircraftType === "HS-748" && rcc.result !== 0 && rcc.totalPercentage < 40 && dropDownPavedOrGravel === "GRAVEL" &&
+                                allGravelRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth over Compacted snow/gravel mix') && (
+                                    <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Max Wet Snow Depth = 0.5 in
+                                    </div>
+                                )}
+                        </div>
+
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth') && (
                                 <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
                                     Max Wet Snow Depth = 1.0 in
                                 </div>
                             )}
-                    </div>
+                        </div>
 
-                    <div className="mb-2">
-                        {aircraftType === "HS-748" && rcc.result !== 0 && rcc.totalPercentage < 40 && dropDownPavedOrGravel === "GRAVEL" &&
-                            allGravelRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth over Compacted snow/gravel mix') && (
+                        <div className="mb-2">
+                            {aircraftType === "HS-748" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth') && (
                                 <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
                                     Max Wet Snow Depth = 0.5 in
                                 </div>
                             )}
-                    </div>
+                        </div>
 
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Wet Snow Depth = 1.0 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "HS-748" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Wet Snow greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Wet Snow Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Water Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Water Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && dropDownPavedOrGravel === "GRAVEL" && rcc.result !== 0 && allRunwayConditionDescription.includes('Water Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Water Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Slush Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "DHC-8" && dropDownPavedOrGravel === "GRAVEL" && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Slush Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "HS-748" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Slush Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {aircraftType === "HS-748" && dropDownPavedOrGravel === "GRAVEL" && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
-                            <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                Max Slush Depth = 0.5 in
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-2">
-                        {dropDownPavedOrGravel === "GRAVEL" && (
-                            (!runwayConditionDescriptionGravel1.includes("SELECT") && !runwayConditionDescriptionGravel3.includes("SELECT") &&
-                                runwayConditionDescriptionGravel1 === runwayConditionDescriptionGravel3)
-                        ) && (
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Water Greater than 0.13 in depth') && (
                                 <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                    Same Contaminant in selection 1 and 2!
+                                    Max Water Depth = 0.5 in
                                 </div>
                             )}
-                    </div>
+                        </div>
 
-                    <div className="mb-2">
-                        {dropDownPavedOrGravel === "PAVED" && (
-                            (!runwayConditionDescriptionPaved2.includes("SELECT") && !runwayConditionDescriptionPaved4.includes("SELECT") &&
-                                runwayConditionDescriptionPaved2 === runwayConditionDescriptionPaved4)
-                        ) && (
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && dropDownPavedOrGravel === "GRAVEL" && rcc.result !== 0 && allRunwayConditionDescription.includes('Water Greater than 0.13 in depth') && (
                                 <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
-                                    Same Contaminant in selection 1 and 2!
+                                    Max Water Depth = 0.5 in
                                 </div>
                             )}
-                    </div>
-                </div>
-            </Card>
+                        </div>
 
-            <div>
-                <div className="text-center"> 1/8&quot; / 0.13in / 3mm</div>
-                <div className="text-center">COMPACTED SNOW ON A GRAVEL RWY = COMPACTED SNOW/GRAVEL MIX = NOT A CONTAMINANT</div>
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Slush Depth = 0.5 in
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-2">
+                            {aircraftType === "DHC-8" && dropDownPavedOrGravel === "GRAVEL" && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Slush Depth = 0.5 in
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-2">
+                            {aircraftType === "HS-748" && dropDownPavedOrGravel === "PAVED" && rcc.result !== 0 && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Slush Depth = 0.5 in
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-2">
+                            {aircraftType === "HS-748" && dropDownPavedOrGravel === "GRAVEL" && allRunwayConditionDescription.includes('Slush Greater than 0.13 in depth') && (
+                                <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    Max Slush Depth = 0.5 in
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-2">
+                            {dropDownPavedOrGravel === "GRAVEL" && (
+                                (!runwayConditionDescriptionGravel1.includes("SELECT") && !runwayConditionDescriptionGravel3.includes("SELECT") &&
+                                    runwayConditionDescriptionGravel1 === runwayConditionDescriptionGravel3)
+                            ) && (
+                                    <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Same Contaminant in selection 1 and 2!
+                                    </div>
+                                )}
+                        </div>
+
+                        <div className="mb-2">
+                            {dropDownPavedOrGravel === "PAVED" && (
+                                (!runwayConditionDescriptionPaved2.includes("SELECT") && !runwayConditionDescriptionPaved4.includes("SELECT") &&
+                                    runwayConditionDescriptionPaved2 === runwayConditionDescriptionPaved4)
+                            ) && (
+                                    <div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                        Same Contaminant in selection 1 and 2!
+                                    </div>
+                                )}
+                        </div>
+                    </div>
+                </Card>
+
             </div>
+
+            <div className="flex-1" name="rccnotprovided_depth">
+
+                <div className="text-center">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 underline">
+                        {isExpanded ? "Hide Depth Info" : "Show Depth Info"}
+                    </button>
+                    {isExpanded && (
+                        <div className="mt-2">
+                            <div>1/8&quot; / 0.13in / 3mm</div>
+                            <div>COMPACTED SNOW ON A GRAVEL RWY =</div>
+                            <div>COMPACTED SNOW/GRAVEL MIX = </div>
+                            <div>NOT A CONTAMINANT </div>
+                        </div>
+                    )}
+                </div>
+
+            </div>
+
+
         </div>
     );
 }

@@ -7,13 +7,16 @@ import { createPortal } from 'react-dom';
 import GlobalModalContent from '../lib/component/GlobalModalContent';
 import { LockClosedIcon, LockOpenIcon, CalculatorIcon } from '@heroicons/react/outline';
 import { inter, lusitana, roboto } from '../ui/fonts';
+
 interface LayoutProps {
   children: React.ReactNode;
   // ... other properties
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [showModal, setShowModal] = useState(false);
+  const [isXWindModalOpen, setIsXWindModalOpen] = useState(false);
+  const [isRccNotProvidedModalOpen, setIsRccNotProvidedModalOpen] = useState(false);
+  const [isRccProvidedModalOpen, setIsRccProvidedModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(true); // New state for pinning the SideNav
 
@@ -66,14 +69,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         <div style={mainContentStyle}>
           {children}
-          <button onClick={() => setShowModal(!showModal)} className="fixed bottom-4 right-4 px-4 py-2 bg-blue-500 text-white rounded flex items-center">
-            X-Wind
-            <CalculatorIcon className="h-5 w-5 text-white ml-2" />
-          </button>
+          <div className="fixed bottom-4 right-4 flex space-x-4">
+            <button
+              onClick={() => setIsXWindModalOpen(!isXWindModalOpen)}
+              className={`px-4 py-2 rounded ${isXWindModalOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
+            >
+              <span className="flex items-center">
+                X-Wind
+                <CalculatorIcon className="h-5 w-5 text-white ml-2" />
+              </span>
+            </button>
+            <button
+              onClick={() => setIsRccNotProvidedModalOpen(!isRccNotProvidedModalOpen)}
+              className={`px-4 py-2 rounded ${isRccNotProvidedModalOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
+            >
+              <span className="flex items-center">
+                RCC Not Provided
+                <CalculatorIcon className="h-5 w-5 text-white ml-2" />
+              </span>
+            </button>
+            <button
+              onClick={() => setIsRccProvidedModalOpen(!isRccProvidedModalOpen)}
+              className={`px-4 py-2 rounded ${isRccProvidedModalOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
+            >
+              <span className="flex items-center">
+                RCC Provided
+                <CalculatorIcon className="h-5 w-5 text-white ml-2" />
+              </span>
+            </button>
+          </div>
         </div>
       </div>
-      {showModal && createPortal(
-        <GlobalModalContent onClose={() => setShowModal(false)} />,
+
+      {isXWindModalOpen && createPortal(
+        <GlobalModalContent onClose={() => setIsXWindModalOpen(false)} contentType="x-wind" />,
+        document.body
+      )}
+
+      {isRccNotProvidedModalOpen && createPortal(
+        <GlobalModalContent onClose={() => setIsRccNotProvidedModalOpen(false)} contentType="rcc-not-provided" />,
+        document.body
+      )}
+
+      {isRccProvidedModalOpen && createPortal(
+        <GlobalModalContent onClose={() => setIsRccProvidedModalOpen(false)} contentType="rcc-provided" />,
         document.body
       )}
     </RccProvider>
