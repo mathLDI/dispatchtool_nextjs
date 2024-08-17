@@ -23,12 +23,12 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
   }, [reset]);
 
   return (
-    <div className={width === undefined ? "w-28" : width}>
+    <div className={width === undefined ? "w-full" : width}> {/* Use w-full to allow full width */}
       <Listbox value={selected} onChange={changeHandler}>
         <div className="relative">
           <ListboxButton
-            className="relative w-full cursor-default rounded-lg bg-white dark:bg-black py-2 pl-3 pr-10 text-left border shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm "
-            title={selected} // Add the title attribute to display the full text as a tooltip
+            className="relative w-full cursor-default rounded-lg bg-white dark:bg-black py-2 pl-3 pr-10 text-left border shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+            title={selected} // Tooltip for full text display
           >
             <div className="flex justify-between items-center">
               <span className="block truncate">{selected}</span>
@@ -52,7 +52,7 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
                 >
                   {({ selected }) => (
                     <>
-                      <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`} style={{ whiteSpace: "normal", maxWidth: "300px" }}>
+                      <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`} style={{ whiteSpace: "normal", maxWidth: "none" }}>
                         {choice}
                       </span>
                       {selected ? (
@@ -76,7 +76,6 @@ ChoiceListbox.propTypes = {
   choices: PropTypes.array.isRequired,
   callback: PropTypes.func.isRequired,
   width: PropTypes.string,
-
   reset: PropTypes.bool,
   resetCallback: PropTypes.func,
   value: PropTypes.any,

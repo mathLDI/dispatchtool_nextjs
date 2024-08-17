@@ -143,28 +143,28 @@ const FirstPageRccNotProvided = (props) => {
                             <div className="flex flex-row justify-between items-center p-2">
 
 
-                                <div>Contaminant 1:</div>
-                                <div className="flex-grow min-w-[200px]">
+                                <div className="bg-emerald-300">Contaminant 1:</div>
 
+                                <div className="flex-grow bg-amber-500 " style={{ minWidth: '300px' }}>
                                     <ChoiceListbox
                                         value={runwayConditionDescriptionPaved2}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionPaved2}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={200}
                                     />
                                 </div>
 
-
-                                <div >Percent Coverage 1:</div>
-                                <ChoiceListbox
-                                    value={contaminationCoverage2}
-                                    choices={contaminationCoverage2List}
-                                    callback={setContaminationCoverage2}
-                                    reset={resetListBox}
-                                    resetCallback={resetListbox1Handler}
-                                />
+                                <div className="bg-red-600">% Coverage 1:</div>
+                                <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                    <ChoiceListbox
+                                        value={contaminationCoverage2}
+                                        choices={contaminationCoverage2List}
+                                        callback={setContaminationCoverage2}
+                                        reset={resetListBox}
+                                        resetCallback={resetListbox1Handler}
+                                    />
+                                </div>
 
 
 
@@ -179,7 +179,7 @@ const FirstPageRccNotProvided = (props) => {
                             && rcc.topPercentageSelect !== 0 && (contaminationCoverage2 !== 0 && contaminationCoverage2 !== 100) && (
                                 <div className="flex flex-row justify-between items-center p-2">
                                     <div>Contaminant 2:</div>
-                                    <div className="flex-grow">
+                                    <div className="flex-grow" style={{ minWidth: '300px' }}>
 
                                         <ChoiceListbox
                                             value={runwayConditionDescriptionPaved4}
@@ -187,76 +187,82 @@ const FirstPageRccNotProvided = (props) => {
                                             callback={setRunwayConditionDescriptionPaved4}
                                             reset={resetListBox}
                                             resetCallback={resetListbox1Handler}
-                                            width={200}
+
                                         />
                                     </div>
 
-                                    <div>Percent Coverage 2:</div>
-                                    <ChoiceListbox
-                                        value={contaminationCoverage4}
-                                        choices={contaminationCoverage3List}
-                                        callback={setContaminationCoverage4}
-                                        reset={resetListBox}
-                                        resetCallback={resetListbox1Handler}
-                                    />
-
+                                    <div>% Coverage 2:</div>
+                                    <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                        <ChoiceListbox
+                                            value={contaminationCoverage4}
+                                            choices={contaminationCoverage3List}
+                                            callback={setContaminationCoverage4}
+                                            reset={resetListBox}
+                                            resetCallback={resetListbox1Handler}
+                                        />
+                                    </div>
                                 </div>
                             )}
 
                         {dropDownPavedOrGravel === "GRAVEL" && (
                             <div className="flex flex-row justify-between items-center p-2">
                                 <div>Contaminant 1:</div>
-                                
-                                <div className="flex-grow min-w-[200px]">                                
-                                        <ChoiceListbox
+
+                                <div className="flex-grow" style={{ minWidth: '300px' }}>
+                                    <ChoiceListbox
                                         value={runwayConditionDescriptionGravel1}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionGravel1}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
-                                        width={200}
-                                        />
+
+                                    />
                                 </div>
 
-                                <div>Percent Coverage 1:</div>
+                                <div>% Coverage 1:</div>
 
-                                <ChoiceListbox
-                                    value={contaminationCoverage1}
-                                    choices={contaminationCoverage2List}
-                                    callback={setContaminationCoverage1}
-                                    reset={resetListBox}
-                                    resetCallback={resetListbox1Handler}
-                                />
+                                <div className="flex-grow " style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                    <ChoiceListbox
+                                        value={contaminationCoverage1}
+                                        choices={contaminationCoverage2List}
+                                        callback={setContaminationCoverage1}
+                                        reset={resetListBox}
+                                        resetCallback={resetListbox1Handler}
+                                    />
+                                </div>
+
 
                             </div>
+
                         )}
 
                         {runwayConditionDescriptionGravel1 !== "SELECT GRAVEL CONTAMINANT" && dropDownPavedOrGravel === "GRAVEL"
                             && (contaminationCoverage1 !== 0 && contaminationCoverage1 !== 100) && (
                                 <div className="flex flex-row justify-between items-center p-2">
-                                        <div>Contaminant 2:</div>
-                                        <div className="flex-grow min-w-[200px]">
+                                    <div className="style={{ minWidth: '100px' , maxWidth: '100px' }}">Contaminant 2:</div>
 
+                                    <div className="flex-grow " style={{ minWidth: '300px' }}>
                                         <ChoiceListbox
                                             value={runwayConditionDescriptionGravel3}
                                             choices={contaminantChoices}
                                             callback={setRunwayConditionDescriptionGravel3}
                                             reset={resetListBox}
                                             resetCallback={resetListbox1Handler}
-                                            width={200}
+
                                         />
                                     </div>
 
-                                    <div>Percent Coverage 2:</div>
+                                    <div className="">% Coverage 2:</div>
 
-                                    <ChoiceListbox
-                                        value={contaminationCoverage3}
-                                        choices={contaminationCoverage3List}
-                                        callback={setContaminationCoverage3}
-                                        reset={resetListBox}
-                                        resetCallback={resetListbox1Handler}
-
-                                    />
+                                    <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
+                                        <ChoiceListbox
+                                            value={contaminationCoverage3}
+                                            choices={contaminationCoverage3List}
+                                            callback={setContaminationCoverage3}
+                                            reset={resetListBox}
+                                            resetCallback={resetListbox1Handler}
+                                        />
+                                    </div>
 
                                 </div>
                             )}
