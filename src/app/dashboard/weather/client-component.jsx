@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { MinusIcon, PlusIcon } from '@heroicons/react/outline'; 
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
-import MetarDisplay from '../../lib/component/MetarDisplay'; // Import the new component
-import TafDisplay from '../../lib/component/TafDisplay'; // Import the TAF component
-import GfaDisplay from '../../lib/component/GfaDisplay'; // Import the GFA component
+import MetarDisplay from '../../lib/component/MetarDisplay';
+import TafDisplay from '../../lib/component/TafDisplay';
+import GfaDisplay from '../../lib/component/GfaDisplay';
 import {
   formatLocalDate,
   parseNotamDate,
@@ -16,29 +17,6 @@ import {
   allAirportsFlightCategory,
   calculateAirportCategories,
 } from '../../lib/component/functions/weatherAndNotam';
-
-
-
-
-
-// Example function to fetch weather data for all airports
-//async function fetchAllWeatherData() {
-// const weatherData = {};
-
-// Simulate fetching weather data for each airport
-// for (const airport of airportValues) {
-//   try {
-//    const response = await fetch(`/api/weather/${airport.code}`); // Replace with your actual API endpoint
-//   const data = await response.json();
-//    weatherData[airport.code] = data;
-//  } catch (error) {
-//    console.error(`Failed to fetch weather data for ${airport.code}:`, error);
-//  }
-//}
-//
-// return weatherData;
-//}
-
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -60,21 +38,25 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setAllWeatherData,
     airportCategories,
     setAirportCategories,
+    isCraneFilterActive, 
+    setIsCraneFilterActive,
   } = useRccContext();
-
-
-  //ADD STATE TO CONTEXT BELOW ????///
 
   const [leftWidth, setLeftWidth] = useState(50); // Start with 50% width for the left column
   const containerRef = useRef(null);
   const resizerRef = useRef(null);
+
+  // State to track if the user is resizing the layout
   const [isResizing, setIsResizing] = useState(false);
 
+  const toggleCraneFilter = () => {
+    setIsCraneFilterActive(!isCraneFilterActive);
+  };
+
   useEffect(() => {
-    // Fetch weather data for all airports in airportValues when the component mounts
     const fetchWeatherData = async () => {
       const data = {};
-  
+
       for (const airport of airportValues) {
         try {
           const responseData = await fetchWeather(airport.code);
@@ -83,36 +65,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           console.error(`Failed to fetch weather data for ${airport.code}:`, error);
         }
       }
-      console.log('Fetched weather data:', data); // Log fetched data
+      console.log('Fetched weather data:', data);
       setAllWeatherData(data);
     };
-  
-    // Only fetch if there are airports in the list
+
     if (airportValues.length > 0) {
       fetchWeatherData();
     }
   }, [fetchWeather, airportValues]);
-  
-
 
   useEffect(() => {
-    // Call allAirportsFlightCategory whenever allWeatherData changes
     if (Object.keys(allWeatherData).length > 0) {
       const categories = allAirportsFlightCategory(airportValues, allWeatherData);
-      console.log('Calculated airport categories:', categories); // Log calculated categories
+      console.log('Calculated airport categories:', categories);
       setAirportCategories(categories);
     }
   }, [allWeatherData]);
-
-
-
 
   const handleMouseMove = (e) => {
     if (!isResizing || !containerRef.current) return;
 
     const containerRect = containerRef.current.getBoundingClientRect();
     const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-    setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80)); // Limit resizing to between 20% and 80%
+    setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80));
   };
 
   const handleMouseUp = () => {
@@ -141,25 +116,19 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       });
 
       fetchGFA(selectedAirport.code, gfaType).then((data) => {
-        {/**console.log('GFA Data:::', data); // Log the fetched GFA data */ }
         setGfaData(data);
       });
     }
   }, [selectedAirport, gfaType, fetchWeather, fetchGFA, setWeatherData]);
 
-  // Helper function to get the frames from the last frame list
-  const getLastFrames = (frameLists) => {
-    const lastFrameList = frameLists[frameLists.length - 1];
-    return lastFrameList.frames;
-  };
 
-
-
-  useEffect(() => {
-    if (weatherData) {
-      console.log('Updated Weather Data:', weatherData);
-    }
-  }, [weatherData]);
+  
+  
+    useEffect(() => {
+      if (weatherData) {
+        console.log('Updated Weather Data:', weatherData);
+      }
+    }, [weatherData]);
 
   const extractTextBeforeFR = (text) => {
     const frIndex = text.indexOf('FR:');
@@ -179,27 +148,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   const filterAndHighlightNotams = (notams) => {
-    // Define regex for each category of terms to be highlighted
     const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/gi;
     const lifrTerms = /\b(AUTH|RSC|SERVICE)\b/gi;
     const mvfrTerms = /\b(TWY CLOSED)\b/gi;
 
-    // First filter by search term, then highlight
     return notams
       .filter((notam) => {
         const notamText = JSON.parse(notam.text).raw;
+
+        // Exclude NOTAMs with "CRANE" in the E) section if the filter is active
+        if (isCraneFilterActive && /E\).*CRANE/.test(notamText)) {
+          return false;
+        }
+
         return notamText.toLowerCase().includes(searchTerm.toLowerCase());
       })
       .map((notam) => {
         const notamText = JSON.parse(notam.text).raw;
 
-        // Highlight different terms with different classes
         let highlightedText = notamText
           .replace(ifrTerms, '<span class="text-custom-ifr">$&</span>')
           .replace(lifrTerms, '<span class="text-custom-lifr">$&</span>')
           .replace(mvfrTerms, '<span class="text-custom-mvfr">$&</span>');
 
-        // Highlight search terms separately
         if (searchTerm) {
           const searchTermRegex = new RegExp(`(${searchTerm})`, 'gi');
           highlightedText = highlightedText.replace(
@@ -208,12 +179,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           );
         }
 
-        return { ...notam, highlightedText }; // Add highlighted text to notam
+        return { ...notam, highlightedText };
       });
   };
 
-  const countFilteredNotams = (notams, type) => {
-    const filteredNotams = filterAndHighlightNotams(notams);
+  const countFilteredNotams = (notams, type, searchTerm, isCraneFilterActive) => {
+    const filteredNotams = filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive);
+
     return filteredNotams.filter((notam) => {
       const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
@@ -236,7 +208,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         );
       case 'ENROUTE':
         return (
-          <Card title="NOTAM ENROUTE" status={null} className="h-full  ">
+          <Card title="NOTAM ENROUTE" status={null} className="h-full">
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
             {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
@@ -246,7 +218,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         );
       case 'WARNING':
         return (
-          <Card title="NOTAM WARNING" status={null} className="h-full  ">
+          <Card title="NOTAM WARNING" status={null} className="h-full">
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
             {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
@@ -329,8 +301,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     );
   };
 
-
-
   return (
     <div className="flex h-screen" ref={containerRef}> {/* Ensures the component takes full viewport height */}
       <div className="fixed z-10">
@@ -383,7 +353,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                   </button>
                 </div>
 
-                {/* Display the image */}
                 <GfaDisplay
                   gfaData={gfaData}
                   selectedTimestamp={selectedTimestamp}
@@ -405,7 +374,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             className="flex flex-col p-2 overflow-y-auto"
             style={{ width: `${100 - leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
           >
-
             <div className="mb-4">
               <label className="font-bold mr-2 text-lg">NOTAM</label>
               <div className="flex space-x-2">
@@ -413,19 +381,25 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                   onClick={() => handleNotamTypeChange('AERODROME')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A')}
+                  AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A', searchTerm, isCraneFilterActive)}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E')}
+                  ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E', searchTerm, isCraneFilterActive)}
                 </button>
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W')}
+                  WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W', searchTerm, isCraneFilterActive)}
+                </button>
+                <button
+                  onClick={toggleCraneFilter}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  CRANE
                 </button>
               </div>
 

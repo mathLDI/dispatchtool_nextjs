@@ -145,7 +145,7 @@ export function extractTextBeforeFR(text) {
   return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
 }
 
-export function filterAndHighlightNotams(notams, searchTerm) {
+export function filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive) {
   const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/gi;
   const lifrTerms = /\b(AUTH|RSC|SERVICE)\b/gi;
   const mvfrTerms = /\b(TWY CLOSED)\b/gi;
@@ -153,6 +153,9 @@ export function filterAndHighlightNotams(notams, searchTerm) {
   return notams
     .filter((notam) => {
       const notamText = JSON.parse(notam.text).raw;
+      if (isCraneFilterActive && notamText.includes('CRANE')) {
+        return false; // Exclude NOTAMs that mention "CRANE"
+      }
       return notamText.toLowerCase().includes(searchTerm.toLowerCase());
     })
     .map((notam) => {
@@ -173,6 +176,7 @@ export function filterAndHighlightNotams(notams, searchTerm) {
       return { ...notam, highlightedText };
     });
 }
+
 
 export function countFilteredNotams(notams, type, searchTerm) {
   const filteredNotams = filterAndHighlightNotams(notams, searchTerm);

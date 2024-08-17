@@ -82,6 +82,8 @@ interface RccContextType {
   setAllWeatherData: (data: any) => void;
   airportCategories: Record<string, { category: string; color: string }>;
   setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
+  isCraneFilterActive: boolean;  // New state
+  setIsCraneFilterActive: (active: boolean) => void;  // New state setter
 
 
 }
@@ -136,6 +138,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
+  const [isCraneFilterActive, setIsCraneFilterActive] = useState(false); // New state
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -186,6 +189,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedTimestamp, setSelectedTimestamp,
       allWeatherData, setAllWeatherData,
       airportCategories, setAirportCategories,
+      isCraneFilterActive, setIsCraneFilterActive, // New state and setter
+
 
     }}>
       {children}
