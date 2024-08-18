@@ -6,7 +6,6 @@
 import React, { useState } from 'react';
 import AirportList from '../../lib/component/AirportList';
 import { useRccContext } from '../RccCalculatorContext';
-import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
 
 
 const AirportSearchForm = ({ fetchWeather }) => {
@@ -83,7 +82,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
             className="border p-2 rounded " // Adjust padding to make space for the icon
           />
           <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 p-2   rounded flex ">
-            <SearchIcon className="h-5 w-5" />
+        
           </button>
           {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
         </form>

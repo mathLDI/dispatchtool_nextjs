@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { MinusIcon, PlusIcon } from '@heroicons/react/outline'; 
+import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -17,6 +17,55 @@ import {
   allAirportsFlightCategory,
   calculateAirportCategories,
 } from '../../lib/component/functions/weatherAndNotam';
+
+const RoutingWXXForm = ({ onClose }) => {
+  const { airportValues, setAirportValues } = useRccContext();
+
+  const handleChange = (e, field) => {
+    const updatedAirports = { ...airportValues, [field]: e.target.value };
+    setAirportValues(updatedAirports);
+  };
+
+  return (
+    <div className="flex space-x-4 mt-4 flex-wrap">
+      <input
+        type="text"
+        placeholder="DEPARTURE"
+        value={airportValues.departure || ''}
+        onChange={(e) => handleChange(e, 'departure')}
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <input
+        type="text"
+        placeholder="DESTINATION"
+        value={airportValues.destination || ''}
+        onChange={(e) => handleChange(e, 'destination')}
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <input
+        type="text"
+        placeholder="ALTERNATE 1"
+        value={airportValues.alternate1 || ''}
+        onChange={(e) => handleChange(e, 'alternate1')}
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <input
+        type="text"
+        placeholder="ALTERNATE 2"
+        value={airportValues.alternate2 || ''}
+        onChange={(e) => handleChange(e, 'alternate2')}
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+  
+      <button
+        onClick={onClose}
+        className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
+      >
+        Save
+      </button>
+    </div>
+  );
+};
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -38,16 +87,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setAllWeatherData,
     airportCategories,
     setAirportCategories,
-    isCraneFilterActive, 
+    isCraneFilterActive,
     setIsCraneFilterActive,
   } = useRccContext();
 
-  const [leftWidth, setLeftWidth] = useState(50); // Start with 50% width for the left column
+  const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef(null);
   const resizerRef = useRef(null);
 
-  // State to track if the user is resizing the layout
   const [isResizing, setIsResizing] = useState(false);
+  const [selectedForm, setSelectedForm] = useState('airportSearchForm');
 
   const toggleCraneFilter = () => {
     setIsCraneFilterActive(!isCraneFilterActive);
@@ -121,14 +170,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [selectedAirport, gfaType, fetchWeather, fetchGFA, setWeatherData]);
 
-
-  
-  
-    useEffect(() => {
-      if (weatherData) {
-        console.log('Updated Weather Data:', weatherData);
-      }
-    }, [weatherData]);
+  useEffect(() => {
+    if (weatherData) {
+      console.log('Updated Weather Data:', weatherData);
+    }
+  }, [weatherData]);
 
   const extractTextBeforeFR = (text) => {
     const frIndex = text.indexOf('FR:');
@@ -302,15 +348,38 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   return (
-    <div className="flex h-screen" ref={containerRef}> {/* Ensures the component takes full viewport height */}
-      <div className="fixed z-10">
-        <AirportSearchForm fetchWeather={fetchWeather} />
+    <div className="flex flex-col h-screen" ref={containerRef}>
+      <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
+        {/* Dropdown to choose form */}
+        <select
+          value={selectedForm}
+          onChange={(e) => setSelectedForm(e.target.value)}
+          className="p-2 border border-gray-300 rounded-md"
+        >
+          <option value="airportSearchForm">Airport Search</option>
+          <option value="routingWXXForm">Routing WXX</option>
+        </select>
+
+        {/* Conditional Rendering of Forms */}
+        {selectedForm === 'routingWXXForm' && (
+          <div className="flex items-center flex-wrap" name="RoutingWXXForm">
+            <div className="ml-4 w-full md:w-auto">
+              <RoutingWXXForm onClose={() => setSelectedForm('airportSearchForm')} />
+            </div>
+          </div>
+        )}
+
+        {selectedForm === 'airportSearchForm' && (
+          <div className="flex items-center mt-4 w-full md:w-auto" name="airportSearchForm">
+            <AirportSearchForm fetchWeather={fetchWeather} />
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-hidden pt-16"> {/* Manages overflow at the column level */}
-        <div className="flex flex-row h-full "> {/* Ensures flex children stretch to full height of their parent */}
+      <div className="flex-1 overflow-hidden bg-yellow-600">
+        <div className="flex flex-row h-full">
 
-          {/* Left Column for METAR and TAF */}
+               {/* Left Column for METAR and TAF */}
           <div
             className="flex flex-col overflow-y-auto p-2"
             style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
