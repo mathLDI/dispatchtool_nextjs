@@ -143,9 +143,9 @@ const FirstPageRccNotProvided = (props) => {
                             <div className="flex flex-row justify-between items-center p-2">
 
 
-                                <div className="bg-emerald-300">Contaminant 1:</div>
+                                <div>Contaminant 1:</div>
 
-                                <div className="flex-grow bg-amber-500 " style={{ minWidth: '300px' }}>
+                                <div className="flex-grow  " style={{ minWidth: '300px' }}>
                                     <ChoiceListbox
                                         value={runwayConditionDescriptionPaved2}
                                         choices={contaminantChoices}
@@ -155,8 +155,8 @@ const FirstPageRccNotProvided = (props) => {
                                     />
                                 </div>
 
-                                <div className="bg-red-600">% Coverage 1:</div>
-                                <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                <div>% Coverage 1:</div>
+                                <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
                                     <ChoiceListbox
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
@@ -192,7 +192,7 @@ const FirstPageRccNotProvided = (props) => {
                                     </div>
 
                                     <div>% Coverage 2:</div>
-                                    <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                    <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
                                         <ChoiceListbox
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
@@ -254,7 +254,7 @@ const FirstPageRccNotProvided = (props) => {
 
                                     <div className="">% Coverage 2:</div>
 
-                                    <div className="flex-grow bg-blue-400" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
+                                    <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
                                         <ChoiceListbox
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
