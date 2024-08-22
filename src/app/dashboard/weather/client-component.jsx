@@ -8,6 +8,8 @@ import AirportSearchForm from './AirportSearchForm';
 import MetarDisplay from '../../lib/component/MetarDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import GfaDisplay from '../../lib/component/GfaDisplay';
+import { ChoiceListbox } from '../../lib/component/ListBox';
+
 import {
   formatLocalDate,
   parseNotamDate,
@@ -351,14 +353,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     <div className="flex flex-col h-screen" ref={containerRef}>
       <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
         {/* Dropdown to choose form */}
-        <select
-          value={selectedForm}
-          onChange={(e) => setSelectedForm(e.target.value)}
-          className="p-2 border border-gray-300 rounded-md"
-        >
-          <option value="airportSearchForm">Airport Search</option>
-          <option value="routingWXXForm">Routing WXX</option>
-        </select>
+        <ChoiceListbox
+  choices={['airportSearchForm', 'routingWXXForm']}
+  callback={(value) => setSelectedForm(value)}
+  value={selectedForm}
+  width=""
+/>
 
         {/* Conditional Rendering of Forms */}
         {selectedForm === 'routingWXXForm' && (
