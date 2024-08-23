@@ -7,6 +7,14 @@ interface Airport {
   code: string;
 }
 
+interface FlightDetails {
+  flightNumber: string;
+  departure: string;
+  destination: string;
+  alternate1: string;
+  alternate2: string;
+}
+
 interface RccContextType {
   aircraftType: string;
   setAircraftType: (type: string) => void;
@@ -84,6 +92,8 @@ interface RccContextType {
   setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
   isCraneFilterActive: boolean;  // New state
   setIsCraneFilterActive: (active: boolean) => void;  // New state setter
+  flightDetails: FlightDetails;
+  setFlightDetails: (details: FlightDetails) => void;
 
 
 }
@@ -132,13 +142,21 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
-  const [searchTerm, setSearchTerm] = useState(''); // Add state for searchTerm
-  const [gfaType, setGfaType] = useState('CLDWX'); // Default to Clouds
+  const [searchTerm, setSearchTerm] = useState('');
+  const [gfaType, setGfaType] = useState('CLDWX');
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
-  const [isCraneFilterActive, setIsCraneFilterActive] = useState(false); // New state
+  const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
+
+  const [flightDetails, setFlightDetails] = useState<FlightDetails>({
+    flightNumber: '',
+    departure: '',
+    destination: '',
+    alternate1: '',
+    alternate2: '',
+  });
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
@@ -184,14 +202,13 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
       searchTerm, setSearchTerm,
-      gfaType, setGfaType, // Include GFA states
+      gfaType, setGfaType,
       gfaData, setGfaData,
       selectedTimestamp, setSelectedTimestamp,
       allWeatherData, setAllWeatherData,
       airportCategories, setAirportCategories,
-      isCraneFilterActive, setIsCraneFilterActive, // New state and setter
-
-
+      isCraneFilterActive, setIsCraneFilterActive,
+      flightDetails, setFlightDetails,
     }}>
       {children}
     </RccContext.Provider>

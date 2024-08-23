@@ -3,9 +3,9 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { MoonIcon } from '@heroicons/react/outline'
 import PropTypes from "prop-types";
 import { useState } from "react";
-import logo from '../assets/logo.png';
-import { signOut } from "firebase/auth";
-import { getAuth } from "firebase/auth";
+//import logo from '../assets/logo.png';
+//import { signOut } from "firebase/auth";
+//import { getAuth } from "firebase/auth";
 
 const navigation = [
   { name: 'RCC Calculator', href: '#', id: 'rcc' },

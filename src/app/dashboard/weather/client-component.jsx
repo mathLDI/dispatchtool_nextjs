@@ -9,6 +9,8 @@ import MetarDisplay from '../../lib/component/MetarDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import GfaDisplay from '../../lib/component/GfaDisplay';
 import { ChoiceListbox } from '../../lib/component/ListBox';
+import SideNav from '@/app/ui/dashboard/sidenav';
+import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/outline';
 
 import {
   formatLocalDate,
@@ -21,44 +23,74 @@ import {
 } from '../../lib/component/functions/weatherAndNotam';
 
 const RoutingWXXForm = ({ onClose }) => {
-  const { airportValues, setAirportValues } = useRccContext();
+  const { flightDetails, setFlightDetails } = useRccContext();
+  const [warnings, setWarnings] = useState({
+    departure: '',
+    destination: '',
+    alternate1: '',
+    alternate2: '',
+  });
 
   const handleChange = (e, field) => {
-    const updatedAirports = { ...airportValues, [field]: e.target.value };
-    setAirportValues(updatedAirports);
+    const value = e.target.value.toUpperCase(); // Convert to uppercase
+    if (value.length > 4) {
+      setWarnings({ ...warnings, [field]: 'Airport code must be exactly 4 letters' });
+    } else {
+      setWarnings({ ...warnings, [field]: '' });
+      setFlightDetails({ ...flightDetails, [field]: value });
+    }
   };
 
   return (
     <div className="flex space-x-4 mt-4 flex-wrap">
       <input
         type="text"
-        placeholder="DEPARTURE"
-        value={airportValues.departure || ''}
-        onChange={(e) => handleChange(e, 'departure')}
+        placeholder="FLIGHT #"
+        value={flightDetails.flightNumber || ''}
+        onChange={(e) => setFlightDetails({ ...flightDetails, flightNumber: e.target.value })}
         className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
       />
-      <input
-        type="text"
-        placeholder="DESTINATION"
-        value={airportValues.destination || ''}
-        onChange={(e) => handleChange(e, 'destination')}
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <input
-        type="text"
-        placeholder="ALTERNATE 1"
-        value={airportValues.alternate1 || ''}
-        onChange={(e) => handleChange(e, 'alternate1')}
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <input
-        type="text"
-        placeholder="ALTERNATE 2"
-        value={airportValues.alternate2 || ''}
-        onChange={(e) => handleChange(e, 'alternate2')}
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-  
+      <div>
+        <input
+          type="text"
+          placeholder="DEPARTURE"
+          value={flightDetails.departure || ''}
+          onChange={(e) => handleChange(e, 'departure')}
+          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+        />
+        {warnings.departure && <span className="text-red-500">{warnings.departure}</span>}
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="DESTINATION"
+          value={flightDetails.destination || ''}
+          onChange={(e) => handleChange(e, 'destination')}
+          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+        />
+        {warnings.destination && <span className="text-red-500">{warnings.destination}</span>}
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="ALTERNATE 1"
+          value={flightDetails.alternate1 || ''}
+          onChange={(e) => handleChange(e, 'alternate1')}
+          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+        />
+        {warnings.alternate1 && <span className="text-red-500">{warnings.alternate1}</span>}
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="ALTERNATE 2"
+          value={flightDetails.alternate2 || ''}
+          onChange={(e) => handleChange(e, 'alternate2')}
+          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+        />
+        {warnings.alternate2 && <span className="text-red-500">{warnings.alternate2}</span>}
+      </div>
+
       <button
         onClick={onClose}
         className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
@@ -68,6 +100,9 @@ const RoutingWXXForm = ({ onClose }) => {
     </div>
   );
 };
+
+
+
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -354,17 +389,17 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
         {/* Dropdown to choose form */}
         <ChoiceListbox
-  choices={['airportSearchForm', 'routingWXXForm']}
-  callback={(value) => setSelectedForm(value)}
-  value={selectedForm}
-  width=""
-/>
+          choices={['airportSearchForm', 'routingWXXForm']}
+          callback={(value) => setSelectedForm(value)}
+          value={selectedForm}
+          width=""
+        />
 
         {/* Conditional Rendering of Forms */}
         {selectedForm === 'routingWXXForm' && (
           <div className="flex items-center flex-wrap" name="RoutingWXXForm">
             <div className="ml-4 w-full md:w-auto">
-              <RoutingWXXForm onClose={() => setSelectedForm('airportSearchForm')} />
+            <RoutingWXXForm onClose={() => setSelectedForm('routingWXXForm')} />
             </div>
           </div>
         )}
@@ -379,7 +414,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       <div className="flex-1 overflow-hidden bg-yellow-600">
         <div className="flex flex-row h-full">
 
-               {/* Left Column for METAR and TAF */}
+          {/* Left Column for METAR and TAF */}
           <div
             className="flex flex-col overflow-y-auto p-2"
             style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
