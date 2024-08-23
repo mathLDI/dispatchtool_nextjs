@@ -33,26 +33,26 @@ const RoutingWXXForm = ({ onSave }) => {
 
   const handleChange = (e, field) => {
     const value = e.target.value.toUpperCase();
-    if (value.length > 4) {
-      setWarnings({ ...warnings, [field]: 'Airport code must be exactly 4 letters' });
-    } else {
-      setWarnings({ ...warnings, [field]: '' });
-      setFlightDetails({ ...flightDetails, [field]: value });
-    }
+    setWarnings({ ...warnings, [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : '' });
+    setFlightDetails({ ...flightDetails, [field]: value });
   };
 
   const handleSave = () => {
     if (flightDetails.flightNumber && flightDetails.departure && flightDetails.destination) {
       onSave(flightDetails);
-      setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
+      // No need to reset flightDetails, so we comment out or remove the next line
+      // setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
     } else {
-      console.log('Some required fields are missing.');
       setWarnings({
         flightNumber: !flightDetails.flightNumber ? 'Flight number is required' : '',
         departure: !flightDetails.departure ? 'Departure is required' : '',
         destination: !flightDetails.destination ? 'Destination is required' : '',
       });
     }
+  };
+
+  const handleClear = () => {
+    setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
   };
 
   return (
@@ -105,15 +105,26 @@ const RoutingWXXForm = ({ onSave }) => {
         {warnings.alternate2 && <span className="text-red-500">{warnings.alternate2}</span>}
       </div>
 
-      <button
-        onClick={handleSave}
-        className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
-      >
-        Save
-      </button>
+      <div className="flex space-x-2">
+        <button
+          onClick={handleSave}
+          className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
+        >
+          Save
+        </button>
+        <button
+          onClick={handleClear}
+          className="mt-2 p-2 bg-gray-500 text-white rounded-md w-full md:w-auto"
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };
+
+
+
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -406,12 +417,15 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-      {/* SideNav Component */}
-    <div className='flex bg-cyan-400 '>
-    <SideNav savedRoutings={savedRoutings} showWeatherAndRcam={false} showLogo={false} showPrinterIcon={false} />
-
-    </div>
-     
+      {/* Conditionally render SideNav only when routingWXXForm is selected */}
+      {selectedForm === 'routingWXXForm' && (
+        <SideNav 
+          savedRoutings={savedRoutings} 
+          showWeatherAndRcam={false} 
+          showLogo={false} 
+          showPrinterIcon={false} 
+        />
+      )}
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
           <ChoiceListbox
