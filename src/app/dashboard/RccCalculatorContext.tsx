@@ -15,6 +15,14 @@ interface FlightDetails {
   alternate2: string;
 }
 
+interface Routing {
+  flightNumber: string;
+  departure: string;
+  destination: string;
+  alternate1: string;
+  alternate2: string;
+}
+
 interface RccContextType {
   aircraftType: string;
   setAircraftType: (type: string) => void;
@@ -94,7 +102,8 @@ interface RccContextType {
   setIsCraneFilterActive: (active: boolean) => void;  // New state setter
   flightDetails: FlightDetails;
   setFlightDetails: (details: FlightDetails) => void;
-
+  savedRoutings: Routing[];
+  setSavedRoutings: (routings: Routing[]) => void;
 
 }
 
@@ -158,6 +167,11 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     alternate2: '',
   });
 
+  const [savedRoutings, setSavedRoutings] = useState<Routing[]>(() => {
+    const storedRoutings = localStorage.getItem('savedRoutings');
+    return storedRoutings ? JSON.parse(storedRoutings) : [];
+  });
+
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
     setAirportValues((currentValues) => [...currentValues, newAirport]);
@@ -209,6 +223,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       airportCategories, setAirportCategories,
       isCraneFilterActive, setIsCraneFilterActive,
       flightDetails, setFlightDetails,
+      savedRoutings, setSavedRoutings,
     }}>
       {children}
     </RccContext.Provider>

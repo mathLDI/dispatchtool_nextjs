@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { SearchIcon } from '@heroicons/react/solid'; // or '@heroicons/react/outline' for outline icons
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -22,7 +21,8 @@ import {
   calculateAirportCategories,
 } from '../../lib/component/functions/weatherAndNotam';
 
-const RoutingWXXForm = ({ onClose }) => {
+// Function for the Routing WXX form
+const RoutingWXXForm = ({ onSave }) => {
   const { flightDetails, setFlightDetails } = useRccContext();
   const [warnings, setWarnings] = useState({
     departure: '',
@@ -32,12 +32,26 @@ const RoutingWXXForm = ({ onClose }) => {
   });
 
   const handleChange = (e, field) => {
-    const value = e.target.value.toUpperCase(); // Convert to uppercase
+    const value = e.target.value.toUpperCase();
     if (value.length > 4) {
       setWarnings({ ...warnings, [field]: 'Airport code must be exactly 4 letters' });
     } else {
       setWarnings({ ...warnings, [field]: '' });
       setFlightDetails({ ...flightDetails, [field]: value });
+    }
+  };
+
+  const handleSave = () => {
+    if (flightDetails.flightNumber && flightDetails.departure && flightDetails.destination) {
+      onSave(flightDetails);
+      setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
+    } else {
+      console.log('Some required fields are missing.');
+      setWarnings({
+        flightNumber: !flightDetails.flightNumber ? 'Flight number is required' : '',
+        departure: !flightDetails.departure ? 'Departure is required' : '',
+        destination: !flightDetails.destination ? 'Destination is required' : '',
+      });
     }
   };
 
@@ -92,7 +106,7 @@ const RoutingWXXForm = ({ onClose }) => {
       </div>
 
       <button
-        onClick={onClose}
+        onClick={handleSave}
         className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
       >
         Save
@@ -100,9 +114,6 @@ const RoutingWXXForm = ({ onClose }) => {
     </div>
   );
 };
-
-
-
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -126,18 +137,17 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setAirportCategories,
     isCraneFilterActive,
     setIsCraneFilterActive,
+    flightDetails,
+    setFlightDetails,
+    savedRoutings,
+    setSavedRoutings,
   } = useRccContext();
 
   const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef(null);
   const resizerRef = useRef(null);
-
   const [isResizing, setIsResizing] = useState(false);
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
-
-  const toggleCraneFilter = () => {
-    setIsCraneFilterActive(!isCraneFilterActive);
-  };
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -167,6 +177,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       setAirportCategories(categories);
     }
   }, [allWeatherData]);
+
+  const handleSaveRouting = (newRouting) => {
+    const updatedRoutings = [...savedRoutings, newRouting];
+    setSavedRoutings(updatedRoutings);
+    localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+  };
+
+  const toggleCraneFilter = () => {
+    setIsCraneFilterActive(!isCraneFilterActive);
+  };
 
   const handleMouseMove = (e) => {
     if (!isResizing || !containerRef.current) return;
@@ -385,139 +405,139 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   return (
-    <div className="flex flex-col h-screen" ref={containerRef}>
-      <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
-        {/* Dropdown to choose form */}
-        <ChoiceListbox
-          choices={['airportSearchForm', 'routingWXXForm']}
-          callback={(value) => setSelectedForm(value)}
-          value={selectedForm}
-          width=""
-        />
+    <div className="flex min-h-screen">
+      {/* SideNav Component */}
+    <div className='flex bg-cyan-400 '>
+    <SideNav savedRoutings={savedRoutings} showWeatherAndRcam={false} showLogo={false} showPrinterIcon={false} />
+
+    </div>
+     
+      <div className="flex flex-col h-screen flex-1" ref={containerRef}>
+        <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
+          <ChoiceListbox
+            choices={['airportSearchForm', 'routingWXXForm']}
+            callback={(value) => setSelectedForm(value)}
+            value={selectedForm}
+            width=""
+          />
 
         {/* Conditional Rendering of Forms */}
-        {selectedForm === 'routingWXXForm' && (
-          <div className="flex items-center flex-wrap" name="RoutingWXXForm">
-            <div className="ml-4 w-full md:w-auto">
-            <RoutingWXXForm onClose={() => setSelectedForm('routingWXXForm')} />
-            </div>
-          </div>
-        )}
-
-        {selectedForm === 'airportSearchForm' && (
-          <div className="flex items-center mt-4 w-full md:w-auto" name="airportSearchForm">
+          {selectedForm === 'routingWXXForm' && (
+            <RoutingWXXForm onSave={handleSaveRouting} />
+          )}
+          {selectedForm === 'airportSearchForm' && (
             <AirportSearchForm fetchWeather={fetchWeather} />
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <div className="flex-1 overflow-hidden bg-yellow-600">
-        <div className="flex flex-row h-full">
+        <div className="flex-1 overflow-hidden bg-yellow-600">
+          <div className="flex flex-row h-full">
 
           {/* Left Column for METAR and TAF */}
-          <div
-            className="flex flex-col overflow-y-auto p-2"
-            style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
-          >
-            <h1 className="font-bold text-lg">METAR</h1>
-            <div className="flex">
-              <Card title="METAR" status={null} className="h-full">
-                <MetarDisplay weatherData={weatherData} />
-              </Card>
+            <div
+              className="flex flex-col overflow-y-auto p-2"
+              style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
+            >
+              <h1 className="font-bold text-lg">METAR</h1>
+              <div className="flex">
+                <Card title="METAR" status={null} className="h-full">
+                  <MetarDisplay weatherData={weatherData} />
+                </Card>
+              </div>
+
+              <h1 className="font-bold text-lg">TAF</h1>
+              <div className="flex-grow">
+                <Card title="TAF" status={null} className="h-full">
+                  <TafDisplay weatherData={weatherData} />
+                </Card>
+              </div>
+
+              <h1 className="font-bold text-lg">GFA</h1>
+              <div className="flex-grow">
+                <Card title="GFA" status={null} className="h-full">
+                  <div className="flex justify-center mb-2">
+                    <button
+                      onClick={() => setGfaType('CLDWX')}
+                      className={`px-4 py-2 rounded ${gfaType === 'CLDWX'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-black hover:bg-gray-300'
+                        }`}
+                    >
+                      CLDS & WX
+                    </button>
+                    <button
+                      onClick={() => setGfaType('TURBC')}
+                      className={`px-4 py-2 rounded ${gfaType === 'TURBC'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-black hover:bg-gray-300'
+                        }`}
+                    >
+                      ICG & TURB
+                    </button>
+                  </div>
+
+                  <GfaDisplay
+                    gfaData={gfaData}
+                    selectedTimestamp={selectedTimestamp}
+                    setSelectedTimestamp={setSelectedTimestamp}
+                  />
+                </Card>
+              </div>
             </div>
 
-            <h1 className="font-bold text-lg">TAF</h1>
-            <div className="flex-grow">
-              <Card title="TAF" status={null} className="h-full">
-                <TafDisplay weatherData={weatherData} />
-              </Card>
-            </div>
+          {/* Resizer */}
+            <div
+              ref={resizerRef}
+              className="w-1 bg-gray-500 cursor-col-resize"
+              onMouseDown={() => setIsResizing(true)}
+            />
 
-            <h1 className="font-bold text-lg">GFA</h1>
-            <div className="flex-grow">
-              <Card title="GFA" status={null} className="h-full">
-                <div className="flex justify-center mb-2">
+          {/* Right Column for NOTAM */}
+            <div
+              className="flex flex-col p-2 overflow-y-auto"
+              style={{ width: `${100 - leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
+            >
+              <div className="mb-4">
+                <label className="font-bold mr-2 text-lg">NOTAM</label>
+                <div className="flex space-x-2">
                   <button
-                    onClick={() => setGfaType('CLDWX')}
-                    className={`px-4 py-2 rounded ${gfaType === 'CLDWX'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-black hover:bg-gray-300'
-                      }`}
+                    onClick={() => handleNotamTypeChange('AERODROME')}
+                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                   >
-                    CLDS & WX
+                    AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A', searchTerm, isCraneFilterActive)}
                   </button>
                   <button
-                    onClick={() => setGfaType('TURBC')}
-                    className={`px-4 py-2 rounded ${gfaType === 'TURBC'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-black hover:bg-gray-300'
-                      }`}
+                    onClick={() => handleNotamTypeChange('ENROUTE')}
+                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                   >
-                    ICG & TURB
+                    ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E', searchTerm, isCraneFilterActive)}
+                  </button>
+                  <button
+                    onClick={() => handleNotamTypeChange('WARNING')}
+                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  >
+                    WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W', searchTerm, isCraneFilterActive)}
+                  </button>
+                  <button
+                    onClick={toggleCraneFilter}
+                    className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  >
+                    CRANE
                   </button>
                 </div>
 
-                <GfaDisplay
-                  gfaData={gfaData}
-                  selectedTimestamp={selectedTimestamp}
-                  setSelectedTimestamp={setSelectedTimestamp}
+              {/* Search Box */}
+                <input
+                  type="text"
+                  placeholder="Search NOTAMs..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="mt-2 p-2 border border-gray-300 rounded-md w-full"
                 />
-              </Card>
-            </div>
-          </div>
-
-          {/* Resizer */}
-          <div
-            ref={resizerRef}
-            className="w-1 bg-gray-500 cursor-col-resize"
-            onMouseDown={() => setIsResizing(true)}
-          />
-
-          {/* Right Column for NOTAM */}
-          <div
-            className="flex flex-col p-2 overflow-y-auto"
-            style={{ width: `${100 - leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
-          >
-            <div className="mb-4">
-              <label className="font-bold mr-2 text-lg">NOTAM</label>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleNotamTypeChange('AERODROME')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                >
-                  AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A', searchTerm, isCraneFilterActive)}
-                </button>
-                <button
-                  onClick={() => handleNotamTypeChange('ENROUTE')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                >
-                  ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E', searchTerm, isCraneFilterActive)}
-                </button>
-                <button
-                  onClick={() => handleNotamTypeChange('WARNING')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                >
-                  WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W', searchTerm, isCraneFilterActive)}
-                </button>
-                <button
-                  onClick={toggleCraneFilter}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-                >
-                  CRANE
-                </button>
               </div>
 
-              {/* Search Box */}
-              <input
-                type="text"
-                placeholder="Search NOTAMs..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mt-2 p-2 border border-gray-300 rounded-md w-full"
-              />
+              {renderNotamCard()}
             </div>
-
-            {renderNotamCard()}
           </div>
         </div>
       </div>

@@ -58,7 +58,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <SideNav />
+          <SideNav showWeatherAndRcam={true} showLogo={true} savedRoutings={[]} />
           <div style={pinIconStyle} onClick={togglePin}>
             {isPinned ? (
               <LockClosedIcon className="h-6 w-6" />

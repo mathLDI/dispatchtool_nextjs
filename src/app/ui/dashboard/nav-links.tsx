@@ -1,34 +1,16 @@
-
 'use client';
 
-import { DocumentIcon, CloudIcon, CalculatorIcon } from '@heroicons/react/outline';
+import { DocumentIcon, CloudIcon } from '@heroicons/react/outline'; // Removed unnecessary icons
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
 const links = [
   {
     name: 'Weather',
     href: '/dashboard/weather',
     icon: CloudIcon
-  },
-  {
-    name: 'X-Wind',
-    href: '/dashboard/x-wind',
-    icon: CalculatorIcon,
-  },
-  {
-    name: 'RCC Not Provided',
-    href: '/dashboard/firstPageRccNotProvided',
-    icon: CalculatorIcon
-  },
-  {
-    name: 'RCC Provided',
-    href: '/dashboard/firstPageRccProvided',
-    icon: CalculatorIcon
   },
   {
     name: 'RCAM PDF',
