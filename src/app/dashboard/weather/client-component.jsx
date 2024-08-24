@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -9,9 +10,7 @@ import TafDisplay from '../../lib/component/TafDisplay';
 import GfaDisplay from '../../lib/component/GfaDisplay';
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
-import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay'; // Ensure this path is correct
-
-
+import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import {
   formatLocalDate,
   parseNotamDate,
@@ -20,9 +19,12 @@ import {
   renderNotamsE,
   allAirportsFlightCategory,
   calculateAirportCategories,
+  countFilteredNotams,
+  filterAndHighlightNotams,
+  extractTextBeforeFR, // Add this line to import the function
 } from '../../lib/component/functions/weatherAndNotam';
 
-// Function for the Routing WXX form
+
 const RoutingWXXForm = ({ onSave }) => {
   const { flightDetails, setFlightDetails } = useRccContext();
   const [warnings, setWarnings] = useState({
@@ -34,15 +36,16 @@ const RoutingWXXForm = ({ onSave }) => {
 
   const handleChange = (e, field) => {
     const value = e.target.value.toUpperCase();
-    setWarnings({ ...warnings, [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : '' });
+    setWarnings({
+      ...warnings,
+      [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : ''
+    });
     setFlightDetails({ ...flightDetails, [field]: value });
   };
 
   const handleSave = () => {
     if (flightDetails.flightNumber && flightDetails.departure && flightDetails.destination) {
       onSave(flightDetails);
-      // No need to reset flightDetails, so we comment out or remove the next line
-      // setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
     } else {
       setWarnings({
         flightNumber: !flightDetails.flightNumber ? 'Flight number is required' : '',
@@ -53,7 +56,13 @@ const RoutingWXXForm = ({ onSave }) => {
   };
 
   const handleClear = () => {
-    setFlightDetails({ flightNumber: '', departure: '', destination: '', alternate1: '', alternate2: '' });
+    setFlightDetails({
+      flightNumber: '',
+      departure: '',
+      destination: '',
+      alternate1: '',
+      alternate2: '',
+    });
   };
 
   return (
@@ -123,9 +132,6 @@ const RoutingWXXForm = ({ onSave }) => {
     </div>
   );
 };
-
-
-
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
@@ -197,7 +203,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   const toggleCraneFilter = () => {
-    setIsCraneFilterActive(!isCraneFilterActive);
+    setIsCraneFilterActive((prevState) => !prevState);
+    console.log('Crane filter is now:', !isCraneFilterActive);
   };
 
   const handleMouseMove = (e) => {
@@ -245,11 +252,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [weatherData]);
 
-  const extractTextBeforeFR = (text) => {
-    const frIndex = text.indexOf('FR:');
-    return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
-  };
-
   const categorizedNotams = weatherData
     ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
     : {};
@@ -259,54 +261,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const filterAndHighlightNotams = (notams) => {
-    const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/gi;
-    const lifrTerms = /\b(AUTH|RSC|SERVICE)\b/gi;
-    const mvfrTerms = /\b(TWY CLOSED)\b/gi;
-
-    return notams
-      .filter((notam) => {
-        const notamText = JSON.parse(notam.text).raw;
-
-        // Exclude NOTAMs with "CRANE" in the E) section if the filter is active
-        if (isCraneFilterActive && /E\).*CRANE/.test(notamText)) {
-          return false;
-        }
-
-        return notamText.toLowerCase().includes(searchTerm.toLowerCase());
-      })
-      .map((notam) => {
-        const notamText = JSON.parse(notam.text).raw;
-
-        let highlightedText = notamText
-          .replace(ifrTerms, '<span class="text-custom-ifr">$&</span>')
-          .replace(lifrTerms, '<span class="text-custom-lifr">$&</span>')
-          .replace(mvfrTerms, '<span class="text-custom-mvfr">$&</span>');
-
-        if (searchTerm) {
-          const searchTermRegex = new RegExp(`(${searchTerm})`, 'gi');
-          highlightedText = highlightedText.replace(
-            searchTermRegex,
-            '<mark>$1</mark>'
-          );
-        }
-
-        return { ...notam, highlightedText };
-      });
-  };
-
-  const countFilteredNotams = (notams, type, searchTerm, isCraneFilterActive) => {
-    const filteredNotams = filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive);
-
-    return filteredNotams.filter((notam) => {
-      const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
-      const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-      if (!qLineMatch) return false;
-      return qLineMatch[2].startsWith(type);
-    }).length;
+    setSearchTerm(event.target.value || '');
   };
 
   const renderNotamCard = () => {
@@ -314,31 +269,31 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       case 'AERODROME':
         return (
           <Card title="NOTAM AERODROME" status={null} className="h-full">
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || []), 'LAST 30 DAYS')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.olderNotams || []), 'OLDER')}
+            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
+            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
+            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
+            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
+            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
           </Card>
         );
       case 'ENROUTE':
         return (
           <Card title="NOTAM ENROUTE" status={null} className="h-full">
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || []), 'LAST 30 DAYS')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.olderNotams || []), 'OLDER')}
+            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
+            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
+            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
+            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
+            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
           </Card>
         );
       case 'WARNING':
         return (
           <Card title="NOTAM WARNING" status={null} className="h-full">
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.futureNotams || []), 'FUTURE')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.todayNotams || []), 'TODAY')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || []), 'LAST 7 DAYS')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || []), 'LAST 30 DAYS')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.olderNotams || []), 'OLDER')}
+            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
+            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
+            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
+            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
+            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
           </Card>
         );
       default:
@@ -459,10 +414,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           handleNotamTypeChange={setSelectedNotamType}
           countFilteredNotams={countFilteredNotams}
           searchTerm={searchTerm}
-          handleSearchChange={setSearchTerm}
+          handleSearchChange={handleSearchChange}
           categorizedNotams={categorizedNotams}
           isCraneFilterActive={isCraneFilterActive}
-          toggleCraneFilter={setIsCraneFilterActive}
+          toggleCraneFilter={toggleCraneFilter}
           selectedNotamType={selectedNotamType}
           renderNotamCard={renderNotamCard}
         />

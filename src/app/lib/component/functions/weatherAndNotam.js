@@ -145,10 +145,13 @@ export function extractTextBeforeFR(text) {
   return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
 }
 
-export function filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive) {
+export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterActive) {
   const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/gi;
   const lifrTerms = /\b(AUTH|RSC|SERVICE)\b/gi;
   const mvfrTerms = /\b(TWY CLOSED)\b/gi;
+
+  // Ensure searchTerm is a string
+  const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
     .filter((notam) => {
@@ -156,7 +159,7 @@ export function filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive
       if (isCraneFilterActive && notamText.includes('CRANE')) {
         return false; // Exclude NOTAMs that mention "CRANE"
       }
-      return notamText.toLowerCase().includes(searchTerm.toLowerCase());
+      return notamText.toLowerCase().includes(normalizedSearchTerm);
     })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
@@ -165,12 +168,9 @@ export function filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive
         .replace(lifrTerms, '<span class="text-custom-lifr">$&</span>')
         .replace(mvfrTerms, '<span class="text-custom-mvfr">$&</span>');
 
-      if (searchTerm) {
-        const searchTermRegex = new RegExp(`(${searchTerm})`, 'gi');
-        highlightedText = highlightedText.replace(
-          searchTermRegex,
-          '<mark>$1</mark>'
-        );
+      if (normalizedSearchTerm) {
+        const searchTermRegex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
+        highlightedText = highlightedText.replace(searchTermRegex, '<mark>$1</mark>');
       }
 
       return { ...notam, highlightedText };
@@ -178,8 +178,10 @@ export function filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive
 }
 
 
-export function countFilteredNotams(notams, type, searchTerm) {
-  const filteredNotams = filterAndHighlightNotams(notams, searchTerm);
+
+export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActive) {
+  const filteredNotams = filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive);
+
   return filteredNotams.filter((notam) => {
     const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
     const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
@@ -187,6 +189,7 @@ export function countFilteredNotams(notams, type, searchTerm) {
     return qLineMatch[2].startsWith(type);
   }).length;
 }
+
 
 function parseMETARForCeilingAndVisibility(metarString) {
   const components = metarString.split(' ');
