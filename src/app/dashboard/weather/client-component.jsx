@@ -5,9 +5,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
-import MetarDisplay from '../../lib/component/MetarDisplay';
-import TafDisplay from '../../lib/component/TafDisplay';
-import GfaDisplay from '../../lib/component/GfaDisplay';
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
@@ -18,7 +15,6 @@ import {
   renderNotamsW,
   renderNotamsE,
   allAirportsFlightCategory,
-  calculateAirportCategories,
   countFilteredNotams,
   filterAndHighlightNotams,
   extractTextBeforeFR, // Add this line to import the function
@@ -166,6 +162,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const resizerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
+
+  // Function to delete a routing and clear the inputs
+  const handleDeleteRouting = (index) => {
+    const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
+    setSavedRoutings(updatedRoutings);
+    localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+
+    // Clear the routing inputs
+    setFlightDetails({
+      flightNumber: '',
+      departure: '',
+      destination: '',
+      alternate1: '',
+      alternate2: '',
+    });
+  };
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -375,11 +387,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     <div className="flex min-h-screen">
       {/* Conditionally render SideNav only when routingWXXForm is selected */}
       {selectedForm === 'routingWXXForm' && (
-        <SideNav 
-          savedRoutings={savedRoutings} 
-          showWeatherAndRcam={false} 
-          showLogo={false} 
-          showPrinterIcon={false} 
+        <SideNav
+          savedRoutings={savedRoutings}
+          onDeleteRouting={handleDeleteRouting} // Pass the delete function
+          showWeatherAndRcam={false}
+          showLogo={false}
+          showPrinterIcon={false}
         />
       )}
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
@@ -391,7 +404,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             width=""
           />
 
-        {/* Conditional Rendering of Forms */}
+          {/* Conditional Rendering of Forms */}
           {selectedForm === 'routingWXXForm' && (
             <RoutingWXXForm onSave={handleSaveRouting} />
           )}
@@ -400,7 +413,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           )}
         </div>
 
-        <AirportWeatherDisplay 
+        <AirportWeatherDisplay
           weatherData={weatherData}
           gfaData={gfaData}
           gfaType={gfaType}

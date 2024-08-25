@@ -19,9 +19,16 @@ interface SideNavProps {
   showWeatherAndRcam?: boolean;
   showLogo?: boolean;
   showPrinterIcon?: boolean;
+  onDeleteRouting: (index: number) => void; // Add this prop for delete functionality
 }
 
-export default function SideNav({ savedRoutings = [], showWeatherAndRcam = true, showLogo = true, showPrinterIcon = true }: SideNavProps) {
+export default function SideNav({
+  savedRoutings = [],
+  showWeatherAndRcam = true,
+  showLogo = true,
+  showPrinterIcon = true,
+  onDeleteRouting, // Destructure the onDeleteRouting prop
+}: SideNavProps) {
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
 
@@ -57,15 +64,26 @@ export default function SideNav({ savedRoutings = [], showWeatherAndRcam = true,
             <div 
               key={index} 
               className={clsx(
-                'p-2 bg-gray-100 rounded-md mb-2 cursor-pointer hover:bg-sky-100 hover:text-blue-600',
+                'p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
                 {
                   'bg-sky-100 text-blue-600': selectedRouting === routing,
                 }
               )}
               onClick={() => handleRoutingClick(routing)}
             >
-              <p className="font-bold">{routing.flightNumber}</p>
-              <p>{routing.departure} → {routing.destination}</p>
+              <div>
+                <p className="font-bold">{routing.flightNumber}</p>
+                <p>{routing.departure} → {routing.destination}</p>
+              </div>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the routing click
+                  onDeleteRouting(index); // Call the delete function
+                }} 
+                className="text-red-500 hover:text-red-700"
+              >
+                X
+              </button>
             </div>
           ))}
         </div>
