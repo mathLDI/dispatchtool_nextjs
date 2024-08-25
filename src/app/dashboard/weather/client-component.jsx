@@ -190,7 +190,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   const airportsToShow = selectedForm === 'routingWXXForm'
-    ? flightDetails.departure ? [{ code: flightDetails.departure }] : []
+    ? [
+      flightDetails.departure && { code: flightDetails.departure },
+      flightDetails.destination && { code: flightDetails.destination },
+      flightDetails.alternate1 && { code: flightDetails.alternate1 },
+      flightDetails.alternate2 && { code: flightDetails.alternate2 },
+    ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
   useEffect(() => {
@@ -204,40 +209,52 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-useEffect(() => {
-  const fetchWeatherData = async () => {
-    const data = {};
-    const airports = selectedForm === 'routingWXXForm' && flightDetails.departure ? [{ code: flightDetails.departure }] : airportValues;
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      const data = {};
+      const airports = selectedForm === 'routingWXXForm' && flightDetails.departure
+        ? [
+          { code: flightDetails.departure },
+          flightDetails.destination && { code: flightDetails.destination },
+          flightDetails.alternate1 && { code: flightDetails.alternate1 },
+          flightDetails.alternate2 && { code: flightDetails.alternate2 },
+        ].filter(Boolean) // Filter out any falsy values
+        : airportValues;
 
-    for (const airport of airports) {
-      try {
-        const responseData = await fetchWeather(airport.code);
-        data[airport.code] = responseData;
-      } catch (error) {
-        console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+      for (const airport of airports) {
+        try {
+          const responseData = await fetchWeather(airport.code);
+          data[airport.code] = responseData;
+        } catch (error) {
+          console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+        }
       }
+      console.log('Fetched weather data:', data);
+      setAllWeatherData(data);
+    };
+
+    if (airportValues.length > 0 || (selectedForm === 'routingWXXForm' && flightDetails.departure)) {
+      fetchWeatherData();
     }
-    console.log('Fetched weather data:', data);
-    setAllWeatherData(data);
-  };
+  }, [fetchWeather, airportValues, flightDetails.departure, flightDetails.destination, flightDetails.alternate1, flightDetails.alternate2, selectedForm]);
 
-  if (airportValues.length > 0 || (selectedForm === 'routingWXXForm' && flightDetails.departure)) {
-    fetchWeatherData();
-  }
-}, [fetchWeather, airportValues, flightDetails.departure, selectedForm]);
+
+  console.log("flightDetails.departure::", flightDetails.departure);
+  console.log("flightDetails.destination::", flightDetails.destination);
+  console.log("flightDetails.alternate1::", flightDetails.alternate1);
 
 
 
+  console.log("flightDetails.departureL::", flightDetails.departure);
 
 
-
-useEffect(() => {
-  if (Object.keys(allWeatherData).length > 0) {
-    const categories = allAirportsFlightCategory([...airportValues, ...(flightDetails.departure ? [{ code: flightDetails.departure }] : [])], allWeatherData);
-    console.log('Calculated airport categories:', categories);
-    setAirportCategories(categories);
-  }
-}, [allWeatherData, flightDetails.departure, airportValues]);
+  useEffect(() => {
+    if (Object.keys(allWeatherData).length > 0) {
+      const categories = allAirportsFlightCategory([...airportValues, ...(flightDetails.departure ? [{ code: flightDetails.departure }] : [])], allWeatherData);
+      console.log('Calculated airport categories:', categories);
+      setAirportCategories(categories);
+    }
+  }, [allWeatherData, flightDetails.departure, airportValues]);
 
 
   const handleSaveRouting = (newRouting) => {
