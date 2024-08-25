@@ -6,10 +6,10 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
     setSelectedAirport,
     selectedAirport,
     airportCategories,
+    removeAirportValue, // Access the remove function from the context
   } = useRccContext();
 
   useEffect(() => {
-    // Log the current list of airports to the console
     console.log('Current Airport List::::', airportsToShow);
     console.log('Airport Categories from AirportList:::', airportCategories);
   }, [airportsToShow, airportCategories]);
@@ -19,19 +19,9 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
     onAirportClick(airport.code);
   };
 
-  const removeAirportValue = (airportCode) => {
-    const updatedAirports = airportsToShow.filter(airport => airport.code !== airportCode);
-
-    if (selectedAirport && selectedAirport.code === airportCode) {
-      if (updatedAirports.length > 0) {
-        const newSelectedAirport = updatedAirports[0];
-        setSelectedAirport(newSelectedAirport);
-        onAirportClick(newSelectedAirport.code);
-      } else {
-        setSelectedAirport(null);
-        setWeatherData(null);
-      }
-    }
+  const handleRemoveClick = (e, airportCode) => {
+    e.stopPropagation(); // Prevent li onClick from being called
+    removeAirportValue(airportCode); // Call the remove function from context
   };
 
   return (
@@ -39,7 +29,6 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
       <ul className="flex gap-2 flex-nowrap">
         {airportsToShow.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
-          console.log(`Category Info for::: ${airport.code}:`, categoryInfo);
           const dotColorClass = categoryInfo.color || 'text-gray-500';
 
           return (
@@ -52,10 +41,7 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
               <span>{airport.code}</span>
 
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeAirportValue(airport.code);
-                }}
+                onClick={(e) => handleRemoveClick(e, airport.code)}
                 className="flex items-center ml-1 relative"
               >
                 <span className={`mr-2 ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
