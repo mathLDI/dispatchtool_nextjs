@@ -11,7 +11,6 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
   useEffect(() => {
     // Log the current list of airports to the console
     console.log('Current Airport List::::', airportsToShow);
-
     console.log('Airport Categories from AirportList:::', airportCategories);
   }, [airportsToShow, airportCategories]);
 
@@ -40,6 +39,7 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
       <ul className="flex gap-2 flex-nowrap">
         {airportsToShow.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
+          console.log(`Category Info for::: ${airport.code}:`, categoryInfo);
           const dotColorClass = categoryInfo.color || 'text-gray-500';
 
           return (

@@ -201,34 +201,44 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [selectedForm, flightDetails.departure, airportValues]);
 
-  useEffect(() => {
-    const fetchWeatherData = async () => {
-      const data = {};
 
-      for (const airport of airportValues) {
-        try {
-          const responseData = await fetchWeather(airport.code);
-          data[airport.code] = responseData;
-        } catch (error) {
-          console.error(`Failed to fetch weather data for ${airport.code}:`, error);
-        }
+
+
+useEffect(() => {
+  const fetchWeatherData = async () => {
+    const data = {};
+    const airports = selectedForm === 'routingWXXForm' && flightDetails.departure ? [{ code: flightDetails.departure }] : airportValues;
+
+    for (const airport of airports) {
+      try {
+        const responseData = await fetchWeather(airport.code);
+        data[airport.code] = responseData;
+      } catch (error) {
+        console.error(`Failed to fetch weather data for ${airport.code}:`, error);
       }
-      console.log('Fetched weather data:', data);
-      setAllWeatherData(data);
-    };
-
-    if (airportValues.length > 0) {
-      fetchWeatherData();
     }
-  }, [fetchWeather, airportValues]);
+    console.log('Fetched weather data:', data);
+    setAllWeatherData(data);
+  };
 
-  useEffect(() => {
-    if (Object.keys(allWeatherData).length > 0) {
-      const categories = allAirportsFlightCategory(airportValues, allWeatherData);
-      console.log('Calculated airport categories:', categories);
-      setAirportCategories(categories);
-    }
-  }, [allWeatherData]);
+  if (airportValues.length > 0 || (selectedForm === 'routingWXXForm' && flightDetails.departure)) {
+    fetchWeatherData();
+  }
+}, [fetchWeather, airportValues, flightDetails.departure, selectedForm]);
+
+
+
+
+
+
+useEffect(() => {
+  if (Object.keys(allWeatherData).length > 0) {
+    const categories = allAirportsFlightCategory([...airportValues, ...(flightDetails.departure ? [{ code: flightDetails.departure }] : [])], allWeatherData);
+    console.log('Calculated airport categories:', categories);
+    setAirportCategories(categories);
+  }
+}, [allWeatherData, flightDetails.departure, airportValues]);
+
 
   const handleSaveRouting = (newRouting) => {
     const updatedRoutings = [...savedRoutings, newRouting];
