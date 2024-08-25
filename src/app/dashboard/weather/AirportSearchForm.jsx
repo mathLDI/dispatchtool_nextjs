@@ -1,20 +1,38 @@
-// src/app/dashboard/weather/AirportSearchForm.jsx
-
-//this is the component that is used to search for airports 
-//and display the list of airports that have been added
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AirportList from '../../lib/component/AirportList';
 import { useRccContext } from '../RccCalculatorContext';
-
 
 const AirportSearchForm = ({ fetchWeather }) => {
   const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState('');
 
-  const { airportValues, addAirportValue, setWeatherData, setSelectedAirport } = useRccContext();
+  const {
+    airportValues,
+    addAirportValue,
+    setWeatherData,
+    setSelectedAirport,
+    selectedForm,
+    flightDetails,
+  } = useRccContext();
 
-  // Function to handle input changes
+  const getAirportsToShow = () => {
+    if (selectedForm === 'routingWXXForm') {
+      return [{ id: flightDetails.departure, name: `Airport ${flightDetails.departure}`, code: flightDetails.departure }];
+    }
+    return airportValues;
+  };
+
+  const airportsToShow = getAirportsToShow();
+
+  useEffect(() => {
+    if (selectedForm === 'routingWXXForm' && flightDetails.departure) {
+      fetchWeather(flightDetails.departure).then((data) => {
+        setWeatherData(data);
+        setSelectedAirport({ id: flightDetails.departure, name: `Airport ${flightDetails.departure}`, code: flightDetails.departure });
+      });
+    }
+  }, [selectedForm, flightDetails.departure, fetchWeather, setWeatherData, setSelectedAirport]);
+
   const handleInputChange = (e) => {
     const inputValue = e.target.value;
     setInputValue(inputValue.toUpperCase());
@@ -48,7 +66,6 @@ const AirportSearchForm = ({ fetchWeather }) => {
       // Add each new airport
       const newAirport = { id: code, name: `Airport ${code}`, code: code };
       addAirportValue(newAirport);
-    
     }
 
     setError('');
@@ -79,21 +96,19 @@ const AirportSearchForm = ({ fetchWeather }) => {
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Enter ICAO codes"
-            className="border p-2 rounded " // Adjust padding to make space for the icon
+            className="border p-2 rounded"
           />
-          <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2 mr-2 p-2   rounded flex ">
-        
-          </button>
           {error && <p className='bg-orange-400 text-red-700 mt-2'>{error}</p>}
         </form>
       </div>
-      <div className='flex-1 '>
-        <AirportList onAirportClick={handleAirportClick} setWeatherData={setWeatherData} />
+      <div className='flex-1'>
+        <AirportList
+          airportsToShow={airportsToShow}
+          onAirportClick={handleAirportClick}
+          setWeatherData={setWeatherData}
+        />
       </div>
-
-
     </div>
-
   );
 };
 

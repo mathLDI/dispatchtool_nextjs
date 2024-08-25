@@ -1,21 +1,19 @@
-'use client';
-
 import React, { useEffect } from 'react';
-import { useRccContext } from '../../dashboard/RccCalculatorContext'; // Use relative path
+import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
-const AirportList = ({ onAirportClick, setWeatherData }) => {
+const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
   const {
-    airportValues,
-    setAirportValues,
     setSelectedAirport,
     selectedAirport,
     airportCategories,
   } = useRccContext();
 
   useEffect(() => {
-    // Log airportCategories to the console whenever it changes
+    // Log the current list of airports to the console
+    console.log('Current Airport List::::', airportsToShow);
+
     console.log('Airport Categories from AirportList:::', airportCategories);
-  }, [airportCategories]);
+  }, [airportsToShow, airportCategories]);
 
   const handleAirportClick = (airport) => {
     setSelectedAirport(airport);
@@ -23,17 +21,15 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
   };
 
   const removeAirportValue = (airportCode) => {
-    const updatedAirports = airportValues.filter(airport => airport.code !== airportCode);
-    setAirportValues(updatedAirports);
+    const updatedAirports = airportsToShow.filter(airport => airport.code !== airportCode);
 
     if (selectedAirport && selectedAirport.code === airportCode) {
       if (updatedAirports.length > 0) {
-        const newSelectedAirport = updatedAirports[0]; // Select the first airport
+        const newSelectedAirport = updatedAirports[0];
         setSelectedAirport(newSelectedAirport);
         onAirportClick(newSelectedAirport.code);
       } else {
-        setSelectedAirport(null); // Or another default value
-        // Use setWeatherData to clear the weather data
+        setSelectedAirport(null);
         setWeatherData(null);
       }
     }
@@ -42,9 +38,9 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
   return (
     <div className="w-full max-w-sm p-3 rounded-lg">
       <ul className="flex gap-2 flex-nowrap">
-        {airportValues.map((airport, index) => {
+        {airportsToShow.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
-          const dotColorClass = categoryInfo.color || 'text-gray-500'; // Default to gray if no color is found
+          const dotColorClass = categoryInfo.color || 'text-gray-500';
 
           return (
             <li
@@ -57,12 +53,11 @@ const AirportList = ({ onAirportClick, setWeatherData }) => {
 
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent li onClick from being called
+                  e.stopPropagation();
                   removeAirportValue(airport.code);
                 }}
                 className="flex items-center ml-1 relative"
               >
-                {/* Dot with category color */}
                 <span className={`mr-2 ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
                   &#9679;
                 </span>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -8,6 +7,7 @@ import AirportSearchForm from './AirportSearchForm';
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
+import AirportList from '../../lib/component/AirportList';
 import {
   formatLocalDate,
   parseNotamDate,
@@ -17,9 +17,8 @@ import {
   allAirportsFlightCategory,
   countFilteredNotams,
   filterAndHighlightNotams,
-  extractTextBeforeFR, // Add this line to import the function
+  extractTextBeforeFR,
 } from '../../lib/component/functions/weatherAndNotam';
-
 
 const RoutingWXXForm = ({ onSave }) => {
   const { flightDetails, setFlightDetails } = useRccContext();
@@ -133,6 +132,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const {
     weatherData,
     selectedAirport,
+    setSelectedAirport,
     setWeatherData,
     selectedNotamType,
     setSelectedNotamType,
@@ -178,6 +178,28 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       alternate2: '',
     });
   };
+
+  const handleAirportClick = async (airportCode) => {
+    try {
+      const data = await fetchWeather(airportCode);
+      setWeatherData(data);
+      setSelectedAirport({ code: airportCode });
+    } catch (error) {
+      console.error(`Failed to fetch weather data for ${airportCode}:`, error);
+    }
+  };
+
+  const airportsToShow = selectedForm === 'routingWXXForm'
+    ? flightDetails.departure ? [{ code: flightDetails.departure }] : []
+    : airportValues;
+
+  useEffect(() => {
+    if (selectedForm === 'airportSearchForm' && airportValues.length > 0) {
+      handleAirportClick(airportValues[0].code);
+    } else if (selectedForm === 'routingWXXForm' && flightDetails.departure) {
+      handleAirportClick(flightDetails.departure);
+    }
+  }, [selectedForm, flightDetails.departure, airportValues]);
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -247,16 +269,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   }, [isResizing]);
 
   useEffect(() => {
-    if (selectedAirport) {
-      fetchWeather(selectedAirport.code).then((data) => {
-        setWeatherData(data);
-      });
-
+    if (selectedAirport && gfaType) {
       fetchGFA(selectedAirport.code, gfaType).then((data) => {
         setGfaData(data);
       });
     }
-  }, [selectedAirport, gfaType, fetchWeather, fetchGFA, setWeatherData]);
+  }, [selectedAirport, gfaType, fetchGFA, setGfaData]);
 
   useEffect(() => {
     if (weatherData) {
@@ -385,11 +403,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-      {/* Conditionally render SideNav only when routingWXXForm is selected */}
       {selectedForm === 'routingWXXForm' && (
         <SideNav
           savedRoutings={savedRoutings}
-          onDeleteRouting={handleDeleteRouting} // Pass the delete function
+          onDeleteRouting={handleDeleteRouting}
           showWeatherAndRcam={false}
           showLogo={false}
           showPrinterIcon={false}
@@ -404,14 +421,17 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             width=""
           />
 
-          {/* Conditional Rendering of Forms */}
-          {selectedForm === 'routingWXXForm' && (
-            <RoutingWXXForm onSave={handleSaveRouting} />
-          )}
-          {selectedForm === 'airportSearchForm' && (
-            <AirportSearchForm fetchWeather={fetchWeather} />
-          )}
+          {selectedForm === 'routingWXXForm' && <RoutingWXXForm onSave={handleSaveRouting} />}
+          {selectedForm === 'airportSearchForm' && <AirportSearchForm fetchWeather={fetchWeather} />}
         </div>
+
+        {selectedForm === 'routingWXXForm' && (
+          <AirportList
+            airportsToShow={airportsToShow}
+            onAirportClick={handleAirportClick}
+            setWeatherData={setWeatherData}
+          />
+        )}
 
         <AirportWeatherDisplay
           weatherData={weatherData}
