@@ -4,7 +4,7 @@ import React from 'react';
 
 const TafDisplay = ({ weatherData }) => {
   if (!weatherData || weatherData.data.length === 0) {
-    return <p>No weather data available</p>;
+    return <p>No TAF data available</p>;
   }
 
   const tafText = weatherData.data.find((item) => item.type === 'taf')?.text;

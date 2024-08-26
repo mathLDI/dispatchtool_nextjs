@@ -5,17 +5,19 @@ import Card from '../../lib/component/Card';
 import MetarDisplay from '../../lib/component/MetarDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import GfaDisplay from '../../lib/component/GfaDisplay';
+import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
-export default function AirportWeatherDisplay({ 
-  weatherData, 
-  gfaData, 
-  gfaType, 
-  setGfaType, 
-  selectedTimestamp, 
-  setSelectedTimestamp, 
-  leftWidth, 
-  resizerRef, 
-  isResizing, 
+
+export default function AirportWeatherDisplay({
+  weatherData,
+  gfaData,
+  gfaType,
+  setGfaType,
+  selectedTimestamp,
+  setSelectedTimestamp,
+  leftWidth,
+  resizerRef,
+  isResizing,
   setIsResizing,
   handleNotamTypeChange,
   countFilteredNotams,
@@ -25,8 +27,33 @@ export default function AirportWeatherDisplay({
   isCraneFilterActive,
   toggleCraneFilter,
   selectedNotamType,
-  renderNotamCard
+  renderNotamCard,
+  selectedForm, // Add selectedForm as a prop
+  flightDetails, // Add flightDetails as a prop
+  allWeatherData, // Add allWeatherData as a prop
 }) {
+
+  const {
+    selectedAirport,
+
+  } = useRccContext();
+
+
+
+
+  console.log('Selected Form from AirportWeatherDisplay:', selectedForm);
+  console.log('Selected flightDetails from AirportWeatherDisplay:', flightDetails);
+  console.log('Selected allWeatherData from AirportWeatherDisplay:', allWeatherData);
+
+  console.log('Selected selectedAirport from AirportWeatherDisplay:', selectedAirport);
+
+
+
+
+  if (!categorizedNotams) {
+    return null; // or you can return a loading spinner or a message indicating that data is being fetched
+  }
+
   return (
     <div className="flex-1 overflow-hidden bg-yellow-600">
       <div className="flex flex-row h-full">
@@ -35,20 +62,122 @@ export default function AirportWeatherDisplay({
           style={{ width: `${leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
         >
           <h1 className="font-bold text-lg">METAR</h1>
-          <div className="flex">
-            <Card title="METAR" status={null} className="h-full">
-              <MetarDisplay weatherData={weatherData} />
-            </Card>
-          </div>
+
+
+          {/*******  Add a conditional METAR rendering for the airportSearchForm *******/}
+
+
+          {selectedForm === 'airportSearchForm' && (
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <MetarDisplay weatherData={weatherData} />
+              </Card>
+            </div>
+          )}
+
+
+          {/*******  Add a conditional METAR rendering for the routingWXXForm *******/}
+
+
+          {selectedForm === 'routingWXXForm' && (
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <MetarDisplay weatherData={allWeatherData[flightDetails.departure]} />
+              </Card>
+            </div>
+          )}
+
+          {selectedForm === 'routingWXXForm' && (
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <MetarDisplay weatherData={allWeatherData[flightDetails.destination]} />
+              </Card>
+            </div>
+          )}
+
+          {selectedForm === 'routingWXXForm' && flightDetails.alternate1 && (
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <MetarDisplay weatherData={allWeatherData[flightDetails.alternate1]} />
+              </Card>
+            </div>
+          )}
+
+
+          {selectedForm === 'routingWXXForm' && flightDetails.alternate2 && (
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <MetarDisplay weatherData={allWeatherData[flightDetails.alternate2]} />
+              </Card>
+            </div>
+          )}
+
+
+          {/*******  Add a conditional TAF rendering for the airportSearchForm *******/}
 
           <h1 className="font-bold text-lg">TAF</h1>
-          <div className="flex-grow">
-            <Card title="TAF" status={null} className="h-full">
-              <TafDisplay weatherData={weatherData} />
-            </Card>
-          </div>
 
-          <h1 className="font-bold text-lg">GFA</h1>
+          {selectedForm === 'airportSearchForm' && (
+            <div className="flex-grow">
+              <Card title="TAF" status={null} className="h-full">
+                <TafDisplay weatherData={weatherData} />
+              </Card>
+            </div>
+          )}
+
+
+          {/*******  Add a conditional TAF rendering for the routingWXXForm *******/}
+
+
+          {selectedForm === 'routingWXXForm'  && (
+            <div className="flex">
+              <Card title="TAF" status={null} className="h-full">
+                <TafDisplay weatherData={allWeatherData[flightDetails.departure]} />
+              </Card>
+            </div>
+          )}
+
+
+
+          {selectedForm === 'routingWXXForm' && (
+            <div className="flex">
+              <Card title="TAF" status={null} className="h-full">
+                <TafDisplay weatherData={allWeatherData[flightDetails.destination]} />
+              </Card>
+            </div>
+          )}
+
+
+          {selectedForm === 'routingWXXForm'  && flightDetails.alternate1 && (
+            <div className="flex">
+              <Card title="TAF" status={null} className="h-full">
+                <TafDisplay weatherData={allWeatherData[flightDetails.alternate1]} />
+              </Card>
+            </div>
+          )}
+
+          {selectedForm === 'routingWXXForm'  && flightDetails.alternate2 && (
+            <div className="flex">
+              <Card title="TAF" status={null} className="h-full">
+                <TafDisplay weatherData={allWeatherData[flightDetails.alternate2]} />
+              </Card>
+            </div>
+          )}
+
+
+          {/*************************************************************  *****/}
+
+
+          <div className="mb-4 flex items-center">
+            <h1 className="font-bold text-lg">GFA</h1>
+
+            {/* Display selectedAirport when routingWXXForm is selected */}
+            {selectedForm === 'routingWXXForm' && selectedAirport && (
+              <span className="ml-2 text-lg text-gray-700">
+                {selectedAirport.code}
+              </span>
+            )}
+          </div>
           <div className="flex-grow">
             <Card title="GFA" status={null} className="h-full">
               <div className="flex justify-center mb-2">
@@ -92,7 +221,17 @@ export default function AirportWeatherDisplay({
           style={{ width: `${100 - leftWidth}%`, minWidth: '20%', maxWidth: '80%' }}
         >
           <div className="mb-4">
-            <label className="font-bold mr-2 text-lg">NOTAM</label>
+            <div className="mb-4 flex items-center">
+              <label className="font-bold mr-2 text-lg">NOTAM</label>
+
+              {/* Display selectedAirport when routingWXXForm is selected */}
+              {selectedForm === 'routingWXXForm' && selectedAirport && (
+                <span className="ml-2 text-lg text-gray-700">
+                  {selectedAirport.code}
+                </span>
+              )}
+            </div>
+
             <div className="flex space-x-2">
               <button
                 onClick={() => handleNotamTypeChange('AERODROME')}
@@ -132,6 +271,7 @@ export default function AirportWeatherDisplay({
           {renderNotamCard()}
         </div>
       </div>
+
     </div>
   );
 }
