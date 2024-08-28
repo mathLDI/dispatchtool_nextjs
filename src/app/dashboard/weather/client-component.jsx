@@ -249,10 +249,19 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   useEffect(() => {
     if (Object.keys(allWeatherData).length > 0) {
-      const categories = allAirportsFlightCategory([...airportValues, ...(flightDetails.departure ? [{ code: flightDetails.departure }] : [])], allWeatherData);
+      const airportsToInclude = [
+        ...airportValues,
+        ...(flightDetails.departure ? [{ code: flightDetails.departure }] : []),
+        ...(flightDetails.destination ? [{ code: flightDetails.destination }] : []),
+        ...(flightDetails.alternate1 ? [{ code: flightDetails.alternate1 }] : []),
+        ...(flightDetails.alternate2 ? [{ code: flightDetails.alternate2 }] : []),
+      ];
+  
+      const categories = allAirportsFlightCategory(airportsToInclude, allWeatherData);
       setAirportCategories(categories);
     }
-  }, [allWeatherData, airportValues, flightDetails]);
+  }, [allWeatherData, airportValues, flightDetails.departure, flightDetails.destination, flightDetails.alternate1, flightDetails.alternate2]);
+  
 
 
   const handleSaveRouting = (newRouting) => {
