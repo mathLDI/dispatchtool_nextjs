@@ -165,7 +165,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [isResizing, setIsResizing] = useState(false);
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
 
-console.log("airportValues:", airportValues);
+  console.log("airportValues:", airportValues);
 
   // Function to delete a routing and clear the inputs
   const handleDeleteRouting = (index) => {
@@ -220,7 +220,7 @@ console.log("airportValues:", airportValues);
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
       ]).filter(Boolean); // Filter out falsy values (undefined or empty strings)
-  
+
       for (const airport of airports) {
         if (!data[airport.code]) { // Only fetch if not already fetched
           try {
@@ -231,15 +231,15 @@ console.log("airportValues:", airportValues);
           }
         }
       }
-  
+
       setAllWeatherData(data); // Update state with all weather data
     };
-  
+
     if (savedRoutings.length > 0) {
       fetchWeatherData();
     }
   }, [fetchWeather, savedRoutings, allWeatherData]);
-    
+
 
 
 
@@ -255,25 +255,25 @@ console.log("airportValues:", airportValues);
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
       ]).filter(Boolean); // Filter out any falsy values
-  
+
       // Combine with the existing airportValues
       const airportsToInclude = [
         ...airportValues,
         ...airportsFromSavedRoutings,
       ];
-  
+
       // Remove duplicate entries by using a Set
       const uniqueAirportsToInclude = Array.from(
         new Set(airportsToInclude.map((airport) => airport.code))
       ).map((code) => ({ code }));
-  
+
       // Calculate the categories for the airports
       const categories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
       console.log("airportsToInclude from client-component:", uniqueAirportsToInclude);
       setAirportCategories(categories);
     }
   }, [allWeatherData, airportValues, savedRoutings]);
-  
+
 
   const handleSaveRouting = (newRouting) => {
     const updatedRoutings = [...savedRoutings, newRouting];
@@ -447,16 +447,19 @@ console.log("airportValues:", airportValues);
 
   return (
     <div className="flex min-h-screen">
-      {selectedForm === 'routingWXXForm' && (
-        <SideNav
-          savedRoutings={savedRoutings}
-          onDeleteRouting={handleDeleteRouting}
-          showWeatherAndRcam={false}
-          showLogo={false}
-          showPrinterIcon={false}
-          airportCategories={airportCategories}
-        />
-      )}
+      <div className='flex bg-yellow-300 h-screen overflow-y-auto'>
+        {selectedForm === 'routingWXXForm' && (
+          <SideNav
+            savedRoutings={savedRoutings}
+            onDeleteRouting={handleDeleteRouting}
+            showWeatherAndRcam={false}
+            showLogo={false}
+            showPrinterIcon={false}
+            airportCategories={airportCategories}
+          />
+        )}
+      </div>
+  
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
           <ChoiceListbox
@@ -465,11 +468,11 @@ console.log("airportValues:", airportValues);
             value={selectedForm}
             width=""
           />
-
+  
           {selectedForm === 'routingWXXForm' && <RoutingWXXForm onSave={handleSaveRouting} />}
           {selectedForm === 'airportSearchForm' && <AirportSearchForm fetchWeather={fetchWeather} />}
         </div>
-
+  
         {selectedForm === 'routingWXXForm' && (
           <AirportList
             airportsToShow={airportsToShow}
@@ -477,7 +480,7 @@ console.log("airportValues:", airportValues);
             setWeatherData={setWeatherData}
           />
         )}
-
+  
         <AirportWeatherDisplay
           weatherData={weatherData}
           gfaData={gfaData}
@@ -502,10 +505,8 @@ console.log("airportValues:", airportValues);
           flightDetails={flightDetails}  // New prop
           allWeatherData={allWeatherData}  // New prop
           selectedAirport={selectedAirport}  // <-- Pass the selectedAirport state here
-
         />
-
       </div>
     </div>
   );
-}
+}  
