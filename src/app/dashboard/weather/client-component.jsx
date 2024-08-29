@@ -165,6 +165,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [isResizing, setIsResizing] = useState(false);
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
 
+console.log("airportValues:", airportValues);
 
   // Function to delete a routing and clear the inputs
   const handleDeleteRouting = (index) => {
@@ -212,57 +213,67 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   useEffect(() => {
     const fetchWeatherData = async () => {
-      const data = {};
-      const airports = selectedForm === 'routingWXXForm' && flightDetails.departure
-        ? [
-          { code: flightDetails.departure },
-          flightDetails.destination && { code: flightDetails.destination },
-          flightDetails.alternate1 && { code: flightDetails.alternate1 },
-          flightDetails.alternate2 && { code: flightDetails.alternate2 },
-        ].filter(Boolean) // Filter out any falsy values
-        : airportValues;
+      const data = { ...allWeatherData }; // Preserve existing weather data
+      const airports = savedRoutings.flatMap((routing) => [
+        { code: routing.departure },
+        { code: routing.destination },
+        routing.alternate1 && { code: routing.alternate1 },
+        routing.alternate2 && { code: routing.alternate2 },
+      ]).filter(Boolean); // Filter out falsy values (undefined or empty strings)
+  
       for (const airport of airports) {
-        try {
-          const responseData = await fetchWeather(airport.code);
-          data[airport.code] = responseData;
-        } catch (error) {
-          console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+        if (!data[airport.code]) { // Only fetch if not already fetched
+          try {
+            const responseData = await fetchWeather(airport.code);
+            data[airport.code] = responseData;
+          } catch (error) {
+            console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+          }
         }
       }
-      setAllWeatherData(data);
+  
+      setAllWeatherData(data); // Update state with all weather data
     };
-
-    if (airportValues.length > 0 || (selectedForm === 'routingWXXForm' && flightDetails.departure)) {
+  
+    if (savedRoutings.length > 0) {
       fetchWeatherData();
     }
-  }, [fetchWeather, airportValues, flightDetails, selectedForm]);
-
-
-  console.log("flightDetails.departure::", flightDetails.departure);
-  console.log("flightDetails.destination::", flightDetails.destination);
-  console.log("flightDetails.alternate1::", flightDetails.alternate1);
+  }, [fetchWeather, savedRoutings, allWeatherData]);
+    
 
 
 
-  console.log("flightDetails.departureL::", flightDetails.departure);
+
 
 
   useEffect(() => {
     if (Object.keys(allWeatherData).length > 0) {
+      // Extract unique airports from savedRoutings
+      const airportsFromSavedRoutings = savedRoutings.flatMap((routing) => [
+        { code: routing.departure },
+        { code: routing.destination },
+        routing.alternate1 && { code: routing.alternate1 },
+        routing.alternate2 && { code: routing.alternate2 },
+      ]).filter(Boolean); // Filter out any falsy values
+  
+      // Combine with the existing airportValues
       const airportsToInclude = [
         ...airportValues,
-        ...(flightDetails.departure ? [{ code: flightDetails.departure }] : []),
-        ...(flightDetails.destination ? [{ code: flightDetails.destination }] : []),
-        ...(flightDetails.alternate1 ? [{ code: flightDetails.alternate1 }] : []),
-        ...(flightDetails.alternate2 ? [{ code: flightDetails.alternate2 }] : []),
+        ...airportsFromSavedRoutings,
       ];
   
-      const categories = allAirportsFlightCategory(airportsToInclude, allWeatherData);
+      // Remove duplicate entries by using a Set
+      const uniqueAirportsToInclude = Array.from(
+        new Set(airportsToInclude.map((airport) => airport.code))
+      ).map((code) => ({ code }));
+  
+      // Calculate the categories for the airports
+      const categories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
+      console.log("airportsToInclude from client-component:", uniqueAirportsToInclude);
       setAirportCategories(categories);
     }
-  }, [allWeatherData, airportValues, flightDetails.departure, flightDetails.destination, flightDetails.alternate1, flightDetails.alternate2]);
+  }, [allWeatherData, airportValues, savedRoutings]);
   
-
 
   const handleSaveRouting = (newRouting) => {
     const updatedRoutings = [...savedRoutings, newRouting];
@@ -272,7 +283,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const toggleCraneFilter = () => {
     setIsCraneFilterActive((prevState) => !prevState);
-    console.log('Crane filter is now:', !isCraneFilterActive);
   };
 
   const handleMouseMove = (e) => {
@@ -312,7 +322,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   useEffect(() => {
     if (weatherData) {
-      console.log('Updated Weather Data:', weatherData);
     }
   }, [weatherData]);
 
@@ -435,7 +444,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     );
   };
 
-  console.log("selectedAirport from client component::", selectedAirport);
 
   return (
     <div className="flex min-h-screen">
@@ -446,6 +454,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           showWeatherAndRcam={false}
           showLogo={false}
           showPrinterIcon={false}
+          airportCategories={airportCategories}
         />
       )}
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>

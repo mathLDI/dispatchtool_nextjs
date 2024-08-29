@@ -41,11 +41,6 @@ export default function AirportWeatherDisplay({
 
 
 
-  console.log('Selected Form from AirportWeatherDisplay:', selectedForm);
-  console.log('Selected flightDetails from AirportWeatherDisplay:', flightDetails);
-  console.log('Selected allWeatherData from AirportWeatherDisplay:', allWeatherData);
-
-  console.log('Selected selectedAirport from AirportWeatherDisplay:', selectedAirport);
 
 
 

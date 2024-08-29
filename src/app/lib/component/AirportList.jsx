@@ -10,8 +10,6 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
   } = useRccContext();
 
   useEffect(() => {
-    console.log('Current Airport List::::', airportsToShow);
-    console.log('Airport Categories from AirportList:::', airportCategories);
   }, [airportsToShow, airportCategories]);
 
   const handleAirportClick = (airport) => {

@@ -19,7 +19,8 @@ interface SideNavProps {
   showWeatherAndRcam?: boolean;
   showLogo?: boolean;
   showPrinterIcon?: boolean;
-  onDeleteRouting: (index: number) => void; // Add this prop for delete functionality
+  onDeleteRouting: (index: number) => void;
+  airportCategories: Record<string, { category: string; color: string }>; // Add this prop to receive the categories
 }
 
 export default function SideNav({
@@ -27,7 +28,8 @@ export default function SideNav({
   showWeatherAndRcam = true,
   showLogo = true,
   showPrinterIcon = true,
-  onDeleteRouting, // Destructure the onDeleteRouting prop
+  onDeleteRouting,
+  airportCategories, // Destructure the new prop
 }: SideNavProps) {
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
@@ -42,6 +44,9 @@ export default function SideNav({
     });
     setSelectedRouting(routing);
   };
+
+  console.log("savedrouting from sidenav", savedRoutings);
+  console.log("airportCategories from sidenav:", airportCategories);
 
   return (
     <div className="flex h-full flex-col px-2 py-2 md:px-1 overflow-y-auto">
@@ -73,7 +78,19 @@ export default function SideNav({
             >
               <div>
                 <p className="font-bold">{routing.flightNumber}</p>
-                <p>{routing.departure} → {routing.destination}</p>
+                <div className="flex items-center space-x-1">
+                  <span>{routing.departure}</span>
+                  {/* Display the color dot for the departure airport */}
+                  <span className={`ml-2 ${airportCategories?.[routing.departure]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                    &#9679;
+                  </span>
+                  <span>→</span>
+                  <span>{routing.destination}</span>
+                  {/* Display the color dot for the destination airport */}
+                  <span className={`ml-2 ${airportCategories?.[routing.destination]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                    &#9679;
+                  </span>
+                </div>
               </div>
               <button 
                 onClick={(e) => {
