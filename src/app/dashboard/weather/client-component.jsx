@@ -164,6 +164,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const resizerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
+  const allWeatherDataRef = useRef(allWeatherData);
 
   console.log("airportValues:", airportValues);
 
@@ -213,7 +214,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   useEffect(() => {
     const fetchWeatherData = async () => {
-      const data = { ...allWeatherData }; // Preserve existing weather data
+      const data = { ...allWeatherDataRef.current }; // Preserve existing weather data
       const airports = savedRoutings.flatMap((routing) => [
         { code: routing.departure },
         { code: routing.destination },
@@ -233,12 +234,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       }
 
       setAllWeatherData(data); // Update state with all weather data
+      allWeatherDataRef.current = data; // Update ref with new data
     };
 
     if (savedRoutings.length > 0) {
       fetchWeatherData();
     }
-  }, [fetchWeather, savedRoutings, allWeatherData]);
+  }, [fetchWeather, savedRoutings]);
 
 
 
