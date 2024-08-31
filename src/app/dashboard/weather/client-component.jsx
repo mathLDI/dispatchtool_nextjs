@@ -7,7 +7,7 @@ import AirportSearchForm from './AirportSearchForm';
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
-import TafDisplay from '../../lib/component/TafDisplay'; // Add this import
+import TafDisplay from '../../lib/component/TafDisplay';
 
 import AirportList from '../../lib/component/AirportList';
 import {
@@ -35,7 +35,7 @@ const RoutingWXXForm = ({ onSave }) => {
     const value = e.target.value.toUpperCase();
     setWarnings({
       ...warnings,
-      [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : ''
+      [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : '',
     });
     setFlightDetails({ ...flightDetails, [field]: value });
   };
@@ -166,7 +166,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [selectedForm, setSelectedForm] = useState('airportSearchForm');
   const allWeatherDataRef = useRef(allWeatherData);
 
-  console.log("airportValues:", airportValues);
+  console.log('airportValues:', airportValues);
 
   // Function to delete a routing and clear the inputs
   const handleDeleteRouting = (index) => {
@@ -196,11 +196,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const airportsToShow = selectedForm === 'routingWXXForm'
     ? [
-      flightDetails.departure && { code: flightDetails.departure },
-      flightDetails.destination && { code: flightDetails.destination },
-      flightDetails.alternate1 && { code: flightDetails.alternate1 },
-      flightDetails.alternate2 && { code: flightDetails.alternate2 },
-    ].filter(Boolean) // Filter out any falsy values
+        flightDetails.departure && { code: flightDetails.departure },
+        flightDetails.destination && { code: flightDetails.destination },
+        flightDetails.alternate1 && { code: flightDetails.alternate1 },
+        flightDetails.alternate2 && { code: flightDetails.alternate2 },
+      ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
   useEffect(() => {
@@ -211,16 +211,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [selectedForm, flightDetails.departure, airportValues]);
 
-
+  // Fetch weather data based on the selected form
   useEffect(() => {
-    const fetchWeatherData = async () => {
+    const fetchWeatherDataForRouting = async () => {
       const data = { ...allWeatherDataRef.current }; // Preserve existing weather data
       const airports = savedRoutings.flatMap((routing) => [
         { code: routing.departure },
         { code: routing.destination },
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
-      ]).filter(Boolean); // Filter out falsy values (undefined or empty strings)
+      ]).filter(Boolean); // Filter out falsy values
 
       for (const airport of airports) {
         if (!data[airport.code]) { // Only fetch if not already fetched
@@ -237,16 +237,34 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       allWeatherDataRef.current = data; // Update ref with new data
     };
 
-    if (savedRoutings.length > 0) {
-      fetchWeatherData();
+    const fetchWeatherDataForSearch = async () => {
+      const data = {};
+      const airports = selectedForm === 'routingWXXForm' && flightDetails.departure
+        ? [
+            { code: flightDetails.departure },
+            flightDetails.destination && { code: flightDetails.destination },
+            flightDetails.alternate1 && { code: flightDetails.alternate1 },
+            flightDetails.alternate2 && { code: flightDetails.alternate2 },
+          ].filter(Boolean) // Filter out any falsy values
+        : airportValues;
+
+      for (const airport of airports) {
+        try {
+          const responseData = await fetchWeather(airport.code);
+          data[airport.code] = responseData;
+        } catch (error) {
+          console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+        }
+      }
+      setAllWeatherData(data);
+    };
+
+    if (selectedForm === 'routingWXXForm' && savedRoutings.length > 0) {
+      fetchWeatherDataForRouting();
+    } else if (selectedForm === 'airportSearchForm' && airportValues.length > 0) {
+      fetchWeatherDataForSearch();
     }
-  }, [fetchWeather, savedRoutings]);
-
-
-
-
-
-
+  }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm]);
 
   useEffect(() => {
     if (Object.keys(allWeatherData).length > 0) {
@@ -259,10 +277,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       ]).filter(Boolean); // Filter out any falsy values
 
       // Combine with the existing airportValues
-      const airportsToInclude = [
-        ...airportValues,
-        ...airportsFromSavedRoutings,
-      ];
+      const airportsToInclude = [...airportValues, ...airportsFromSavedRoutings];
 
       // Remove duplicate entries by using a Set
       const uniqueAirportsToInclude = Array.from(
@@ -271,11 +286,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       // Calculate the categories for the airports
       const categories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
-      console.log("airportsToInclude from client-component:", uniqueAirportsToInclude);
+      console.log('airportsToInclude from client-component:', uniqueAirportsToInclude);
       setAirportCategories(categories);
     }
   }, [allWeatherData, airportValues, savedRoutings]);
-
 
   const handleSaveRouting = (newRouting) => {
     const updatedRoutings = [...savedRoutings, newRouting];
@@ -344,31 +358,76 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       case 'AERODROME':
         return (
           <Card title="NOTAM AERODROME" status={null} className="h-full">
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
-            {renderNotamsAandAE(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
           </Card>
         );
       case 'ENROUTE':
         return (
           <Card title="NOTAM ENROUTE" status={null} className="h-full">
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
-            {renderNotamsE(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
           </Card>
         );
       case 'WARNING':
         return (
           <Card title="NOTAM WARNING" status={null} className="h-full">
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive), 'FUTURE')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive), 'TODAY')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 7 DAYS')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive), 'LAST 30 DAYS')}
-            {renderNotamsW(filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive), 'OLDER')}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
           </Card>
         );
       default:
@@ -376,7 +435,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   };
 
-  ///FUNCTION for NOTAMs with Q-Line that have an "A"///
+  // Function for NOTAMs with Q-Line that have an "A"
   const renderNotamsAandAE = (notams, title) => {
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
@@ -399,14 +458,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
             // Parse the expiration date using the C) field
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
-            const expirationDate = expirationMatch
-              ? parseNotamDate(expirationMatch[1])
-              : null;
+            const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
-              ? new Date(
-                expirationDate.getTime() -
-                expirationDate.getTimezoneOffset() * 60000
-              )
+              ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
 
             const lines = displayText.split('\n');
@@ -420,11 +474,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
-                  <p
-                    key={lineIndex}
-                    className="mb-1"
-                    dangerouslySetInnerHTML={{ __html: line }}
-                  ></p>
+                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
                 ))}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
@@ -446,10 +496,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     );
   };
 
-
   return (
     <div className="flex min-h-screen">
-      <div className='flex bg-yellow-300 h-screen overflow-y-auto'>
+      <div className="flex bg-yellow-300 h-screen overflow-y-auto">
         {selectedForm === 'routingWXXForm' && (
           <SideNav
             savedRoutings={savedRoutings}
@@ -461,7 +510,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           />
         )}
       </div>
-  
+
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
           <ChoiceListbox
@@ -470,11 +519,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             value={selectedForm}
             width=""
           />
-  
+
           {selectedForm === 'routingWXXForm' && <RoutingWXXForm onSave={handleSaveRouting} />}
           {selectedForm === 'airportSearchForm' && <AirportSearchForm fetchWeather={fetchWeather} />}
         </div>
-  
+
         {selectedForm === 'routingWXXForm' && (
           <AirportList
             airportsToShow={airportsToShow}
@@ -482,7 +531,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             setWeatherData={setWeatherData}
           />
         )}
-  
+
         <AirportWeatherDisplay
           weatherData={weatherData}
           gfaData={gfaData}
@@ -503,12 +552,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           toggleCraneFilter={toggleCraneFilter}
           selectedNotamType={selectedNotamType}
           renderNotamCard={renderNotamCard}
-          selectedForm={selectedForm}  // New prop
-          flightDetails={flightDetails}  // New prop
-          allWeatherData={allWeatherData}  // New prop
-          selectedAirport={selectedAirport}  // <-- Pass the selectedAirport state here
+          selectedForm={selectedForm} // New prop
+          flightDetails={flightDetails} // New prop
+          allWeatherData={allWeatherData} // New prop
+          selectedAirport={selectedAirport} // <-- Pass the selectedAirport state here
         />
       </div>
     </div>
   );
-}  
+}
