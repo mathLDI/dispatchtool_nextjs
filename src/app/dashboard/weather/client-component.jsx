@@ -292,6 +292,21 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   }, [allWeatherData, airportValues, savedRoutings]);
 
   const handleSaveRouting = (newRouting) => {
+    // Check if the routing already exists
+    const isDuplicate = savedRoutings.some(routing =>
+      routing.flightNumber === newRouting.flightNumber &&
+      routing.departure === newRouting.departure &&
+      routing.destination === newRouting.destination &&
+      routing.alternate1 === newRouting.alternate1 &&
+      routing.alternate2 === newRouting.alternate2
+    );
+
+    if (isDuplicate) {
+      // If it's a duplicate, you can alert the user or handle it differently
+      alert('This routing already exists!');
+      return; // Prevent adding the duplicate routing
+    }
+
     const updatedRoutings = [...savedRoutings, newRouting];
     setSavedRoutings(updatedRoutings);
     localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
