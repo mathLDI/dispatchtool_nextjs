@@ -163,7 +163,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const containerRef = useRef(null);
   const resizerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [selectedForm, setSelectedForm] = useState('airportSearchForm');
+  const [selectedForm, setSelectedForm] = useState('Airport Search');
   const allWeatherDataRef = useRef(allWeatherData);
 
   console.log('airportValues:', airportValues);
@@ -194,7 +194,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   };
 
-  const airportsToShow = selectedForm === 'routingWXXForm'
+  const airportsToShow = selectedForm === 'Routing Search'
     ? [
         flightDetails.departure && { code: flightDetails.departure },
         flightDetails.destination && { code: flightDetails.destination },
@@ -204,9 +204,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     : airportValues;
 
   useEffect(() => {
-    if (selectedForm === 'airportSearchForm' && airportValues.length > 0) {
+    if (selectedForm === 'Airport Search' && airportValues.length > 0) {
       handleAirportClick(airportValues[0].code);
-    } else if (selectedForm === 'routingWXXForm' && flightDetails.departure) {
+    } else if (selectedForm === 'Routing Search' && flightDetails.departure) {
       handleAirportClick(flightDetails.departure);
     }
   }, [selectedForm, flightDetails.departure, airportValues]);
@@ -239,7 +239,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
     const fetchWeatherDataForSearch = async () => {
       const data = {};
-      const airports = selectedForm === 'routingWXXForm' && flightDetails.departure
+      const airports = selectedForm === 'Routing Search' && flightDetails.departure
         ? [
             { code: flightDetails.departure },
             flightDetails.destination && { code: flightDetails.destination },
@@ -259,9 +259,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       setAllWeatherData(data);
     };
 
-    if (selectedForm === 'routingWXXForm' && savedRoutings.length > 0) {
+    if (selectedForm === 'Routing Search' && savedRoutings.length > 0) {
       fetchWeatherDataForRouting();
-    } else if (selectedForm === 'airportSearchForm' && airportValues.length > 0) {
+    } else if (selectedForm === 'Airport Search' && airportValues.length > 0) {
       fetchWeatherDataForSearch();
     }
   }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm]);
@@ -499,7 +499,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   return (
     <div className="flex min-h-screen">
       <div className="flex bg-yellow-300 h-screen overflow-y-auto">
-        {selectedForm === 'routingWXXForm' && (
+        {selectedForm === 'Routing Search' && (
           <SideNav
             savedRoutings={savedRoutings}
             onDeleteRouting={handleDeleteRouting}
@@ -514,17 +514,17 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
           <ChoiceListbox
-            choices={['airportSearchForm', 'routingWXXForm']}
+            choices={['Airport Search', 'Routing Search']}
             callback={(value) => setSelectedForm(value)}
             value={selectedForm}
             width=""
           />
 
-          {selectedForm === 'routingWXXForm' && <RoutingWXXForm onSave={handleSaveRouting} />}
-          {selectedForm === 'airportSearchForm' && <AirportSearchForm fetchWeather={fetchWeather} />}
+          {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+          {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
         </div>
 
-        {selectedForm === 'routingWXXForm' && (
+        {selectedForm === 'Routing Search' && (
           <AirportList
             airportsToShow={airportsToShow}
             onAirportClick={handleAirportClick}

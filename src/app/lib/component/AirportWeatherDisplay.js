@@ -59,10 +59,10 @@ export default function AirportWeatherDisplay({
           <h1 className="font-bold text-lg">METAR</h1>
 
 
-          {/*******  Add a conditional METAR rendering for the airportSearchForm *******/}
+          {/*******  Add a conditional METAR rendering for the Airport Search *******/}
 
 
-          {selectedForm === 'airportSearchForm' && (
+          {selectedForm === 'Airport Search' && (
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={weatherData} />
@@ -71,10 +71,10 @@ export default function AirportWeatherDisplay({
           )}
 
 
-          {/*******  Add a conditional METAR rendering for the routingWXXForm *******/}
+          {/*******  Add a conditional METAR rendering for the Routing Search *******/}
 
 
-          {selectedForm === 'routingWXXForm' && (
+          {selectedForm === 'Routing Search' && (
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={allWeatherData[flightDetails.departure]} />
@@ -82,7 +82,7 @@ export default function AirportWeatherDisplay({
             </div>
           )}
 
-          {selectedForm === 'routingWXXForm' && (
+          {selectedForm === 'Routing Search' && (
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={allWeatherData[flightDetails.destination]} />
@@ -90,7 +90,7 @@ export default function AirportWeatherDisplay({
             </div>
           )}
 
-          {selectedForm === 'routingWXXForm' && flightDetails.alternate1 && (
+          {selectedForm === 'Routing Search' && flightDetails.alternate1 && (
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={allWeatherData[flightDetails.alternate1]} />
@@ -99,7 +99,7 @@ export default function AirportWeatherDisplay({
           )}
 
 
-          {selectedForm === 'routingWXXForm' && flightDetails.alternate2 && (
+          {selectedForm === 'Routing Search' && flightDetails.alternate2 && (
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
                 <MetarDisplay weatherData={allWeatherData[flightDetails.alternate2]} />
@@ -108,11 +108,11 @@ export default function AirportWeatherDisplay({
           )}
 
 
-          {/*******  Add a conditional TAF rendering for the airportSearchForm *******/}
+          {/*******  Add a conditional TAF rendering for the Airport Search *******/}
 
           <h1 className="font-bold text-lg">TAF</h1>
 
-          {selectedForm === 'airportSearchForm' && (
+          {selectedForm === 'Airport Search' && (
             <div className="flex-grow">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={weatherData} />
@@ -121,10 +121,10 @@ export default function AirportWeatherDisplay({
           )}
 
 
-          {/*******  Add a conditional TAF rendering for the routingWXXForm *******/}
+          {/*******  Add a conditional TAF rendering for the Routing Search *******/}
 
 
-          {selectedForm === 'routingWXXForm'  && (
+          {selectedForm === 'Routing Search'  && (
             <div className="flex">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={allWeatherData[flightDetails.departure]} />
@@ -134,7 +134,7 @@ export default function AirportWeatherDisplay({
 
 
 
-          {selectedForm === 'routingWXXForm' && (
+          {selectedForm === 'Routing Search' && (
             <div className="flex">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={allWeatherData[flightDetails.destination]} />
@@ -143,7 +143,7 @@ export default function AirportWeatherDisplay({
           )}
 
 
-          {selectedForm === 'routingWXXForm'  && flightDetails.alternate1 && (
+          {selectedForm === 'Routing Search'  && flightDetails.alternate1 && (
             <div className="flex">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={allWeatherData[flightDetails.alternate1]} />
@@ -151,7 +151,7 @@ export default function AirportWeatherDisplay({
             </div>
           )}
 
-          {selectedForm === 'routingWXXForm'  && flightDetails.alternate2 && (
+          {selectedForm === 'Routing Search'  && flightDetails.alternate2 && (
             <div className="flex">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={allWeatherData[flightDetails.alternate2]} />
@@ -166,8 +166,8 @@ export default function AirportWeatherDisplay({
           <div className="mb-4 flex items-center">
             <h1 className="font-bold text-lg">GFA</h1>
 
-            {/* Display selectedAirport when routingWXXForm is selected */}
-            {selectedForm === 'routingWXXForm' && selectedAirport && (
+            {/* Display selectedAirport when Routing Search is selected */}
+            {selectedForm === 'Routing Search' && selectedAirport && (
               <span className="ml-2 text-lg text-gray-700">
                 {selectedAirport.code}
               </span>
@@ -219,8 +219,8 @@ export default function AirportWeatherDisplay({
             <div className="mb-4 flex items-center">
               <label className="font-bold mr-2 text-lg">NOTAM</label>
 
-              {/* Display selectedAirport when routingWXXForm is selected */}
-              {selectedForm === 'routingWXXForm' && selectedAirport && (
+              {/* Display selectedAirport when Routing Search is selected */}
+              {selectedForm === 'Routing Search' && selectedAirport && (
                 <span className="ml-2 text-lg text-gray-700">
                   {selectedAirport.code}
                 </span>

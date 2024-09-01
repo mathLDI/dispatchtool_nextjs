@@ -16,7 +16,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
   } = useRccContext();
 
   const getAirportsToShow = () => {
-    if (selectedForm === 'routingWXXForm') {
+    if (selectedForm === 'Routing Search') {
       return [{ id: flightDetails.departure, name: `Airport ${flightDetails.departure}`, code: flightDetails.departure }];
     }
     return airportValues;
@@ -25,7 +25,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
   const airportsToShow = getAirportsToShow();
 
   useEffect(() => {
-    if (selectedForm === 'routingWXXForm' && flightDetails.departure) {
+    if (selectedForm === 'Routing Search' && flightDetails.departure) {
       fetchWeather(flightDetails.departure).then((data) => {
         setWeatherData(data);
         setSelectedAirport({ id: flightDetails.departure, name: `Airport ${flightDetails.departure}`, code: flightDetails.departure });
