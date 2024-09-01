@@ -8,6 +8,8 @@ import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
+import ConfirmModal from '../../lib/component/ConfirmModal';
+
 
 import AirportList from '../../lib/component/AirportList';
 import {
@@ -166,15 +168,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [selectedForm, setSelectedForm] = useState('Airport Search');
   const allWeatherDataRef = useRef(allWeatherData);
 
-  console.log('airportValues:', airportValues);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Define isModalOpen
+  const [pendingRouting, setPendingRouting] = useState(null); // State to store the routing to be saved or modified
 
-  // Function to delete a routing and clear the inputs
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
     setSavedRoutings(updatedRoutings);
     localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
 
-    // Clear the routing inputs
     setFlightDetails({
       flightNumber: '',
       departure: '',
@@ -294,29 +295,55 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
   const handleSaveRouting = (newRouting) => {
-    // Check if the routing already exists based on flightNumber, departure, and destination
-    const isDuplicate = savedRoutings.some(routing =>
-      routing.flightNumber === newRouting.flightNumber &&
-      routing.departure === newRouting.departure &&
-      routing.destination === newRouting.destination
+    const existingRoutingIndex = savedRoutings.findIndex(
+      (routing) =>
+        routing.flightNumber === newRouting.flightNumber &&
+        routing.departure === newRouting.departure &&
+        routing.destination === newRouting.destination
     );
-  
-    if (isDuplicate) {
-      // If it's a duplicate, prompt the user to confirm whether to save it
-      const userConfirmed = window.confirm('A routing with the same flight number, departure, and destination already exists. Do you still want to save this routing?');
-      
-      if (!userConfirmed) {
-        return; // User clicked "Cancel," so do not add the routing
-      }
+
+    if (existingRoutingIndex !== -1) {
+      // Routing already exists, show modal
+      setPendingRouting(newRouting);
+      setIsModalOpen(true);
+    } else {
+      // Add the routing if it's not a duplicate
+      const updatedRoutings = [...savedRoutings, newRouting];
+      setSavedRoutings(updatedRoutings);
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
     }
-  
-    // If not a duplicate, or if the user confirmed, save the routing
-    const updatedRoutings = [...savedRoutings, newRouting];
-    setSavedRoutings(updatedRoutings);
-    localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
   };
-  
-  
+
+  const handleConfirm = () => {
+    if (pendingRouting) {
+      const updatedRoutings = [...savedRoutings, pendingRouting];
+      setSavedRoutings(updatedRoutings);
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      setPendingRouting(null);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleModify = () => {
+    if (pendingRouting) {
+      const updatedRoutings = savedRoutings.map((routing) =>
+        routing.flightNumber === pendingRouting.flightNumber &&
+        routing.departure === pendingRouting.departure &&
+        routing.destination === pendingRouting.destination
+          ? pendingRouting
+          : routing
+      );
+      setSavedRoutings(updatedRoutings);
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      setPendingRouting(null);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setPendingRouting(null);
+  };
 
   const toggleCraneFilter = () => {
     setIsCraneFilterActive((prevState) => !prevState);
@@ -519,8 +546,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-
-      <div className="flex bg-yellow-300 h-screen overflow-y-auto p-2 ">
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        onModify={handleModify}
+      />
+      <div className="flex bg-yellow-300 h-screen overflow-y-auto p-2">
         {selectedForm === 'Routing Search' && (
           <div className="flex justify-center items-center h-full w-full">
             <SideNav
@@ -533,8 +565,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             />
           </div>
         )}
-
-
       </div>
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
@@ -578,10 +608,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           toggleCraneFilter={toggleCraneFilter}
           selectedNotamType={selectedNotamType}
           renderNotamCard={renderNotamCard}
-          selectedForm={selectedForm} // New prop
-          flightDetails={flightDetails} // New prop
-          allWeatherData={allWeatherData} // New prop
-          selectedAirport={selectedAirport} // <-- Pass the selectedAirport state here
+          selectedForm={selectedForm}
+          flightDetails={flightDetails}
+          allWeatherData={allWeatherData}
+          selectedAirport={selectedAirport}
         />
       </div>
     </div>
