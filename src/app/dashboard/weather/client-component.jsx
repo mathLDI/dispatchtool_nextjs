@@ -196,11 +196,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const airportsToShow = selectedForm === 'Routing Search'
     ? [
-        flightDetails.departure && { code: flightDetails.departure },
-        flightDetails.destination && { code: flightDetails.destination },
-        flightDetails.alternate1 && { code: flightDetails.alternate1 },
-        flightDetails.alternate2 && { code: flightDetails.alternate2 },
-      ].filter(Boolean) // Filter out any falsy values
+      flightDetails.departure && { code: flightDetails.departure },
+      flightDetails.destination && { code: flightDetails.destination },
+      flightDetails.alternate1 && { code: flightDetails.alternate1 },
+      flightDetails.alternate2 && { code: flightDetails.alternate2 },
+    ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
   useEffect(() => {
@@ -241,11 +241,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       const data = {};
       const airports = selectedForm === 'Routing Search' && flightDetails.departure
         ? [
-            { code: flightDetails.departure },
-            flightDetails.destination && { code: flightDetails.destination },
-            flightDetails.alternate1 && { code: flightDetails.alternate1 },
-            flightDetails.alternate2 && { code: flightDetails.alternate2 },
-          ].filter(Boolean) // Filter out any falsy values
+          { code: flightDetails.departure },
+          flightDetails.destination && { code: flightDetails.destination },
+          flightDetails.alternate1 && { code: flightDetails.alternate1 },
+          flightDetails.alternate2 && { code: flightDetails.alternate2 },
+        ].filter(Boolean) // Filter out any falsy values
         : airportValues;
 
       for (const airport of airports) {
@@ -291,26 +291,32 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [allWeatherData, airportValues, savedRoutings]);
 
+
+
   const handleSaveRouting = (newRouting) => {
-    // Check if the routing already exists
+    // Check if the routing already exists based on flightNumber, departure, and destination
     const isDuplicate = savedRoutings.some(routing =>
       routing.flightNumber === newRouting.flightNumber &&
       routing.departure === newRouting.departure &&
-      routing.destination === newRouting.destination &&
-      routing.alternate1 === newRouting.alternate1 &&
-      routing.alternate2 === newRouting.alternate2
+      routing.destination === newRouting.destination
     );
-
+  
     if (isDuplicate) {
-      // If it's a duplicate, you can alert the user or handle it differently
-      alert('This routing already exists!');
-      return; // Prevent adding the duplicate routing
+      // If it's a duplicate, prompt the user to confirm whether to save it
+      const userConfirmed = window.confirm('A routing with the same flight number, departure, and destination already exists. Do you still want to save this routing?');
+      
+      if (!userConfirmed) {
+        return; // User clicked "Cancel," so do not add the routing
+      }
     }
-
+  
+    // If not a duplicate, or if the user confirmed, save the routing
     const updatedRoutings = [...savedRoutings, newRouting];
     setSavedRoutings(updatedRoutings);
     localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
   };
+  
+  
 
   const toggleCraneFilter = () => {
     setIsCraneFilterActive((prevState) => !prevState);
@@ -513,17 +519,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-      <div className="flex bg-yellow-300 h-screen overflow-y-auto">
+
+      <div className="flex bg-yellow-300 h-screen overflow-y-auto p-2 ">
         {selectedForm === 'Routing Search' && (
-          <SideNav
-            savedRoutings={savedRoutings}
-            onDeleteRouting={handleDeleteRouting}
-            showWeatherAndRcam={false}
-            showLogo={false}
-            showPrinterIcon={false}
-            airportCategories={airportCategories}
-          />
+          <div className="flex justify-center items-center h-full w-full">
+            <SideNav
+              savedRoutings={savedRoutings}
+              onDeleteRouting={handleDeleteRouting}
+              showWeatherAndRcam={false}
+              showLogo={false}
+              showPrinterIcon={false}
+              airportCategories={airportCategories}
+            />
+          </div>
         )}
+
+
       </div>
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>

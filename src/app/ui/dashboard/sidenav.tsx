@@ -62,12 +62,12 @@ export default function SideNav({
       )}
       <div className="flex grow flex-row justify-between space-x-1 md:flex-col md:space-x-0 md:space-y-1">
         {showWeatherAndRcam && <NavLinks />}
-        
+
         {/* Display saved routings */}
         <div className="mt-4">
           {savedRoutings.map((routing, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={clsx(
                 'p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
                 {
@@ -77,36 +77,61 @@ export default function SideNav({
               onClick={() => handleRoutingClick(routing)}
             >
               <div>
-                <p className="font-bold">{routing.flightNumber}</p>
+                <p className="font-bold">
+                  Flight: {routing.flightNumber}
+                </p>
                 <div className="flex items-center space-x-1">
                   <span>{routing.departure}</span>
                   {/* Display the color dot for the departure airport */}
-                  <span className={`ml-2 ${airportCategories?.[routing.departure]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                  <span
+                    className={`ml-2 ${airportCategories?.[routing.departure]?.color || 'text-gray-500'}`}
+                    style={{ fontSize: '1.5rem' }}
+                  >
                     &#9679;
                   </span>
                   <span>→</span>
                   <span>{routing.destination}</span>
                   {/* Display the color dot for the destination airport */}
-                  <span className={`ml-2 ${airportCategories?.[routing.destination]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                  <span
+                    className={`ml-2 ${airportCategories?.[routing.destination]?.color || 'text-gray-500'}`}
+                    style={{ fontSize: '1.5rem' }}
+                  >
                     &#9679;
                   </span>
                 </div>
                 {routing.alternate1 && (
                   <div className="flex items-center space-x-1 mt-2">
-                    <span>ALTN:</span>
+                    <span>ALTN 1:</span>
                     <span>{routing.alternate1}</span>
                     {/* Display the color dot for the alternate1 airport */}
-                    <span className={`ml-2 ${airportCategories?.[routing.alternate1]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                    <span
+                      className={`ml-2 ${airportCategories?.[routing.alternate1]?.color || 'text-gray-500'}`}
+                      style={{ fontSize: '1.5rem' }}
+                    >
+                      &#9679;
+                    </span>
+                  </div>
+                )}
+                {routing.alternate2 && (
+                  <div className="flex items-center space-x-1 mt-2">
+                    <span>ALTN 2:</span>
+                    <span>{routing.alternate2}</span>
+                    {/* Display the color dot for the alternate2 airport */}
+                    <span
+                      className={`ml-2 ${airportCategories?.[routing.alternate2]?.color || 'text-gray-500'}`}
+                      style={{ fontSize: '1.5rem' }}
+                    >
                       &#9679;
                     </span>
                   </div>
                 )}
               </div>
-              <button 
+
+              <button
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent triggering the routing click
                   onDeleteRouting(index); // Call the delete function
-                }} 
+                }}
                 className="flex items-center ml-1 relative"
               >
                 <div className='shadow-sm border hover:scale-110 transition-transform duration-150 px-1'>
