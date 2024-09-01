@@ -91,15 +91,27 @@ export default function SideNav({
                     &#9679;
                   </span>
                 </div>
+                {routing.alternate1 && (
+                  <div className="flex items-center space-x-1 mt-2">
+                    <span>ALTN:</span>
+                    <span>{routing.alternate1}</span>
+                    {/* Display the color dot for the alternate1 airport */}
+                    <span className={`ml-2 ${airportCategories?.[routing.alternate1]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
+                      &#9679;
+                    </span>
+                  </div>
+                )}
               </div>
               <button 
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent triggering the routing click
                   onDeleteRouting(index); // Call the delete function
                 }} 
-                className="text-red-500 hover:text-red-700"
+                className="flex items-center ml-1 relative"
               >
-                X
+                <div className='shadow-sm border hover:scale-110 transition-transform duration-150 px-1'>
+                  x
+                </div>
               </button>
             </div>
           ))}
