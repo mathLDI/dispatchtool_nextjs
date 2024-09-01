@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Define the shape of the context state
 interface Airport {
@@ -86,8 +86,8 @@ interface RccContextType {
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
-  searchTerm: string; // Add searchTerm
-  setSearchTerm: (term: string) => void; // Add setter for searchTerm
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
   gfaType: string;
   setGfaType: (type: string) => void;
   gfaData: any;
@@ -98,13 +98,12 @@ interface RccContextType {
   setAllWeatherData: (data: any) => void;
   airportCategories: Record<string, { category: string; color: string }>;
   setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
-  isCraneFilterActive: boolean;  // New state
-  setIsCraneFilterActive: (active: boolean) => void;  // New state setter
+  isCraneFilterActive: boolean;
+  setIsCraneFilterActive: (active: boolean) => void;
   flightDetails: FlightDetails;
   setFlightDetails: (details: FlightDetails) => void;
   savedRoutings: Routing[];
   setSavedRoutings: (routings: Routing[]) => void;
-
 }
 
 // Create the context with a default value
@@ -147,7 +146,12 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [windSpeed, setWindSpeed] = useState(0);
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
-  const [airportValues, setAirportValues] = useState<Airport[]>([]);
+
+  const [airportValues, setAirportValues] = useState<Airport[]>(() => {
+    const storedAirportValues = localStorage.getItem('airportValues');
+    return storedAirportValues ? JSON.parse(storedAirportValues) : [];
+  });
+
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
@@ -171,6 +175,11 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const storedRoutings = localStorage.getItem('savedRoutings');
     return storedRoutings ? JSON.parse(storedRoutings) : [];
   });
+
+  // Save airportValues to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('airportValues', JSON.stringify(airportValues));
+  }, [airportValues]);
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
