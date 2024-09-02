@@ -9,8 +9,6 @@ import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
-
-
 import AirportList from '../../lib/component/AirportList';
 import {
   formatLocalDate,
@@ -65,8 +63,7 @@ const RoutingWXXForm = ({ onSave }) => {
   };
 
   return (
-    <div className="flex items-center space-x-4 mt-4 flex-wrap ">
-
+    <div className="flex items-center space-x-4 mt-4 flex-wrap">
       <div>
         <input
           type="text"
@@ -142,8 +139,6 @@ const RoutingWXXForm = ({ onSave }) => {
       </div>
     </div>
   );
-
-
 };
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
@@ -182,8 +177,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [selectedForm, setSelectedForm] = useState('Airport Search');
   const allWeatherDataRef = useRef(allWeatherData);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Define isModalOpen
-  const [pendingRouting, setPendingRouting] = useState(null); // State to store the routing to be saved or modified
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [pendingRouting, setPendingRouting] = useState(null);
 
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
@@ -209,13 +204,57 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   };
 
+  const updateLocalStorage = (key, data) => {
+    localStorage.setItem(key, JSON.stringify(data));
+  };
+
+  const fetchAndUpdateWeatherData = async (airportCode) => {
+    try {
+      const data = await fetchWeather(airportCode);
+      const existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
+
+      // Only update if the data is new or different
+      if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
+        existingData[airportCode] = data;
+        updateLocalStorage('weatherData', existingData);
+        setWeatherData(data); // Update the state with the new data
+      }
+    } catch (error) {
+      console.error(`Failed to fetch weather data for ${airportCode}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchAllWeatherData = async () => {
+      const airports = savedRoutings.flatMap((routing) => [
+        routing.departure,
+        routing.destination,
+        routing.alternate1,
+        routing.alternate2,
+      ]).filter(Boolean);
+
+      for (const airportCode of airports) {
+        await fetchAndUpdateWeatherData(airportCode);
+      }
+    };
+
+    // Initial data fetch
+    fetchAllWeatherData();
+
+    // Set up the timer to refresh data every 2 minutes
+    const intervalId = setInterval(fetchAllWeatherData, 120000);
+
+    // Clear the interval when the component is unmounted
+    return () => clearInterval(intervalId);
+  }, [savedRoutings, fetchWeather]);
+
   const airportsToShow = selectedForm === 'Routing Search'
     ? [
-      flightDetails.departure && { code: flightDetails.departure },
-      flightDetails.destination && { code: flightDetails.destination },
-      flightDetails.alternate1 && { code: flightDetails.alternate1 },
-      flightDetails.alternate2 && { code: flightDetails.alternate2 },
-    ].filter(Boolean) // Filter out any falsy values
+        flightDetails.departure && { code: flightDetails.departure },
+        flightDetails.destination && { code: flightDetails.destination },
+        flightDetails.alternate1 && { code: flightDetails.alternate1 },
+        flightDetails.alternate2 && { code: flightDetails.alternate2 },
+      ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
   useEffect(() => {
@@ -256,17 +295,38 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       const data = {};
       const airports = selectedForm === 'Routing Search' && flightDetails.departure
         ? [
-          { code: flightDetails.departure },
-          flightDetails.destination && { code: flightDetails.destination },
-          flightDetails.alternate1 && { code: flightDetails.alternate1 },
-          flightDetails.alternate2 && { code: flightDetails.alternate2 },
-        ].filter(Boolean) // Filter out any falsy values
+            { code: flightDetails.departure },
+            flightDetails.destination && { code: flightDetails.destination },
+            flightDetails.alternate1 && { code: flightDetails.alternate1 },
+            flightDetails.alternate2 && { code: flightDetails.alternate2 },
+          ].filter(Boolean) // Filter out any falsy values
         : airportValues;
 
       for (const airport of airports) {
+        const storageKey = `weatherData_${airport.code}`;
+        const cachedData = JSON.parse(localStorage.getItem(storageKey));
+        const cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
+
+        // Check if cache exists and is recent
+        if (cachedData && cacheTimestamp) {
+          const cacheAge = Date.now() - parseInt(cacheTimestamp, 10);
+
+          // If data is less than 2 minutes old, use cached data
+          if (cacheAge < 2 * 60 * 1000) {
+            console.log(`Using cached data for ${airport.code}`);
+            data[airport.code] = cachedData;
+            continue;
+          }
+        }
+
+        // Fetch fresh data from the server
         try {
           const responseData = await fetchWeather(airport.code);
           data[airport.code] = responseData;
+
+          // Update localStorage
+          localStorage.setItem(storageKey, JSON.stringify(responseData));
+          localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
         } catch (error) {
           console.error(`Failed to fetch weather data for ${airport.code}:`, error);
         }
@@ -306,8 +366,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [allWeatherData, airportValues, savedRoutings]);
 
-
-
   const handleSaveRouting = (newRouting) => {
     const existingRoutingIndex = savedRoutings.findIndex(
       (routing) =>
@@ -342,8 +400,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-          routing.departure === pendingRouting.departure &&
-          routing.destination === pendingRouting.destination
+        routing.departure === pendingRouting.departure &&
+        routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
@@ -582,13 +640,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
-
-
-
-
         <div>
-          <div className="flex items-center space-x-4 flex-wrap bg-yellow-200  ">
-
+          <div className="flex items-center space-x-4 flex-wrap bg-yellow-200">
             <div className='flex'>
               <ChoiceListbox
                 choices={['Airport Search', 'Routing Search']}
@@ -598,12 +651,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               />
             </div>
 
-
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
           </div>
 
-          <div className='flex bg-green-300  '>
+          <div className='flex bg-green-300'>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
@@ -612,13 +664,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               />
             )}
           </div>
-
-
         </div>
-
-
-
-
 
         <AirportWeatherDisplay
           weatherData={weatherData}
