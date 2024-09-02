@@ -65,71 +65,85 @@ const RoutingWXXForm = ({ onSave }) => {
   };
 
   return (
-    <div className="flex space-x-4 mt-4 flex-wrap">
-      <input
-        type="text"
-        placeholder="FLIGHT #"
-        value={flightDetails.flightNumber || ''}
-        onChange={(e) => setFlightDetails({ ...flightDetails, flightNumber: e.target.value })}
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
+    <div className="flex items-center space-x-4 mt-4 flex-wrap ">
+
+      <div>
+        <input
+          type="text"
+          placeholder="FLIGHT #"
+          value={flightDetails.flightNumber || ''}
+          onChange={(e) => setFlightDetails({ ...flightDetails, flightNumber: e.target.value })}
+          className="p-2 border border-gray-300 rounded-md text-center"
+          style={{ width: '100px' }}
+        />
+      </div>
+
       <div>
         <input
           type="text"
           placeholder="DEPARTURE"
           value={flightDetails.departure || ''}
           onChange={(e) => handleChange(e, 'departure')}
-          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+          className="p-2 border border-gray-300 rounded-md text-center"
+          style={{ width: '125px' }}
         />
         {warnings.departure && <span className="text-red-500">{warnings.departure}</span>}
       </div>
+
       <div>
         <input
           type="text"
           placeholder="DESTINATION"
           value={flightDetails.destination || ''}
           onChange={(e) => handleChange(e, 'destination')}
-          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+          className="p-2 border border-gray-300 rounded-md text-center"
+          style={{ width: '125px' }}
         />
         {warnings.destination && <span className="text-red-500">{warnings.destination}</span>}
       </div>
+
       <div>
         <input
           type="text"
           placeholder="ALTERNATE 1"
           value={flightDetails.alternate1 || ''}
           onChange={(e) => handleChange(e, 'alternate1')}
-          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+          className="p-2 border border-gray-300 rounded-md text-center"
+          style={{ width: '125px' }}
         />
         {warnings.alternate1 && <span className="text-red-500">{warnings.alternate1}</span>}
       </div>
+
       <div>
         <input
           type="text"
           placeholder="ALTERNATE 2"
           value={flightDetails.alternate2 || ''}
           onChange={(e) => handleChange(e, 'alternate2')}
-          className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+          className="p-2 border border-gray-300 rounded-md text-center"
+          style={{ width: '125px' }}
         />
         {warnings.alternate2 && <span className="text-red-500">{warnings.alternate2}</span>}
       </div>
 
-      <div className="flex space-x-2">
+      <div className="flex items-center space-x-2 p-2">
         <button
           onClick={handleSave}
-          className="mt-2 p-2 bg-red-500 text-white rounded-md w-full md:w-auto"
+          className="p-2 bg-red-500 text-white rounded-md"
         >
           Save
         </button>
         <button
           onClick={handleClear}
-          className="mt-2 p-2 bg-gray-500 text-white rounded-md w-full md:w-auto"
+          className="p-2 bg-gray-500 text-white rounded-md"
         >
           Clear
         </button>
       </div>
     </div>
   );
+
+
 };
 
 export default function ClientComponent({ fetchWeather, fetchGFA }) {
@@ -328,8 +342,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-        routing.departure === pendingRouting.departure &&
-        routing.destination === pendingRouting.destination
+          routing.departure === pendingRouting.departure &&
+          routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
@@ -552,7 +566,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         onConfirm={handleConfirm}
         onModify={handleModify}
       />
-      <div className="flex bg-yellow-300 h-screen overflow-y-auto p-2">
+      <div className="flex bg-red-600 h-screen overflow-y-auto p-2 ">
         {selectedForm === 'Routing Search' && (
           <div className="flex justify-center items-center h-full w-full">
             <SideNav
@@ -568,25 +582,43 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
-        <div className="flex items-center bg-lime-600 space-x-4 flex-wrap p-2">
-          <ChoiceListbox
-            choices={['Airport Search', 'Routing Search']}
-            callback={(value) => setSelectedForm(value)}
-            value={selectedForm}
-            width=""
-          />
 
-          {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
-          {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
+
+
+
+        <div>
+          <div className="flex items-center space-x-4 flex-wrap bg-yellow-200  ">
+
+            <div className='flex'>
+              <ChoiceListbox
+                choices={['Airport Search', 'Routing Search']}
+                callback={(value) => setSelectedForm(value)}
+                value={selectedForm}
+                width=""
+              />
+            </div>
+
+
+            {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+            {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
+          </div>
+
+          <div className='flex bg-green-300  '>
+            {selectedForm === 'Routing Search' && (
+              <AirportList
+                airportsToShow={airportsToShow}
+                onAirportClick={handleAirportClick}
+                setWeatherData={setWeatherData}
+              />
+            )}
+          </div>
+
+
         </div>
 
-        {selectedForm === 'Routing Search' && (
-          <AirportList
-            airportsToShow={airportsToShow}
-            onAirportClick={handleAirportClick}
-            setWeatherData={setWeatherData}
-          />
-        )}
+
+
+
 
         <AirportWeatherDisplay
           weatherData={weatherData}
