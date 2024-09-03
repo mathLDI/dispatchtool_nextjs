@@ -1,21 +1,8 @@
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
-const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
-  const {
-    setSelectedAirport,
-    selectedAirport,
-    airportCategories,
-    removeAirportValue, // Access the remove function from the context
-  } = useRccContext();
-
-  useEffect(() => {
-  }, [airportsToShow, airportCategories]);
-
-  const handleAirportClick = (airport) => {
-    setSelectedAirport(airport);
-    onAirportClick(airport.code);
-  };
+const AirportList = ({ airportsToShow, onAirportClick }) => {
+  const { selectedAirport, airportCategories, removeAirportValue } = useRccContext();
 
   const handleRemoveClick = (e, airportCode) => {
     e.stopPropagation(); // Prevent li onClick from being called
@@ -32,7 +19,7 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
           return (
             <li
               key={index}
-              onClick={() => handleAirportClick(airport)}
+              onClick={() => onAirportClick(airport.code)} // Use the passed down onAirportClick
               className={`flex items-center bg-gray-100 dark:bg-gray-700 justify-between p-2 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
                 } cursor-pointer`}
             >
@@ -56,3 +43,4 @@ const AirportList = ({ airportsToShow, onAirportClick, setWeatherData }) => {
 };
 
 export default AirportList;
+

@@ -45,9 +45,7 @@ export default function SideNav({
     setSelectedRouting(routing);
   };
 
-  console.log("savedrouting from sidenav", savedRoutings);
-  console.log("airportCategories from sidenav:", airportCategories);
-
+ 
   return (
     <div className="flex h-full flex-col px-2 py-2 md:px-1 overflow-y-auto">
       {showLogo && (

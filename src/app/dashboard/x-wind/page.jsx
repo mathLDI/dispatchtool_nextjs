@@ -62,9 +62,9 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
         setResetListBox(false);
     };
 
-    useEffect(() => {
-        console.log('SecondPageCrosswindCalculator is re-rendering');
-    }, []);
+  //  useEffect(() => {
+  //      console.log('SecondPageCrosswindCalculator is re-rendering');
+   // }, []);
 
     return (
         <div className="flex flex-col flex-wrap p-4 space-x-4"> {/* Use flex-wrap to allow wrapping */}

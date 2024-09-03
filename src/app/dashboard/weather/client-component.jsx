@@ -168,6 +168,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setFlightDetails,
     savedRoutings,
     setSavedRoutings,
+  
   } = useRccContext();
 
   const [leftWidth, setLeftWidth] = useState(50);
@@ -198,11 +199,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     try {
       const data = await fetchWeather(airportCode);
       setWeatherData(data);
-      setSelectedAirport({ code: airportCode });
+      setSelectedAirport({ code: airportCode }); // Update the selected airport
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
   };
+
 
   const updateLocalStorage = (key, data) => {
     localStorage.setItem(key, JSON.stringify(data));
@@ -257,6 +259,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
+
+
   useEffect(() => {
     if (selectedForm === 'Airport Search' && airportValues.length > 0) {
       handleAirportClick(airportValues[0].code);
@@ -264,6 +268,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       handleAirportClick(flightDetails.departure);
     }
   }, [selectedForm, flightDetails.departure, airportValues]);
+
+
+
 
   // Fetch weather data based on the selected form
   useEffect(() => {
@@ -318,6 +325,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             continue;
           }
         }
+
+        
 
         // Fetch fresh data from the server
         try {
@@ -657,11 +666,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
           <div className='flex bg-green-300'>
             {selectedForm === 'Routing Search' && (
-              <AirportList
-                airportsToShow={airportsToShow}
-                onAirportClick={handleAirportClick}
-                setWeatherData={setWeatherData}
-              />
+             <AirportList
+             airportsToShow={airportsToShow}
+             onAirportClick={handleAirportClick} // Pass handleAirportClick to AirportList
+           />
             )}
           </div>
         </div>
