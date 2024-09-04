@@ -163,18 +163,33 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
 
-  const [flightDetails, setFlightDetails] = useState<FlightDetails>({
-    flightNumber: '',
-    departure: '',
-    destination: '',
-    alternate1: '',
-    alternate2: '',
+  // Initialize flightDetails from localStorage
+  const [flightDetails, setFlightDetails] = useState<FlightDetails>(() => {
+    const storedFlightDetails = localStorage.getItem('flightDetails');
+    return storedFlightDetails ? JSON.parse(storedFlightDetails) : {
+      flightNumber: '',
+      departure: '',
+      destination: '',
+      alternate1: '',
+      alternate2: '',
+    };
   });
 
+    // Save flightDetails to localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem('flightDetails', JSON.stringify(flightDetails));
+    }, [flightDetails])
+
+  // Initialize savedRoutings from localStorage
   const [savedRoutings, setSavedRoutings] = useState<Routing[]>(() => {
     const storedRoutings = localStorage.getItem('savedRoutings');
     return storedRoutings ? JSON.parse(storedRoutings) : [];
   });
+
+    // Save savedRoutings to localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem('savedRoutings', JSON.stringify(savedRoutings));
+    }, [savedRoutings]);
 
   // Save airportValues to localStorage whenever it changes
   useEffect(() => {
