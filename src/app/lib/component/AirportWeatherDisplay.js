@@ -50,7 +50,7 @@ export default function AirportWeatherDisplay({
   }
 
   return (
-    <div className="flex-1 overflow-hidden bg-yellow-600">
+    <div className="flex-1 overflow-hidden">
       <div className="flex flex-row h-full">
         <div
           className="flex flex-col overflow-y-auto p-2"

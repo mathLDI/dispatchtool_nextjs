@@ -14,7 +14,7 @@ const links = [
   },
   {
     name: 'RCAM PDF',
-    href: '/dashboard/rcamPdf',
+    href: '/dashboard/rcam-pdf', // Update the route to the RCAM page
     icon: DocumentIcon
   }
 ];

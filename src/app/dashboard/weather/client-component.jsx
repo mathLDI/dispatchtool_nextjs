@@ -633,7 +633,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         onConfirm={handleConfirm}
         onModify={handleModify}
       />
-      <div className="flex bg-red-600 h-screen overflow-y-auto p-2 ">
+      <div className="flex  h-screen overflow-y-auto p-2 ">
         {selectedForm === 'Routing Search' && (
           <div className="flex justify-center items-center h-full w-full">
             <SideNav
@@ -650,7 +650,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div>
-          <div className="flex items-center space-x-4 flex-wrap bg-yellow-200">
+          <div className="flex items-center space-x-4 flex-wrap ">
             <div className='flex'>
               <ChoiceListbox
                 choices={['Airport Search', 'Routing Search']}
@@ -664,7 +664,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
           </div>
 
-          <div className='flex bg-green-300'>
+          <div className='flex '>
             {selectedForm === 'Routing Search' && (
              <AirportList
              airportsToShow={airportsToShow}
