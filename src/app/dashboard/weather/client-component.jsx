@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback  } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
-import { ChoiceListbox } from '../../lib/component/ListBox';
+//import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
+import NewChoiceListbox from '../../lib/component/NewChoiceListBox';
 import {
   formatLocalDate,
   parseNotamDate,
@@ -168,14 +169,21 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setFlightDetails,
     savedRoutings,
     setSavedRoutings,
+    selectedForm,
+    setSelectedForm,
 
   } = useRccContext();
+
+
+  const handleFormChange = (newForm) => {
+    console.log("Selected form:", newForm); // Log the selected form for debugging
+    setSelectedForm(newForm);               // Update the selectedForm state
+  };
 
   const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef(null);
   const resizerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [selectedForm, setSelectedForm] = useState('Airport Search');
   const allWeatherDataRef = useRef(allWeatherData);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -214,7 +222,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     try {
       const data = await fetchWeather(airportCode);
       const existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
-  
+
       // Only update if the data is new or different
       if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
         existingData[airportCode] = data;
@@ -225,7 +233,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
   }, [fetchWeather, setWeatherData, updateLocalStorage]);
-  
+
   useEffect(() => {
     const fetchAllWeatherData = async () => {
       const airports = savedRoutings.flatMap((routing) => [
@@ -234,18 +242,18 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         routing.alternate1,
         routing.alternate2,
       ]).filter(Boolean);
-  
+
       for (const airportCode of airports) {
         await fetchAndUpdateWeatherData(airportCode);
       }
     };
-  
+
     // Initial data fetch
     fetchAllWeatherData();
-  
+
     // Set up the timer to refresh data every 2 minutes
     const intervalId = setInterval(fetchAllWeatherData, 120000);
-  
+
     // Clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
   }, [savedRoutings, fetchAndUpdateWeatherData]);
@@ -432,16 +440,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const handleMouseMove = useCallback((e) => {
     if (!isResizing || !containerRef.current) return;
-  
+
     const containerRect = containerRef.current.getBoundingClientRect();
     const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
     setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80));
   }, [isResizing, containerRef]);
-  
+
   const handleMouseUp = () => {
     setIsResizing(false);
   };
-  
+
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -450,7 +458,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     }
-  
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
@@ -652,12 +660,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         <div>
           <div className="flex items-center space-x-4 flex-wrap ">
             <div className='flex'>
-              <ChoiceListbox
-                choices={['Airport Search', 'Routing Search']}
-                callback={(value) => setSelectedForm(value)}
-                value={selectedForm}
-                width=""
-              />
+            <NewChoiceListbox
+        choices={['Airport Search', 'Routing Search']}
+        callback={handleFormChange}
+      />
+
+
             </div>
 
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
@@ -666,10 +674,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
           <div className='flex '>
             {selectedForm === 'Routing Search' && (
-              <AirportList
-                airportsToShow={airportsToShow}
-                onAirportClick={handleAirportClick} // Pass handleAirportClick to AirportList
-              />
+               <AirportList
+               airportsToShow={airportsToShow}
+               onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
+             />
             )}
           </div>
         </div>

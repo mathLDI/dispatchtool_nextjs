@@ -6,14 +6,18 @@ import PropTypes from "prop-types";
 export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, value }) => {
   const [selected, setSelected] = useState(value);
 
+
   useEffect(() => {
     setSelected(value);
   }, [value]);
 
   const changeHandler = (v) => {
-    setSelected(v);
-    callback(v);
+    console.log("Selected value in ChoiceListbox:", v);  // Add this to check if value changes
+    setSelected(v);  // Updates local state in ChoiceListbox
+    callback(v);     // Calls parent component's setSelectedForm
   };
+  
+  
 
   useEffect(() => {
     if (reset) {

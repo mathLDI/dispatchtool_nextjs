@@ -104,6 +104,8 @@ interface RccContextType {
   setFlightDetails: (details: FlightDetails) => void;
   savedRoutings: Routing[];
   setSavedRoutings: (routings: Routing[]) => void;
+  selectedForm: string;
+  setSelectedForm: (form: string) => void;
 }
 
 // Create the context with a default value
@@ -162,6 +164,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<string>('Airport Search');
+
 
   // Initialize flightDetails from localStorage
   const [flightDetails, setFlightDetails] = useState<FlightDetails>(() => {
@@ -248,6 +252,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isCraneFilterActive, setIsCraneFilterActive,
       flightDetails, setFlightDetails,
       savedRoutings, setSavedRoutings,
+      selectedForm, setSelectedForm,
     }}>
       {children}
     </RccContext.Provider>
