@@ -1,8 +1,5 @@
-// src/app/lib/component/GfaDisplay.js
-
 import React from 'react';
 import Image from 'next/image';
-
 
 const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
   if (!gfaData || gfaData.data.length === 0) {
@@ -40,14 +37,28 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-center items-center flex-grow">
-        
-        <Image
-          src={getImageUrl()}
-          alt="GFA Image"
-          layout="fill"
-          objectFit="contain"
-        />
+      <div className="flex justify-center items-center flex-grow" style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{
+  position: 'relative',
+  width: '100%',          // The container takes full width of the parent
+  height: '100%',         // Ensure the container takes full height of the parent as well
+  maxWidth: '100vw',      // The image will take the full available width
+  maxHeight: '100vh',     // The image will take the full available height
+  aspectRatio: '71 / 57', // Maintain the specific aspect ratio
+  margin: '0 auto',       // Center the container
+}}>
+  <Image
+    src={getImageUrl()}
+    alt="GFA Image"
+    fill
+    sizes="100vw"         // Image will take full width of the viewport
+    style={{ objectFit: 'contain' }}  // Contain ensures the image stays within the bounds without distortion
+  />
+</div>
+
+
+
+
       </div>
 
       <div className="flex justify-center mt-2 space-x-4">
@@ -55,11 +66,10 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
           <button
             key={index}
             onClick={() => setSelectedTimestamp(index)}
-            className={`px-4 py-2 rounded ${
-              selectedTimestamp === index
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
+            className={`px-4 py-2 rounded ${selectedTimestamp === index
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 text-black hover:bg-gray-300'
+              }`}
           >
             {formatValidityTime(frame)}
           </button>
