@@ -7,7 +7,7 @@ const RcamPdfPage = () => {
     if (iframeRef.current) {
       iframeRef.current.src = '/RCAMv3.3.pdf';
     }
-  }, []);
+  }, [iframeRef]);
 
   return (
     <div className="flex flex-col h-full">

@@ -20,7 +20,7 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
       setSelected(choices[0]);
       resetCallback();
     }
-  }, [reset]);
+  }, [reset, resetCallback, choices]);
 
   return (
     <div className={width === undefined ? "w-full" : width}> {/* Use w-full to allow full width */}

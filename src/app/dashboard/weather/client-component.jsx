@@ -455,7 +455,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   useEffect(() => {
     if (selectedAirport && gfaType) {
