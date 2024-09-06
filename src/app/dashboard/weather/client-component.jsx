@@ -373,7 +373,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       console.log('airportsToInclude from client-component:', uniqueAirportsToInclude);
       setAirportCategories(categories);
     }
-  }, [allWeatherData, airportValues, savedRoutings]);
+  }, [allWeatherData, airportValues, savedRoutings, setAirportCategories]);
 
   const handleSaveRouting = (newRouting) => {
     const existingRoutingIndex = savedRoutings.findIndex(

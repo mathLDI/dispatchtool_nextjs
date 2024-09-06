@@ -1,6 +1,8 @@
 // src/app/lib/component/GfaDisplay.js
 
 import React from 'react';
+import Image from 'next/image';
+
 
 const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
   if (!gfaData || gfaData.data.length === 0) {
@@ -39,10 +41,12 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-center items-center flex-grow">
-        <img
+        
+        <Image
           src={getImageUrl()}
           alt="GFA Image"
-          className="w-full h-full object-contain"
+          layout="fill"
+          objectFit="contain"
         />
       </div>
 
