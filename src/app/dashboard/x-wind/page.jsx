@@ -1,11 +1,9 @@
-'use client';
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import { ChoiceListbox } from '../../lib/component/ListBox';
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
-import PropTypes from "prop-types";
-import { useRccContext } from '../RccCalculatorContext'; // Use relative path
+import { useRccContext } from '../RccCalculatorContext';
 import { CrosswindComponent } from '../../lib/component/functions/crosswindComponent.js';
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
 
@@ -62,16 +60,10 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
         setResetListBox(false);
     };
 
-  //  useEffect(() => {
-  //      console.log('SecondPageCrosswindCalculator is re-rendering');
-   // }, []);
-
     return (
-        <div className="flex flex-col flex-wrap p-4 space-x-4"> {/* Use flex-wrap to allow wrapping */}
-
+        <div className="flex flex-col flex-wrap p-4 space-x-4">
             <Card cardTitle={"Crosswind Calculator"} status={null} className="w-full sm:w-auto">
                 <div className="space-y-4">
-
                     <div className="flex flex-col">
                         <div className="flex justify-between items-center mb-2">
                             <div>Aircraft type: </div>
@@ -98,14 +90,13 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                                         setRunwayHeading(v);
                                     }
                                 }}
-                                onFocus={onFocus}  
-                                onBlur={onBlur}  
+                                onFocus={onFocus}
+                                onBlur={onBlur}
                             />
                         </div>
 
                         <div className="flex justify-between items-center mb-2">
                             <div>Magnetic Variation:</div>
-
                             <ChoiceListbox
                                 value={eastOrWestVar}
                                 choices={buttonEastOrWest}
@@ -169,8 +160,7 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                         </div>
 
                         <div>
-                            <CustomButton
-                                title={"Reset"} onClickCallback={resetButtonHandler} />
+                            <CustomButton title={"Reset"} onClickCallback={resetButtonHandler} />
                         </div>
                     </div>
                 </div>
