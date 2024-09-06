@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { ChoiceListbox } from '../../lib/component/ListBox';
