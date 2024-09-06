@@ -9,7 +9,7 @@ import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 import { CrosswindComponent } from '../../lib/component/functions/crosswindComponent.js';
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
 
-const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
+const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }) => {
     const {
         aircraftType, setAircraftType,
         runwayHeading, setRunwayHeading,
@@ -98,8 +98,8 @@ const SecondPageCrosswindCalculator = ({ onFocus, onBlur }) => {
                                         setRunwayHeading(v);
                                     }
                                 }}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
+                                onFocus={onFocus}  
+                                onBlur={onBlur}  
                             />
                         </div>
 

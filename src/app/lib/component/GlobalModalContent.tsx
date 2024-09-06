@@ -26,8 +26,8 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
         <div className="flex flex-col fixed z-50 rounded-lg shadow-lg bg-white" style={{ top: '20%', left: '50%', transform: 'translate(-50%, -20%)' }}>
           <div className="cursor-move">
           </div>
-          <div onFocus={handleFocus} onBlur={handleBlur}>
-            {contentType === 'x-wind' && <SecondPageCrosswindCalculator />}
+          <div>
+            {contentType === 'x-wind' && <SecondPageCrosswindCalculator onFocus={handleFocus} onBlur={handleBlur} />} {/* Pass onFocus and onBlur */}
             {contentType === 'rcc-not-provided' && <FirstPageRccNotProvided />}
             {contentType === 'rcc-provided' && <FirstPageRccProvided />}
           </div>
@@ -39,5 +39,6 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
     </>
   );
 };
+
 
 export default GlobalModalContent;
