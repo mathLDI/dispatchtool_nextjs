@@ -51,7 +51,7 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
     src={getImageUrl()}
     alt="GFA Image"
     fill
-    sizes="100vw"         // Image will take full width of the viewport
+    sizes="(max-width: 768px) 100vw, (min-width: 769px) and (max-width: 1200px) 50vw, 33vw"  // Adjust sizes for different screen widths
     style={{ objectFit: 'contain' }}  // Contain ensures the image stays within the bounds without distortion
   />
 </div>

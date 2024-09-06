@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';  // Include useCallback
 import Draggable from 'react-draggable';
 import SecondPageCrosswindCalculator from '../../dashboard/x-wind/page';
 import FirstPageRccNotProvided from '../../dashboard/firstPageRccNotProvided/page';
@@ -39,6 +39,5 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
     </>
   );
 };
-
 
 export default GlobalModalContent;

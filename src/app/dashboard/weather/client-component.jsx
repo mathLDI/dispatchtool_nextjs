@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback  } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
@@ -168,7 +168,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setFlightDetails,
     savedRoutings,
     setSavedRoutings,
-  
+
   } = useRccContext();
 
   const [leftWidth, setLeftWidth] = useState(50);
@@ -178,7 +178,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [selectedForm, setSelectedForm] = useState('Airport Search');
   const allWeatherDataRef = useRef(allWeatherData);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingRouting, setPendingRouting] = useState(null);
 
   const handleDeleteRouting = (index) => {
@@ -195,7 +195,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     });
   };
 
-  const handleAirportClick = async (airportCode) => {
+  const handleAirportClick = useCallback(async (airportCode) => {
     try {
       const data = await fetchWeather(airportCode);
       setWeatherData(data);
@@ -203,18 +203,18 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
-  };
+  }, [fetchWeather, setWeatherData, setSelectedAirport]);
 
 
-  const updateLocalStorage = (key, data) => {
+  const updateLocalStorage = useCallback((key, data) => {
     localStorage.setItem(key, JSON.stringify(data));
-  };
+  }, []);
 
-  const fetchAndUpdateWeatherData = async (airportCode) => {
+  const fetchAndUpdateWeatherData = useCallback(async (airportCode) => {
     try {
       const data = await fetchWeather(airportCode);
       const existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
-
+  
       // Only update if the data is new or different
       if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
         existingData[airportCode] = data;
@@ -224,8 +224,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
-  };
-
+  }, [fetchWeather, setWeatherData, updateLocalStorage]);
+  
   useEffect(() => {
     const fetchAllWeatherData = async () => {
       const airports = savedRoutings.flatMap((routing) => [
@@ -234,29 +234,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         routing.alternate1,
         routing.alternate2,
       ]).filter(Boolean);
-
+  
       for (const airportCode of airports) {
         await fetchAndUpdateWeatherData(airportCode);
       }
     };
-
+  
     // Initial data fetch
     fetchAllWeatherData();
-
+  
     // Set up the timer to refresh data every 2 minutes
     const intervalId = setInterval(fetchAllWeatherData, 120000);
-
+  
     // Clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
-  }, [savedRoutings, fetchWeather]);
+  }, [savedRoutings, fetchAndUpdateWeatherData]);
 
   const airportsToShow = selectedForm === 'Routing Search'
     ? [
-        flightDetails.departure && { code: flightDetails.departure },
-        flightDetails.destination && { code: flightDetails.destination },
-        flightDetails.alternate1 && { code: flightDetails.alternate1 },
-        flightDetails.alternate2 && { code: flightDetails.alternate2 },
-      ].filter(Boolean) // Filter out any falsy values
+      flightDetails.departure && { code: flightDetails.departure },
+      flightDetails.destination && { code: flightDetails.destination },
+      flightDetails.alternate1 && { code: flightDetails.alternate1 },
+      flightDetails.alternate2 && { code: flightDetails.alternate2 },
+    ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
 
@@ -267,7 +267,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     } else if (selectedForm === 'Routing Search' && flightDetails.departure) {
       handleAirportClick(flightDetails.departure);
     }
-  }, [selectedForm, flightDetails.departure, airportValues]);
+  }, [selectedForm, flightDetails.departure, airportValues, handleAirportClick]);
 
 
 
@@ -302,11 +302,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       const data = {};
       const airports = selectedForm === 'Routing Search' && flightDetails.departure
         ? [
-            { code: flightDetails.departure },
-            flightDetails.destination && { code: flightDetails.destination },
-            flightDetails.alternate1 && { code: flightDetails.alternate1 },
-            flightDetails.alternate2 && { code: flightDetails.alternate2 },
-          ].filter(Boolean) // Filter out any falsy values
+          { code: flightDetails.departure },
+          flightDetails.destination && { code: flightDetails.destination },
+          flightDetails.alternate1 && { code: flightDetails.alternate1 },
+          flightDetails.alternate2 && { code: flightDetails.alternate2 },
+        ].filter(Boolean) // Filter out any falsy values
         : airportValues;
 
       for (const airport of airports) {
@@ -326,7 +326,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           }
         }
 
-        
+
 
         // Fetch fresh data from the server
         try {
@@ -348,7 +348,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     } else if (selectedForm === 'Airport Search' && airportValues.length > 0) {
       fetchWeatherDataForSearch();
     }
-  }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm]);
+  }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm, setAllWeatherData]);
 
   useEffect(() => {
     if (Object.keys(allWeatherData).length > 0) {
@@ -409,8 +409,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-        routing.departure === pendingRouting.departure &&
-        routing.destination === pendingRouting.destination
+          routing.departure === pendingRouting.departure &&
+          routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
@@ -430,18 +430,18 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setIsCraneFilterActive((prevState) => !prevState);
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (!isResizing || !containerRef.current) return;
-
+  
     const containerRect = containerRef.current.getBoundingClientRect();
     const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
     setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80));
-  };
-
+  }, [isResizing, containerRef]);
+  
   const handleMouseUp = () => {
     setIsResizing(false);
   };
-
+  
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -450,12 +450,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     }
-
+  
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, handleMouseMove, handleMouseUp]);
+  }, [isResizing, handleMouseMove]);
 
   useEffect(() => {
     if (selectedAirport && gfaType) {
@@ -666,10 +666,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
           <div className='flex '>
             {selectedForm === 'Routing Search' && (
-             <AirportList
-             airportsToShow={airportsToShow}
-             onAirportClick={handleAirportClick} // Pass handleAirportClick to AirportList
-           />
+              <AirportList
+                airportsToShow={airportsToShow}
+                onAirportClick={handleAirportClick} // Pass handleAirportClick to AirportList
+              />
             )}
           </div>
         </div>
