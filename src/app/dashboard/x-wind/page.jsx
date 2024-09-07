@@ -9,7 +9,7 @@ import { useRccContext } from '../RccCalculatorContext';
 import { CrosswindComponent } from '../../lib/component/functions/crosswindComponent.js';
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
 
-const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }) => {
+const SecondPageCrosswindCalculator = () => {
     const {
         aircraftType, setAircraftType,
         runwayHeading, setRunwayHeading,
@@ -92,8 +92,6 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                                         setRunwayHeading(v);
                                     }
                                 }}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
                             />
                         </div>
 
@@ -118,8 +116,6 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                                         setMagneticVar(v);
                                     }
                                 }}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
                             />
                         </div>
 
@@ -137,8 +133,6 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                                         setWindDirection(v);
                                     }
                                 }}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
                             />
                         </div>
 
@@ -156,8 +150,6 @@ const SecondPageCrosswindCalculator = ({ onFocus = () => {}, onBlur = () => {} }
                                         setWindSpeed(v);
                                     }
                                 }}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
                             />
                         </div>
 
@@ -232,8 +224,6 @@ SecondPageCrosswindCalculator.propTypes = {
     setEastOrWestVar: PropTypes.func,
     initialMagneticVar: PropTypes.number,
     setMagneticVar: PropTypes.func,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
 };
 
 export default SecondPageCrosswindCalculator;
