@@ -149,14 +149,15 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
 
-  // Initialize airportValues from localStorage (client-side check)
-  const [airportValues, setAirportValues] = useState<Airport[]>(() => {
+  const [airportValues, setAirportValues] = useState<Airport[]>([]);
+
+  // Client-side only useEffect for localStorage interactions
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedAirportValues = localStorage.getItem('airportValues');
-      return storedAirportValues ? JSON.parse(storedAirportValues) : [];
+      setAirportValues(storedAirportValues ? JSON.parse(storedAirportValues) : []);
     }
-    return [];
-  });
+  }, []);
 
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);

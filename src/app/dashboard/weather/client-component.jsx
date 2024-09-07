@@ -11,7 +11,6 @@ import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
 import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
 
-
 import {
   formatLocalDate,
   parseNotamDate,
@@ -209,7 +208,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     try {
       const data = await fetchWeather(airportCode);
       setWeatherData(data);
-      setSelectedAirport({ code: airportCode }); // Update the selected airport
+      setSelectedAirport({ code: airportCode });
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
@@ -225,8 +224,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     try {
       const data = await fetchWeather(airportCode);
       let existingData = {};
-      
-      // Check for window object before accessing localStorage
+
       if (typeof window !== 'undefined') {
         existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
       }
@@ -235,7 +233,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
         existingData[airportCode] = data;
         updateLocalStorage('weatherData', existingData);
-        setWeatherData(data); // Update the state with the new data
+        setWeatherData(data);
       }
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
@@ -272,7 +270,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       flightDetails.destination && { code: flightDetails.destination },
       flightDetails.alternate1 && { code: flightDetails.alternate1 },
       flightDetails.alternate2 && { code: flightDetails.alternate2 },
-    ].filter(Boolean) // Filter out any falsy values
+    ].filter(Boolean)
     : airportValues;
 
   useEffect(() => {
@@ -286,16 +284,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   // Fetch weather data based on the selected form
   useEffect(() => {
     const fetchWeatherDataForRouting = async () => {
-      const data = { ...allWeatherDataRef.current }; // Preserve existing weather data
+      const data = { ...allWeatherDataRef.current };
       const airports = savedRoutings.flatMap((routing) => [
         { code: routing.departure },
         { code: routing.destination },
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
-      ]).filter(Boolean); // Filter out falsy values
+      ]).filter(Boolean);
 
       for (const airport of airports) {
-        if (!data[airport.code]) { // Only fetch if not already fetched
+        if (!data[airport.code]) {
           try {
             const responseData = await fetchWeather(airport.code);
             data[airport.code] = responseData;
@@ -305,8 +303,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         }
       }
 
-      setAllWeatherData(data); // Update state with all weather data
-      allWeatherDataRef.current = data; // Update ref with new data
+      setAllWeatherData(data);
+      allWeatherDataRef.current = data;
     };
 
     const fetchWeatherDataForSearch = async () => {
@@ -317,7 +315,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           flightDetails.destination && { code: flightDetails.destination },
           flightDetails.alternate1 && { code: flightDetails.alternate1 },
           flightDetails.alternate2 && { code: flightDetails.alternate2 },
-        ].filter(Boolean) // Filter out any falsy values
+        ].filter(Boolean)
         : airportValues;
 
       for (const airport of airports) {
@@ -674,10 +672,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         <div>
           <div className="flex items-center space-x-4 flex-wrap ">
             <div className='flex'>
-            <NewChoiceListbox
-              choices={['Airport Search', 'Routing Search']}
-              callback={handleFormChange}
-            />
+              <NewChoiceListbox
+                choices={['Airport Search', 'Routing Search']}
+                callback={handleFormChange}
+              />
             </div>
 
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
@@ -686,10 +684,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
           <div className='flex '>
             {selectedForm === 'Routing Search' && (
-               <AirportList
-                 airportsToShow={airportsToShow}
+              <AirportList
+                airportsToShow={airportsToShow}
                  onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
-               />
+              />
             )}
           </div>
         </div>
