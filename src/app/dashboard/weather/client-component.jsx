@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Card from '../../lib/component/Card';
 import { useRccContext } from '../RccCalculatorContext';
 import AirportSearchForm from './AirportSearchForm';
-//import { ChoiceListbox } from '../../lib/component/ListBox';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
@@ -171,9 +170,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSavedRoutings,
     selectedForm,
     setSelectedForm,
-
   } = useRccContext();
-
 
   const handleFormChange = (newForm) => {
     console.log("Selected form:", newForm); // Log the selected form for debugging
@@ -192,7 +189,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
     setSavedRoutings(updatedRoutings);
-    localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+
+    // Check for window object and update localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+    }
 
     setFlightDetails({
       flightNumber: '',
@@ -213,15 +214,21 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [fetchWeather, setWeatherData, setSelectedAirport]);
 
-
   const updateLocalStorage = useCallback((key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
   }, []);
 
   const fetchAndUpdateWeatherData = useCallback(async (airportCode) => {
     try {
       const data = await fetchWeather(airportCode);
-      const existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
+      let existingData = {};
+      
+      // Check for window object before accessing localStorage
+      if (typeof window !== 'undefined') {
+        existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
+      }
 
       // Only update if the data is new or different
       if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
@@ -267,8 +274,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     ].filter(Boolean) // Filter out any falsy values
     : airportValues;
 
-
-
   useEffect(() => {
     if (selectedForm === 'Airport Search' && airportValues.length > 0) {
       handleAirportClick(airportValues[0].code);
@@ -276,9 +281,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       handleAirportClick(flightDetails.departure);
     }
   }, [selectedForm, flightDetails.departure, airportValues, handleAirportClick]);
-
-
-
 
   // Fetch weather data based on the selected form
   useEffect(() => {
@@ -319,8 +321,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       for (const airport of airports) {
         const storageKey = `weatherData_${airport.code}`;
-        const cachedData = JSON.parse(localStorage.getItem(storageKey));
-        const cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
+        let cachedData = {};
+        let cacheTimestamp = '';
+
+        // Client-side check for localStorage
+        if (typeof window !== 'undefined') {
+          cachedData = JSON.parse(localStorage.getItem(storageKey));
+          cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
+        }
 
         // Check if cache exists and is recent
         if (cachedData && cacheTimestamp) {
@@ -334,16 +342,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           }
         }
 
-
-
         // Fetch fresh data from the server
         try {
           const responseData = await fetchWeather(airport.code);
           data[airport.code] = responseData;
 
           // Update localStorage
-          localStorage.setItem(storageKey, JSON.stringify(responseData));
-          localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(storageKey, JSON.stringify(responseData));
+            localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
+          }
         } catch (error) {
           console.error(`Failed to fetch weather data for ${airport.code}:`, error);
         }
@@ -360,23 +368,19 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   useEffect(() => {
     if (Object.keys(allWeatherData).length > 0) {
-      // Extract unique airports from savedRoutings
       const airportsFromSavedRoutings = savedRoutings.flatMap((routing) => [
         { code: routing.departure },
         { code: routing.destination },
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
-      ]).filter(Boolean); // Filter out any falsy values
+      ]).filter(Boolean);
 
-      // Combine with the existing airportValues
       const airportsToInclude = [...airportValues, ...airportsFromSavedRoutings];
 
-      // Remove duplicate entries by using a Set
       const uniqueAirportsToInclude = Array.from(
         new Set(airportsToInclude.map((airport) => airport.code))
       ).map((code) => ({ code }));
 
-      // Calculate the categories for the airports
       const categories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
       console.log('airportsToInclude from client-component:', uniqueAirportsToInclude);
       setAirportCategories(categories);
@@ -392,14 +396,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     );
 
     if (existingRoutingIndex !== -1) {
-      // Routing already exists, show modal
       setPendingRouting(newRouting);
       setIsModalOpen(true);
     } else {
-      // Add the routing if it's not a duplicate
       const updatedRoutings = [...savedRoutings, newRouting];
       setSavedRoutings(updatedRoutings);
-      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+
+      // Client-side check before updating localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      }
     }
   };
 
@@ -407,7 +413,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = [...savedRoutings, pendingRouting];
       setSavedRoutings(updatedRoutings);
-      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+
+      // Client-side check before updating localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      }
       setPendingRouting(null);
     }
     setIsModalOpen(false);
@@ -417,13 +427,17 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-          routing.departure === pendingRouting.departure &&
-          routing.destination === pendingRouting.destination
+        routing.departure === pendingRouting.departure &&
+        routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
       setSavedRoutings(updatedRoutings);
-      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+
+      // Client-side check before updating localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      }
       setPendingRouting(null);
     }
     setIsModalOpen(false);
@@ -661,11 +675,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           <div className="flex items-center space-x-4 flex-wrap ">
             <div className='flex'>
             <NewChoiceListbox
-        choices={['Airport Search', 'Routing Search']}
-        callback={handleFormChange}
-      />
-
-
+              choices={['Airport Search', 'Routing Search']}
+              callback={handleFormChange}
+            />
             </div>
 
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
@@ -675,9 +687,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           <div className='flex '>
             {selectedForm === 'Routing Search' && (
                <AirportList
-               airportsToShow={airportsToShow}
-               onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
-             />
+                 airportsToShow={airportsToShow}
+                 onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
+               />
             )}
           </div>
         </div>

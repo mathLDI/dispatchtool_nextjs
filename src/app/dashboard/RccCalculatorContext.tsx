@@ -149,9 +149,13 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
 
+  // Initialize airportValues from localStorage (client-side check)
   const [airportValues, setAirportValues] = useState<Airport[]>(() => {
-    const storedAirportValues = localStorage.getItem('airportValues');
-    return storedAirportValues ? JSON.parse(storedAirportValues) : [];
+    if (typeof window !== 'undefined') {
+      const storedAirportValues = localStorage.getItem('airportValues');
+      return storedAirportValues ? JSON.parse(storedAirportValues) : [];
+    }
+    return [];
   });
 
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -166,11 +170,19 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
   const [selectedForm, setSelectedForm] = useState<string>('Airport Search');
 
-
-  // Initialize flightDetails from localStorage
+  // Initialize flightDetails from localStorage (client-side check)
   const [flightDetails, setFlightDetails] = useState<FlightDetails>(() => {
-    const storedFlightDetails = localStorage.getItem('flightDetails');
-    return storedFlightDetails ? JSON.parse(storedFlightDetails) : {
+    if (typeof window !== 'undefined') {
+      const storedFlightDetails = localStorage.getItem('flightDetails');
+      return storedFlightDetails ? JSON.parse(storedFlightDetails) : {
+        flightNumber: '',
+        departure: '',
+        destination: '',
+        alternate1: '',
+        alternate2: '',
+      };
+    }
+    return {
       flightNumber: '',
       departure: '',
       destination: '',
@@ -179,25 +191,34 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   });
 
-    // Save flightDetails to localStorage whenever it changes
-    useEffect(() => {
+  // Save flightDetails to localStorage (client-side check)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
       localStorage.setItem('flightDetails', JSON.stringify(flightDetails));
-    }, [flightDetails])
+    }
+  }, [flightDetails]);
 
-  // Initialize savedRoutings from localStorage
+  // Initialize savedRoutings from localStorage (client-side check)
   const [savedRoutings, setSavedRoutings] = useState<Routing[]>(() => {
-    const storedRoutings = localStorage.getItem('savedRoutings');
-    return storedRoutings ? JSON.parse(storedRoutings) : [];
+    if (typeof window !== 'undefined') {
+      const storedRoutings = localStorage.getItem('savedRoutings');
+      return storedRoutings ? JSON.parse(storedRoutings) : [];
+    }
+    return [];
   });
 
-    // Save savedRoutings to localStorage whenever it changes
-    useEffect(() => {
-      localStorage.setItem('savedRoutings', JSON.stringify(savedRoutings));
-    }, [savedRoutings]);
-
-  // Save airportValues to localStorage whenever it changes
+  // Save savedRoutings to localStorage (client-side check)
   useEffect(() => {
-    localStorage.setItem('airportValues', JSON.stringify(airportValues));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedRoutings', JSON.stringify(savedRoutings));
+    }
+  }, [savedRoutings]);
+
+  // Save airportValues to localStorage (client-side check)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('airportValues', JSON.stringify(airportValues));
+    }
   }, [airportValues]);
 
   // Functions to manage airportValues array
