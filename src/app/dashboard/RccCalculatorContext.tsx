@@ -122,6 +122,12 @@ export const useRccContext = () => {
 
 // RccProvider component to wrap around parts of the app that need access to this context
 export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // Ensures client-only logic
+  }, []);
+
   const [aircraftType, setAircraftType] = useState("DHC-8");
   const [contaminationCoverage1, setContaminationCoverage1] = useState(" ");
   const [contaminationCoverage2, setContaminationCoverage2] = useState(" ");
@@ -149,15 +155,20 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
 
-  const [airportValues, setAirportValues] = useState<Airport[]>([]);
+  const [airportValues, setAirportValues] = useState<Airport[]>(() => {
+    if (typeof window !== 'undefined') {
+      const storedAirportValues = localStorage.getItem('airportValues');
+      return storedAirportValues ? JSON.parse(storedAirportValues) : [];
+    }
+    return [];
+  });
 
   // Client-side only useEffect for localStorage interactions
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedAirportValues = localStorage.getItem('airportValues');
-      setAirportValues(storedAirportValues ? JSON.parse(storedAirportValues) : []);
+    if (isClient) {
+      localStorage.setItem('airportValues', JSON.stringify(airportValues));
     }
-  }, []);
+  }, [airportValues, isClient]);
 
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
@@ -194,10 +205,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Save flightDetails to localStorage (client-side check)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('flightDetails', JSON.stringify(flightDetails));
     }
-  }, [flightDetails]);
+  }, [flightDetails, isClient]);
 
   // Initialize savedRoutings from localStorage (client-side check)
   const [savedRoutings, setSavedRoutings] = useState<Routing[]>(() => {
@@ -210,17 +221,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Save savedRoutings to localStorage (client-side check)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('savedRoutings', JSON.stringify(savedRoutings));
     }
-  }, [savedRoutings]);
-
-  // Save airportValues to localStorage (client-side check)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('airportValues', JSON.stringify(airportValues));
-    }
-  }, [airportValues]);
+  }, [savedRoutings, isClient]);
 
   // Functions to manage airportValues array
   const addAirportValue = (newAirport: Airport) => {
