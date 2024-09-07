@@ -27,8 +27,8 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
           <div className="cursor-move">
           </div>
           <div>
-            {contentType === 'x-wind' && <SecondPageCrosswindCalculator onFocus={handleFocus} onBlur={handleBlur} />} {/* Pass onFocus and onBlur */}
-            {contentType === 'rcc-not-provided' && <FirstPageRccNotProvided />}
+          {contentType === 'x-wind' && <SecondPageCrosswindCalculator />} 
+          {contentType === 'rcc-not-provided' && <FirstPageRccNotProvided />}
             {contentType === 'rcc-provided' && <FirstPageRccProvided />}
           </div>
           <div className="flex justify-center">
