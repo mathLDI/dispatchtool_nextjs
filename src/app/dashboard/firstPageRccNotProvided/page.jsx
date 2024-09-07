@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox';
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
