@@ -1,12 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-const ChoiceListbox = ({ choices, callback }) => {
-  const [selected, setSelected] = useState(choices[0]); // Initialize with the first choice
+export default function NewChoiceListbox({ choices, callback, value, reset, resetCallback }) {
+  const [selected, setSelected] = useState(value || choices[0]); // Initialize with passed value or first choice
+
+  // Update the selected value when the parent passes a new value through props
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
+
+  // Handle reset functionality
+  useEffect(() => {
+    if (reset) {
+      setSelected(choices[0]); // Reset to the first choice
+      resetCallback(); // Call the reset callback to notify the parent
+    }
+  }, [reset, resetCallback, choices]);
 
   const handleChange = (e) => {
-    const value = e.target.value;
-    setSelected(value); // Update local selected state
-    callback(value);    // Call the callback to update parent component's state
+    const newValue = e.target.value;
+    setSelected(newValue); // Update local selected state
+    callback(newValue);    // Call the callback to update parent component's state
   };
 
   return (
@@ -24,6 +38,12 @@ const ChoiceListbox = ({ choices, callback }) => {
       </select>
     </div>
   );
-};
+}
 
-export default ChoiceListbox;
+NewChoiceListbox.propTypes = {
+  choices: PropTypes.array.isRequired,
+  callback: PropTypes.func.isRequired,
+  value: PropTypes.any,      // Optional initial value
+  reset: PropTypes.bool,     // Optional reset flag
+  resetCallback: PropTypes.func,  // Optional reset callback
+};

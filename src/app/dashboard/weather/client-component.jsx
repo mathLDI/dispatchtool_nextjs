@@ -9,7 +9,9 @@ import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
-import NewChoiceListbox from '../../lib/component/NewChoiceListBox';
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
+
+
 import {
   formatLocalDate,
   parseNotamDate,
@@ -173,7 +175,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   } = useRccContext();
 
   const handleFormChange = (newForm) => {
-    console.log("Selected form:", newForm); // Log the selected form for debugging
     setSelectedForm(newForm);               // Update the selectedForm state
   };
 
@@ -382,7 +383,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       ).map((code) => ({ code }));
 
       const categories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
-      console.log('airportsToInclude from client-component:', uniqueAirportsToInclude);
       setAirportCategories(categories);
     }
   }, [allWeatherData, airportValues, savedRoutings, setAirportCategories]);

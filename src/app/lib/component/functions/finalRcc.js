@@ -1,6 +1,5 @@
 import { contaminent } from '../functions/runwayType.js';
 
-
 export const RccToUse = (
     initialRunwayConditionDescriptionGravel1,
     initialRunwayConditionDescriptionPaved2,
@@ -13,21 +12,26 @@ export const RccToUse = (
     initialContaminationCoverage4
 ) => {
 
+    // Ensure the contamination coverage values are treated as numbers
+    const coverage1 = parseInt(initialContaminationCoverage1, 10) || 0;
+    const coverage2 = parseInt(initialContaminationCoverage2, 10) || 0;
+    const coverage3 = parseInt(initialContaminationCoverage3, 10) || 0;
+    const coverage4 = parseInt(initialContaminationCoverage4, 10) || 0;
+
     const totalPercentage = initialDropDownPavedOrGravel === "GRAVEL" ?
-        initialContaminationCoverage1 + initialContaminationCoverage3 :
-        initialContaminationCoverage2 + initialContaminationCoverage4;
+        coverage1 + coverage3 : coverage2 + coverage4;
 
     const gravelSingleOrMulti =
-        initialContaminationCoverage1 === 0 && initialContaminationCoverage3 === 0
+        coverage1 === 0 && coverage3 === 0
             ? 0
-            : initialContaminationCoverage1 > 0 && initialContaminationCoverage3 > 0
+            : coverage1 > 0 && coverage3 > 0
                 ? 2
                 : 1;
 
     const pavedSingleOrMulti =
-        initialContaminationCoverage2 === 0 && initialContaminationCoverage4 === 0
+        coverage2 === 0 && coverage4 === 0
             ? 0
-            : initialContaminationCoverage2 > 0 && initialContaminationCoverage4 > 0
+            : coverage2 > 0 && coverage4 > 0
                 ? 2
                 : 1;
 
@@ -44,20 +48,20 @@ export const RccToUse = (
     const bottomRccCodeX = bottomRccCode ? bottomRccCode.code : -1;
 
     const topPercentageSelector = (
-        initialDropDownPavedOrGravel, initialContaminationCoverage1, initialContaminationCoverage2
+        initialDropDownPavedOrGravel, coverage1, coverage2
     ) => {
-        return initialDropDownPavedOrGravel === "GRAVEL" ? initialContaminationCoverage1 : initialContaminationCoverage2;
+        return initialDropDownPavedOrGravel === "GRAVEL" ? coverage1 : coverage2;
     };
 
-    const topPercentageSelect = topPercentageSelector(initialDropDownPavedOrGravel, initialContaminationCoverage1, initialContaminationCoverage2)
+    const topPercentageSelect = topPercentageSelector(initialDropDownPavedOrGravel, coverage1, coverage2);
 
     const bottomPercentageSelector = (
-        initialDropDownPavedOrGravel, initialContaminationCoverage3, initialContaminationCoverage4
+        initialDropDownPavedOrGravel, coverage3, coverage4
     ) => {
-        return initialDropDownPavedOrGravel === "GRAVEL" ? initialContaminationCoverage3 : initialContaminationCoverage4;
+        return initialDropDownPavedOrGravel === "GRAVEL" ? coverage3 : coverage4;
     };
 
-    const bottomPercentageSelect = bottomPercentageSelector(initialDropDownPavedOrGravel, initialContaminationCoverage3, initialContaminationCoverage4)
+    const bottomPercentageSelect = bottomPercentageSelector(initialDropDownPavedOrGravel, coverage3, coverage4);
 
     const LowerRccContaminant = (topRccCodeX, bottomRccCodeX) => topRccCodeX === -1 || bottomRccCodeX === -1
         ? 'null' : topRccCodeX < bottomRccCodeX ? topRccCodeX : bottomRccCodeX;
@@ -77,22 +81,9 @@ export const RccToUse = (
         result = topRccCodeX;
     } else if (
         singleOrMultiContam === 1 &&
-        bottomRccCodeX
-        !== -1
+        bottomRccCodeX !== -1
     ) {
         result = bottomRccCodeX;
-    } else if (
-        singleOrMultiContam === 1 &&
-        topRccCodeX === -1
-    ) {
-        result = "null";
-    } else if (
-        singleOrMultiContam === 1 &&
-        bottomRccCodeX
-        === -1
-        //code below doesnt seem to be called at any time!!//
-    ) {
-        result = "null";
     } else if (
         singleOrMultiContam === 2 &&
         topPercentageSelect > 25 &&
@@ -131,8 +122,4 @@ export const RccToUse = (
         bottomPercentageSelect,
         singleOrMultiContam
     };
-
-
-
 };
-

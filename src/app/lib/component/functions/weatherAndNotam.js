@@ -9,7 +9,6 @@ export function calculateAirportCategories(airportValues, allWeatherData) {
   }
 
   const categories = allAirportsFlightCategory(airportValues, allWeatherData);
-  console.log('Calculated airport categories:', categories); // Log calculated categories
   return categories;
 }
 

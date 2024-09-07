@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from "react";
-import { ChoiceListbox } from '../../lib/component/ListBox';
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
 import { contaminent } from '../../lib/component/functions/runwayType';
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
-
 
 const FirstPageRccProvided = (props) => {
     const { } = props;
@@ -28,7 +27,6 @@ const FirstPageRccProvided = (props) => {
     const integerRunwayLength = parseInt(runwayLength, 10);
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
     const [isExpanded, setIsExpanded] = useState(false);
-
 
     const resetButtonHandler = () => {
         setResetListBox(true);
@@ -84,7 +82,7 @@ const FirstPageRccProvided = (props) => {
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Aircraft type:</div>
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -95,19 +93,19 @@ const FirstPageRccProvided = (props) => {
 
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>RWYCC: </div>
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={rwycc1}
                                 choices={rwyccChoices}
                                 callback={setRwycc1}
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler} />
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={rwycc2}
                                 choices={rwyccChoices}
                                 callback={setRwycc2}
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler} />
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={rwycc3}
                                 choices={rwyccChoices}
                                 callback={setRwycc3}

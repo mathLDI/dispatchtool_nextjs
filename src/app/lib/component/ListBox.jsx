@@ -12,7 +12,6 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
   }, [value]);
 
   const changeHandler = (v) => {
-    console.log("Selected value in ChoiceListbox:", v);  // Add this to check if value changes
     setSelected(v);  // Updates local state in ChoiceListbox
     callback(v);     // Calls parent component's setSelectedForm
   };
@@ -31,7 +30,10 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
       <Listbox value={selected} onChange={changeHandler}>
         <div className="relative">
           <ListboxButton
-            className="relative w-full cursor-default rounded-lg bg-white dark:bg-black py-2 pl-3 pr-10 text-left border shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+            className="relative w-full cursor-default rounded-lg bg-white dark:bg-black 
+            py-2 pl-3 pr-10 text-left border shadow-md focus:outline-none focus-visible:border-indigo-500 
+            focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 
+            focus-visible:ring-offset-orange-300 sm:text-sm"
             title={selected} // Tooltip for full text display
           >
             <div className="flex justify-between items-center">
@@ -47,16 +49,19 @@ export const ChoiceListbox = ({ choices, callback, width, reset, resetCallback, 
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="z-50 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+            <ListboxOptions className="z-50 absolute mt-1 max-h-60 w-full overflow-auto rounded-md 
+            bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {choices.map((choice, choiceIdx) => (
                 <ListboxOption
                   key={choiceIdx}
-                  className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-blue-100 text-blue-900 dark:bg-gray-800" : "text-gray-900"}`}
+                  className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 
+                  ${active ? "bg-blue-100 text-blue-900 dark:bg-gray-800" : "text-gray-900"}`}
                   value={choice}
                 >
                   {({ selected }) => (
                     <>
-                      <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`} style={{ whiteSpace: "normal", maxWidth: "none" }}>
+                      <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`} 
+                      style={{ whiteSpace: "normal", maxWidth: "none" }}>
                         {choice}
                       </span>
                       {selected ? (

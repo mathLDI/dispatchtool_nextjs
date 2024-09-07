@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { ChoiceListbox } from '../../lib/component/ListBox';
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import { useRccContext } from '../RccCalculatorContext';
@@ -69,7 +69,7 @@ const SecondPageCrosswindCalculator = () => {
                     <div className="flex flex-col">
                         <div className="flex justify-between items-center mb-2">
                             <div>Aircraft type: </div>
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -97,7 +97,7 @@ const SecondPageCrosswindCalculator = () => {
 
                         <div className="flex justify-between items-center mb-2">
                             <div>Magnetic Variation:</div>
-                            <ChoiceListbox
+                            <NewChoiceListbox
                                 value={eastOrWestVar}
                                 choices={buttonEastOrWest}
                                 callback={setEastOrWestVar}
