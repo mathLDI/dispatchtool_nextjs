@@ -19,7 +19,7 @@ export default function NewChoiceListbox({ choices, callback, value, reset, rese
 
   const handleChange = (e) => {
     const newValue = e.target.value;
-    setSelected(newValue); // Update local selected state
+    setSelected(newValue); // Update local selected state.
     callback(newValue);    // Call the callback to update parent component's state
   };
 
