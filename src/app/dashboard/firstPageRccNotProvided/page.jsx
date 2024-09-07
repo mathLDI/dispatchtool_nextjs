@@ -78,7 +78,7 @@ const FirstPageRccNotProvided = (props) => {
         contaminationCoverage4
     );
 
-console.log("rcctouse from notprovided:", rcc);
+console.log("rcctouse from notprovided::", rcc);
 
     const contam = contaminent;
 
