@@ -325,9 +325,20 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
         // Client-side check for localStorage
         if (typeof window !== 'undefined') {
-          cachedData = JSON.parse(localStorage.getItem(storageKey));
+          const storedData = localStorage.getItem(storageKey);
+
+          if (storedData) { // Check if storedData is not null or undefined
+            try {
+              cachedData = JSON.parse(storedData);
+            } catch (e) {
+              console.error("Error parsing JSON data from localStorage", e);
+              cachedData = {}; // Set default value if parsing fails
+            }
+          }
+
           cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
         }
+
 
         // Check if cache exists and is recent
         if (cachedData && cacheTimestamp) {
@@ -425,8 +436,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-        routing.departure === pendingRouting.departure &&
-        routing.destination === pendingRouting.destination
+          routing.departure === pendingRouting.departure &&
+          routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
@@ -670,7 +681,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       <div className="flex flex-col h-screen flex-1" ref={containerRef}>
         <div>
+
           <div className="flex items-center space-x-4 flex-wrap ">
+
             <div className='flex'>
               <NewChoiceListbox
                 choices={['Airport Search', 'Routing Search']}
@@ -678,15 +691,24 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               />
             </div>
 
-            {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
-            {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
+            <div className='flex-1'>
+              <div className='flex pb-4'>
+                {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+              </div>
+              <div className='flex overflow-auto'>
+                {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
+
+              </div>
+            </div>
+
           </div>
+
 
           <div className='flex '>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
-                 onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
+                onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
               />
             )}
           </div>
