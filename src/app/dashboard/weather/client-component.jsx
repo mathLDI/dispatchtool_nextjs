@@ -12,7 +12,6 @@ import AirportList from '../../lib/component/AirportList';
 import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
 import { SearchIcon } from '@heroicons/react/outline';
 
-
 import {
   formatLocalDate,
   parseNotamDate,
@@ -191,8 +190,56 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingRouting, setPendingRouting] = useState(null);
 
+  ///add the state below to context///////
+  //////////////////////////////////////
+  //////////////////////////////////////
+
+  const [utcTime, setUtcTime] = useState('');
+  const [localTime, setLocalTime] = useState('');
+  const [lastWeatherRefreshTime, setLastWeatherRefreshTime] = useState(null);
+
+
   // Filtering logic for the routing search
   const searchTerms = searchRouting.split(/\s+/).map(term => term.toUpperCase()); // Split by spaces and convert each term to uppercase
+
+  // Function to get UTC time
+  const getUtcTime = () => {
+    const now = new Date();
+    return now.toUTCString(); // Full UTC string
+  };
+
+  // Function to get Local time in 24-hour format
+  const getLocalTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour12: false }); // 24-hour format
+  };
+
+  // Function to format the weather refresh time into local time (24-hour format)
+  const formatRefreshTime = (date) => {
+    return date.toLocaleTimeString([], { hour12: false }); // 24-hour format
+  };
+
+  // Update the UTC and local time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUtcTime(getUtcTime());
+      setLocalTime(getLocalTime());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
+  // Update the last weather refresh time when weatherData is updated
+  useEffect(() => {
+    if (weatherData) {
+      const now = new Date();
+      setLastWeatherRefreshTime(formatRefreshTime(now)); // Store local time of the refresh
+    }
+  }, [weatherData]);
+
+  /////////////////////////////////////////////////////
+
 
   const filteredRoutings = savedRoutings.filter((routing) => {
     // Check if all search terms are found in any of the routing fields
@@ -688,24 +735,24 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         />
 
         <div className='flex-1  bg-gray-300'>
-        <div className="flex">
-  {selectedForm === 'Routing Search' && (
-    <div className="flex justify-center items-center p-2 relative">
-      {/* Search box to filter routings */}
-      <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-        <SearchIcon className="h-5 w-5 text-gray-500" />
-      </span>
-      <input
-        type="text"
-        placeholder="Search by Term(s)"
-        value={searchRouting}
-        onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
-        className="p-2 pl-10 border border-gray-300 rounded-md w-full"
-        style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
-      />
-    </div>
-  )}
-</div>
+          <div className="flex">
+            {selectedForm === 'Routing Search' && (
+              <div className="flex justify-center items-center p-2 relative">
+                {/* Search box to filter routings */}
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <SearchIcon className="h-5 w-5 text-gray-500" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search by Term(s)"
+                  value={searchRouting}
+                  onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+                  className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+                  style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
+                />
+              </div>
+            )}
+          </div>
 
 
 
@@ -730,15 +777,30 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
         <div className="flex-1  ">
-          
-          <div className='flex'>
-            <NewChoiceListbox
-              choices={['Airport Search', 'Routing Search']}
-              callback={handleFormChange}
-             
 
-            />
+          <div className='flex justify-between'>
+            <div className='flex'>
+              <NewChoiceListbox
+                choices={['Airport Search', 'Routing Search']}
+                callback={handleFormChange}
+              />
+            </div>
+
+            <div className='ml-auto'>
+              <div>UTC Time: {utcTime.split(' ')[4]}</div> {/* Extracting just the time part from UTC */}
+
+              <div className='ml-auto'>
+                Local Time: {localTime} {/* Already formatted in 24-hour format */}
+              </div>
+
+              <div className='ml-auto'>
+                Last Weather Refresh: {lastWeatherRefreshTime ? lastWeatherRefreshTime : 'N/A'}
+              </div>
+            </div>
+
+
           </div>
+
 
           <div className='pb-4'>
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
