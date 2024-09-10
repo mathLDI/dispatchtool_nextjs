@@ -702,7 +702,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
           {/* below is the AirportSearchForm when AirportSearch is selected.  AirportSearchForm has the component AirportList  */}
           {/* this mean AirportList and AirportSearch come together, be carefull when styling!*/}
-          <div class="flex flex-grow bg-orange-200 ">
+          <div class="flex flex-grow  ">
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
 
           </div>
