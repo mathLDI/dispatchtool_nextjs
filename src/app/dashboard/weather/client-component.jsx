@@ -171,7 +171,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSavedRoutings,
     selectedForm,
     setSelectedForm,
+    searchRouting,
+    setSearchRouting,
   } = useRccContext();
+
 
   const handleFormChange = (newForm) => {
     setSelectedForm(newForm);               // Update the selectedForm state
@@ -185,6 +188,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingRouting, setPendingRouting] = useState(null);
+
+  // Filtering logic for the routing search
+  const searchTerms = searchRouting.split(/\s+/).map(term => term.toUpperCase()); // Split by spaces and convert each term to uppercase
+
+  const filteredRoutings = savedRoutings.filter((routing) => {
+    // Check if all search terms are found in any of the routing fields
+    return searchTerms.every((term) =>
+      routing.flightNumber.toUpperCase().includes(term) ||
+      routing.departure.toUpperCase().includes(term) ||
+      routing.destination.toUpperCase().includes(term) ||
+      (routing.alternate1 && routing.alternate1.toUpperCase().includes(term)) ||
+      (routing.alternate2 && routing.alternate2.toUpperCase().includes(term))
+    );
+  });
+
+
 
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
@@ -658,36 +677,54 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-
-      <div className='flex'>
+      <div className='flex pr-4 '>
         <ConfirmModal
           isOpen={isModalOpen}
           onClose={handleClose}
           onConfirm={handleConfirm}
           onModify={handleModify}
         />
-        <div className="flex  h-screen overflow-y-auto p-2 ">
-          {selectedForm === 'Routing Search' && (
-            <div className="flex justify-center items-center h-full w-full">
-              <SideNav
-                savedRoutings={savedRoutings}
-                onDeleteRouting={handleDeleteRouting}
-                showWeatherAndRcam={false}
-                showLogo={false}
-                showPrinterIcon={false}
-                airportCategories={airportCategories}
-              />
-            </div>
-          )}
+
+        <div className='flex-1  bg-gray-300'>
+
+          <div className="flex    ">
+            {selectedForm === 'Routing Search' && (
+              <div className='flex  justify-center items-center p-2 '>
+                {/* Search box to filter routings */}
+                <input
+                  type="text"
+                  placeholder="Search Routing List"
+                  value={searchRouting}
+                  onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+                  className="p-2 border border-gray-300 rounded-md w-full"
+                  style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
+                />
+              </div>
+            )}
+          </div>
+
+
+          <div className="flex  h-screen overflow-y-auto   ">
+            {selectedForm === 'Routing Search' && (
+              <div className="flex justify-center items-center h-full w-full ">
+                <SideNav
+                  savedRoutings={filteredRoutings} // Pass filtered routings based on search
+                  onDeleteRouting={handleDeleteRouting}
+                  showWeatherAndRcam={false}
+                  showLogo={false}
+                  showPrinterIcon={false}
+                  airportCategories={airportCategories}
+                />
+              </div>
+            )}
+          </div>
+
         </div>
+
       </div>
 
-
-
       <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
-
         <div className="flex-1  ">
-
           <div className='flex'>
             <NewChoiceListbox
               choices={['Airport Search', 'Routing Search']}
@@ -695,33 +732,28 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             />
           </div>
 
-
           <div className='pb-4'>
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
           </div>
 
-          {/* below is the AirportSearchForm when AirportSearch is selected.  AirportSearchForm has the component AirportList  */}
-          {/* this mean AirportList and AirportSearch come together, be carefull when styling!*/}
-          <div class="flex flex-grow  ">
+          {/* AirportSearchForm is displayed when 'Airport Search' is selected */}
+          <div className="flex flex-grow">
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
-
           </div>
 
-
-          {/* below is the AirportList when Routing Search is selected */}
-          <div className='flex   '>
+          {/* AirportList is displayed when 'Routing Search' is selected */}
+          <div className='flex'>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
-                onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
+                onAirportClick={handleAirportClick}
               />
             )}
           </div>
-
         </div>
 
         <div className=''>
-          <div className='flex-1 overflow-y-auto '>
+          <div className='flex-1 overflow-y-auto'>
             <AirportWeatherDisplay
               weatherData={weatherData}
               gfaData={gfaData}
@@ -749,9 +781,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             />
           </div>
         </div>
-
-
       </div>
     </div>
+
   );
 }

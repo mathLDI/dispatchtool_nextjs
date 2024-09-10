@@ -106,6 +106,8 @@ interface RccContextType {
   setSavedRoutings: (routings: Routing[]) => void;
   selectedForm: string;
   setSelectedForm: (form: string) => void;
+  searchRouting: string;
+  setSearchRouting: (value: string) => void;
 }
 
 // Create the context with a default value
@@ -154,6 +156,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [windSpeed, setWindSpeed] = useState(0);
   const [magneticVar, setMagneticVar] = useState(0);
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
+  const [searchRouting, setSearchRouting] = useState(''); // New search state for filtering routings
+
 
   const [airportValues, setAirportValues] = useState<Airport[]>(() => {
     if (typeof window !== 'undefined') {
@@ -279,6 +283,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       flightDetails, setFlightDetails,
       savedRoutings, setSavedRoutings,
       selectedForm, setSelectedForm,
+      searchRouting, setSearchRouting, // Add searchRouting to context
+
     }}>
       {children}
     </RccContext.Provider>
