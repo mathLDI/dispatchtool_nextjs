@@ -693,7 +693,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                 {/* Search box to filter routings */}
                 <input
                   type="text"
-                  placeholder="Search Routing List"
+                  placeholder="Search by Term(s)"
                   value={searchRouting}
                   onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
                   className="p-2 border border-gray-300 rounded-md w-full"
