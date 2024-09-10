@@ -10,6 +10,8 @@ import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
 import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
+import { SearchIcon } from '@heroicons/react/outline';
+
 
 import {
   formatLocalDate,
@@ -686,22 +688,25 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         />
 
         <div className='flex-1  bg-gray-300'>
+        <div className="flex">
+  {selectedForm === 'Routing Search' && (
+    <div className="flex justify-center items-center p-2 relative">
+      {/* Search box to filter routings */}
+      <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+        <SearchIcon className="h-5 w-5 text-gray-500" />
+      </span>
+      <input
+        type="text"
+        placeholder="Search by Term(s)"
+        value={searchRouting}
+        onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+        className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+        style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
+      />
+    </div>
+  )}
+</div>
 
-          <div className="flex    ">
-            {selectedForm === 'Routing Search' && (
-              <div className='flex  justify-center items-center p-2 '>
-                {/* Search box to filter routings */}
-                <input
-                  type="text"
-                  placeholder="Search by Term(s)"
-                  value={searchRouting}
-                  onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
-                  className="p-2 border border-gray-300 rounded-md w-full"
-                  style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
-                />
-              </div>
-            )}
-          </div>
 
 
           <div className="flex  h-screen overflow-y-auto   ">
@@ -725,10 +730,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
         <div className="flex-1  ">
+          
           <div className='flex'>
             <NewChoiceListbox
               choices={['Airport Search', 'Routing Search']}
               callback={handleFormChange}
+             
+
             />
           </div>
 

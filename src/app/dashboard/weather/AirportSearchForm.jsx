@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import AirportList from '../../lib/component/AirportList';
 import { useRccContext } from '../RccCalculatorContext';
 import WarningModal from '../../lib/component/WarningModal';
+import { SearchIcon } from '@heroicons/react/outline';
 
 const AirportSearchForm = ({ fetchWeather }) => {
   const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState('');
-  const [searchAirport, setSearchAirport] = useState(''); // State for the search input
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [duplicateAirports, setDuplicateAirports] = useState([]);
   const [validAirports, setValidAirports] = useState([]);
@@ -18,6 +18,8 @@ const AirportSearchForm = ({ fetchWeather }) => {
     setSelectedAirport,
     selectedForm,
     flightDetails,
+    searchAirport, 
+    setSearchAirport,
   } = useRccContext();
 
   const getAirportsToShow = () => {
@@ -153,7 +155,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              placeholder="Enter ICAO codes"
+              placeholder="Add Airport(s), use ICAO codes"
               className="border p-2 rounded w-full"
               style={{ textTransform: 'uppercase' }} // Display input in uppercase
             />
@@ -162,16 +164,21 @@ const AirportSearchForm = ({ fetchWeather }) => {
         </div>
 
         {/* Search input for filtering the airport list */}
-        <div className='flex justify-center items-center p-2'>
-          <input
-            type="text"
-            placeholder="Search Airport(s)"
-            value={searchAirport}
-            onChange={(e) => setSearchAirport(e.target.value.toUpperCase())} // Automatically convert search input to uppercase
-            className="p-2 border border-gray-300 rounded-md w-full"
-            style={{ textTransform: 'uppercase' }} // Display search input in uppercase
-          />
-        </div>
+        <div className="relative flex justify-center items-center p-2">
+  <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+    <SearchIcon className="h-5 w-5 text-gray-500" />
+  </span>
+  <input
+    type="text"
+    placeholder="Search Airport(s)"
+    value={searchAirport}
+    onChange={(e) => setSearchAirport(e.target.value.toUpperCase())} // Automatically convert search input to uppercase
+    className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+    style={{ textTransform: 'uppercase' }} // Display search input in uppercase
+  />
+</div>
+
+
 
         {/* Filtered AirportList based on search */}
         <div className="flex flex-grow">
