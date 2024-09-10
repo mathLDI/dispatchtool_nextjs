@@ -113,7 +113,7 @@ export default function AirportWeatherDisplay({
           <h1 className="font-bold text-lg">TAF</h1>
 
           {selectedForm === 'Airport Search' && (
-            <div className="flex-grow">
+            <div className="flex">
               <Card title="TAF" status={null} className="h-full">
                 <TafDisplay weatherData={weatherData} />
               </Card>
@@ -174,34 +174,34 @@ export default function AirportWeatherDisplay({
             )}
           </div>
           <div className="flex-grow">
-            <Card title="GFA" status={null} className="h-full">
-              <div className="flex justify-center mb-2">
-                <button
-                  onClick={() => setGfaType('CLDWX')}
-                  className={`px-4 py-2 rounded ${gfaType === 'CLDWX'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-black hover:bg-gray-300'
-                    }`}
-                >
-                  CLDS & WX
-                </button>
-                <button
-                  onClick={() => setGfaType('TURBC')}
-                  className={`px-4 py-2 rounded ${gfaType === 'TURBC'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-black hover:bg-gray-300'
-                    }`}
-                >
-                  ICG & TURB
-                </button>
-              </div>
+  <Card title="GFA" status={null} className="h-full">
+    <div className="flex justify-center mb-2">
+      <button
+        onClick={() => setGfaType('CLDWX')}
+        className={`px-4 py-2 rounded ${gfaType === 'CLDWX'
+          ? 'bg-blue-500 text-white'
+          : 'bg-gray-200 text-black hover:bg-gray-300'
+          }`}
+      >
+        CLDS & WX
+      </button>
+      <button
+        onClick={() => setGfaType('TURBC')}
+        className={`px-4 py-2 rounded ${gfaType === 'TURBC'
+          ? 'bg-blue-500 text-white'
+          : 'bg-gray-200 text-black hover:bg-gray-300'
+          }`}
+      >
+        ICG & TURB
+      </button>
+    </div>
 
-              <GfaDisplay
-                gfaData={gfaData}
-                selectedTimestamp={selectedTimestamp}
-                setSelectedTimestamp={setSelectedTimestamp}
-              />
-            </Card>
+    <GfaDisplay
+      gfaData={gfaData}
+      selectedTimestamp={selectedTimestamp}
+      setSelectedTimestamp={setSelectedTimestamp}
+    />
+  </Card>
           </div>
         </div>
 

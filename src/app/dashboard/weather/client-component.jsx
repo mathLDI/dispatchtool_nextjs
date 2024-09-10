@@ -658,53 +658,56 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-      <ConfirmModal
-        isOpen={isModalOpen}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-        onModify={handleModify}
-      />
-      <div className="flex  h-screen overflow-y-auto p-2 ">
-        {selectedForm === 'Routing Search' && (
-          <div className="flex justify-center items-center h-full w-full">
-            <SideNav
-              savedRoutings={savedRoutings}
-              onDeleteRouting={handleDeleteRouting}
-              showWeatherAndRcam={false}
-              showLogo={false}
-              showPrinterIcon={false}
-              airportCategories={airportCategories}
-            />
-          </div>
-        )}
-      </div>
 
-      <div className="flex flex-col h-screen flex-1" ref={containerRef}>
-        <div>
-
-          <div className="flex items-center space-x-4 flex-wrap ">
-
-            <div className='flex'>
-              <NewChoiceListbox
-                choices={['Airport Search', 'Routing Search']}
-                callback={handleFormChange}
+      <div className='flex'>
+        <ConfirmModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          onModify={handleModify}
+        />
+        <div className="flex  h-screen overflow-y-auto p-2 ">
+          {selectedForm === 'Routing Search' && (
+            <div className="flex justify-center items-center h-full w-full">
+              <SideNav
+                savedRoutings={savedRoutings}
+                onDeleteRouting={handleDeleteRouting}
+                showWeatherAndRcam={false}
+                showLogo={false}
+                showPrinterIcon={false}
+                airportCategories={airportCategories}
               />
             </div>
+          )}
+        </div>
+      </div>
 
-            <div className='flex-1'>
-              <div className='flex pb-4'>
-                {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
-              </div>
-              <div className='flex overflow-auto'>
-                {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
 
-              </div>
-            </div>
 
+      <div className="flex flex-col h-screen " ref={containerRef}>
+
+        <div className="flex-1  ">
+
+          <div className='flex'>
+            <NewChoiceListbox
+              choices={['Airport Search', 'Routing Search']}
+              callback={handleFormChange}
+            />
           </div>
 
 
-          <div className='flex '>
+          <div className='pb-4'>
+            {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+          </div>
+
+          <div class="flex ">
+            {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
+
+          </div>
+
+   
+
+          <div className='    '>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
@@ -712,33 +715,37 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               />
             )}
           </div>
+
         </div>
 
-        <AirportWeatherDisplay
-          weatherData={weatherData}
-          gfaData={gfaData}
-          gfaType={gfaType}
-          setGfaType={setGfaType}
-          selectedTimestamp={selectedTimestamp}
-          setSelectedTimestamp={setSelectedTimestamp}
-          leftWidth={leftWidth}
-          resizerRef={resizerRef}
-          isResizing={isResizing}
-          setIsResizing={setIsResizing}
-          handleNotamTypeChange={setSelectedNotamType}
-          countFilteredNotams={countFilteredNotams}
-          searchTerm={searchTerm}
-          handleSearchChange={handleSearchChange}
-          categorizedNotams={categorizedNotams}
-          isCraneFilterActive={isCraneFilterActive}
-          toggleCraneFilter={toggleCraneFilter}
-          selectedNotamType={selectedNotamType}
-          renderNotamCard={renderNotamCard}
-          selectedForm={selectedForm}
-          flightDetails={flightDetails}
-          allWeatherData={allWeatherData}
-          selectedAirport={selectedAirport}
-        />
+        <div className='flex-1'>
+          <AirportWeatherDisplay
+            weatherData={weatherData}
+            gfaData={gfaData}
+            gfaType={gfaType}
+            setGfaType={setGfaType}
+            selectedTimestamp={selectedTimestamp}
+            setSelectedTimestamp={setSelectedTimestamp}
+            leftWidth={leftWidth}
+            resizerRef={resizerRef}
+            isResizing={isResizing}
+            setIsResizing={setIsResizing}
+            handleNotamTypeChange={setSelectedNotamType}
+            countFilteredNotams={countFilteredNotams}
+            searchTerm={searchTerm}
+            handleSearchChange={handleSearchChange}
+            categorizedNotams={categorizedNotams}
+            isCraneFilterActive={isCraneFilterActive}
+            toggleCraneFilter={toggleCraneFilter}
+            selectedNotamType={selectedNotamType}
+            renderNotamCard={renderNotamCard}
+            selectedForm={selectedForm}
+            flightDetails={flightDetails}
+            allWeatherData={allWeatherData}
+            selectedAirport={selectedAirport}
+          />
+        </div>
+
       </div>
     </div>
   );

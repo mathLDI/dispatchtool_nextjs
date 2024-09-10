@@ -128,39 +128,33 @@ const AirportSearchForm = ({ fetchWeather }) => {
   };
 
   return (
-    <div className="flex">
-
-
+    <div className="grid ">
       <WarningModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
         message={`Airport code(s) ${duplicateAirports.join(', ')} already entered.`}
       />
 
-      <div className="flex-1 pt-4">
+      <div className="pt-4">
         <form onSubmit={handleSubmit} className="mb-4 relative">
           <input
             type="text"
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Enter ICAO codes"
-            className="border p-2 rounded"
+            className="border p-2 rounded w-full"
           />
           {error && <p className="bg-orange-400 text-red-700 mt-2">{error}</p>}
         </form>
       </div>
 
-      <div className="flex-1">
-  <div className="flex flex-wrap">
-    <AirportList
-      airportsToShow={airportsToShow}
-      onAirportClick={handleAirportClick}
-      setWeatherData={setWeatherData}
-    />
-  </div>
-</div>
-
-
+      <div className=" gap-2">
+        <AirportList
+          airportsToShow={airportsToShow}
+          onAirportClick={handleAirportClick}
+          setWeatherData={setWeatherData}
+        />
+      </div>
     </div>
   );
 };

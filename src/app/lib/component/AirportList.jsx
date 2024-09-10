@@ -10,8 +10,9 @@ const AirportList = ({ airportsToShow, onAirportClick }) => {
   };
 
   return (
-    <div className="w-full max-w-sm p-3 rounded-lg">
-      <ul className="flex gap-2 flex-nowrap">
+    <div className="w-full max-w-full p-3 rounded-lg">
+      {/* Define a grid with 10 columns */}
+      <ul className="grid grid-cols-10 gap-2">
         {airportsToShow.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500';
@@ -43,4 +44,3 @@ const AirportList = ({ airportsToShow, onAirportClick }) => {
 };
 
 export default AirportList;
-
