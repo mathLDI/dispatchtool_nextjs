@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AirportList from '../../lib/component/AirportList';
 import { useRccContext } from '../RccCalculatorContext';
 import WarningModal from '../../lib/component/WarningModal';
-import { Roboto_Flex } from 'next/font/google';
+import { SearchIcon } from '@heroicons/react/outline';
 
 const AirportSearchForm = ({ fetchWeather }) => {
   const [error, setError] = useState('');
@@ -12,12 +12,14 @@ const AirportSearchForm = ({ fetchWeather }) => {
   const [validAirports, setValidAirports] = useState([]);
 
   const {
-    airportValues,
+    airportValues, // List of airports
     addAirportValue,
     setWeatherData,
     setSelectedAirport,
     selectedForm,
     flightDetails,
+    searchAirport, 
+    setSearchAirport,
   } = useRccContext();
 
   const getAirportsToShow = () => {
@@ -26,6 +28,16 @@ const AirportSearchForm = ({ fetchWeather }) => {
     }
     return airportValues;
   };
+
+  // Search logic to filter airportValues based on searchAirport input (supports multiple search terms)
+  const searchTerms = searchAirport.split(/\s+/).map(term => term.toUpperCase()); // Split by spaces and convert each term to uppercase
+
+  const filteredAirports = airportValues.filter((airport) => {
+    // Check if any search terms match the airport code or name
+    return searchTerms.some((term) =>
+      airport.code.toUpperCase().includes(term) || airport.name.toUpperCase().includes(term)
+    );
+  });
 
   const airportsToShow = getAirportsToShow();
 
@@ -40,7 +52,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
 
   const handleInputChange = (e) => {
     const inputValue = e.target.value;
-    setInputValue(inputValue.toUpperCase());
+    setInputValue(inputValue.toUpperCase()); // Automatically convert the input value to uppercase
 
     // Clear error if input is empty
     if (!inputValue.trim()) {
@@ -128,8 +140,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
   };
 
   return (
-    <div className="flex">
-
+    <div className="flex flex-grow overflow-auto ">
 
       <WarningModal
         isOpen={isModalOpen}
@@ -137,30 +148,47 @@ const AirportSearchForm = ({ fetchWeather }) => {
         message={`Airport code(s) ${duplicateAirports.join(', ')} already entered.`}
       />
 
-      <div className="flex-1 pt-4">
-        <form onSubmit={handleSubmit} className="mb-4 relative">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            placeholder="Enter ICAO codes"
-            className="border p-2 rounded"
-          />
-          {error && <p className="bg-orange-400 text-red-700 mt-2">{error}</p>}
-        </form>
-      </div>
+      <div className='flex-1'> 
+        <div className="pt-4">
+          <form onSubmit={handleSubmit} className="mb-4 relative">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="Add Airport(s), use ICAO codes"
+              className="border p-2 rounded w-full"
+              style={{ textTransform: 'uppercase' }} // Display input in uppercase
+            />
+            {error && <p className="bg-orange-400 text-red-700 mt-2">{error}</p>}
+          </form>
+        </div>
 
-      <div className="flex-1">
-  <div className="flex flex-wrap">
-    <AirportList
-      airportsToShow={airportsToShow}
-      onAirportClick={handleAirportClick}
-      setWeatherData={setWeatherData}
-    />
-  </div>
+        {/* Search input for filtering the airport list */}
+        <div className="relative flex justify-center items-center p-2">
+  <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+    <SearchIcon className="h-5 w-5 text-gray-500" />
+  </span>
+  <input
+    type="text"
+    placeholder="Search Airport(s)"
+    value={searchAirport}
+    onChange={(e) => setSearchAirport(e.target.value.toUpperCase())} // Automatically convert search input to uppercase
+    className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+    style={{ textTransform: 'uppercase' }} // Display search input in uppercase
+  />
 </div>
 
 
+
+        {/* Filtered AirportList based on search */}
+        <div className="flex flex-grow">
+          <AirportList
+            airportsToShow={filteredAirports} // Show filtered airports
+            onAirportClick={handleAirportClick}
+            setWeatherData={setWeatherData}
+          />
+        </div>
+      </div>
     </div>
   );
 };

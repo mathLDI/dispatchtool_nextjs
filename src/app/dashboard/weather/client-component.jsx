@@ -10,6 +10,8 @@ import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
 import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
+import { SearchIcon } from '@heroicons/react/outline';
+
 
 import {
   formatLocalDate,
@@ -171,7 +173,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSavedRoutings,
     selectedForm,
     setSelectedForm,
+    searchRouting,
+    setSearchRouting,
   } = useRccContext();
+
 
   const handleFormChange = (newForm) => {
     setSelectedForm(newForm);               // Update the selectedForm state
@@ -185,6 +190,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingRouting, setPendingRouting] = useState(null);
+
+  // Filtering logic for the routing search
+  const searchTerms = searchRouting.split(/\s+/).map(term => term.toUpperCase()); // Split by spaces and convert each term to uppercase
+
+  const filteredRoutings = savedRoutings.filter((routing) => {
+    // Check if all search terms are found in any of the routing fields
+    return searchTerms.every((term) =>
+      routing.flightNumber.toUpperCase().includes(term) ||
+      routing.departure.toUpperCase().includes(term) ||
+      routing.destination.toUpperCase().includes(term) ||
+      (routing.alternate1 && routing.alternate1.toUpperCase().includes(term)) ||
+      (routing.alternate2 && routing.alternate2.toUpperCase().includes(term))
+    );
+  });
+
+
 
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
@@ -325,9 +346,20 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
         // Client-side check for localStorage
         if (typeof window !== 'undefined') {
-          cachedData = JSON.parse(localStorage.getItem(storageKey));
+          const storedData = localStorage.getItem(storageKey);
+
+          if (storedData) { // Check if storedData is not null or undefined
+            try {
+              cachedData = JSON.parse(storedData);
+            } catch (e) {
+              console.error("Error parsing JSON data from localStorage", e);
+              cachedData = {}; // Set default value if parsing fails
+            }
+          }
+
           cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
         }
+
 
         // Check if cache exists and is recent
         if (cachedData && cacheTimestamp) {
@@ -425,8 +457,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     if (pendingRouting) {
       const updatedRoutings = savedRoutings.map((routing) =>
         routing.flightNumber === pendingRouting.flightNumber &&
-        routing.departure === pendingRouting.departure &&
-        routing.destination === pendingRouting.destination
+          routing.departure === pendingRouting.departure &&
+          routing.destination === pendingRouting.destination
           ? pendingRouting
           : routing
       );
@@ -647,77 +679,118 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex min-h-screen">
-      <ConfirmModal
-        isOpen={isModalOpen}
-        onClose={handleClose}
-        onConfirm={handleConfirm}
-        onModify={handleModify}
+      <div className='flex pr-4 '>
+        <ConfirmModal
+          isOpen={isModalOpen}
+          onClose={handleClose}
+          onConfirm={handleConfirm}
+          onModify={handleModify}
+        />
+
+        <div className='flex-1  bg-gray-300'>
+        <div className="flex">
+  {selectedForm === 'Routing Search' && (
+    <div className="flex justify-center items-center p-2 relative">
+      {/* Search box to filter routings */}
+      <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+        <SearchIcon className="h-5 w-5 text-gray-500" />
+      </span>
+      <input
+        type="text"
+        placeholder="Search by Term(s)"
+        value={searchRouting}
+        onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+        className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+        style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
       />
-      <div className="flex  h-screen overflow-y-auto p-2 ">
-        {selectedForm === 'Routing Search' && (
-          <div className="flex justify-center items-center h-full w-full">
-            <SideNav
-              savedRoutings={savedRoutings}
-              onDeleteRouting={handleDeleteRouting}
-              showWeatherAndRcam={false}
-              showLogo={false}
-              showPrinterIcon={false}
-              airportCategories={airportCategories}
-            />
+    </div>
+  )}
+</div>
+
+
+
+          <div className="flex  h-screen overflow-y-auto   ">
+            {selectedForm === 'Routing Search' && (
+              <div className="flex justify-center items-center h-full w-full ">
+                <SideNav
+                  savedRoutings={filteredRoutings} // Pass filtered routings based on search
+                  onDeleteRouting={handleDeleteRouting}
+                  showWeatherAndRcam={false}
+                  showLogo={false}
+                  showPrinterIcon={false}
+                  airportCategories={airportCategories}
+                />
+              </div>
+            )}
           </div>
-        )}
+
+        </div>
+
       </div>
 
-      <div className="flex flex-col h-screen flex-1" ref={containerRef}>
-        <div>
-          <div className="flex items-center space-x-4 flex-wrap ">
-            <div className='flex'>
-              <NewChoiceListbox
-                choices={['Airport Search', 'Routing Search']}
-                callback={handleFormChange}
-              />
-            </div>
+      <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
+        <div className="flex-1  ">
+          
+          <div className='flex'>
+            <NewChoiceListbox
+              choices={['Airport Search', 'Routing Search']}
+              callback={handleFormChange}
+             
 
+            />
+          </div>
+
+          <div className='pb-4'>
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+          </div>
+
+          {/* AirportSearchForm is displayed when 'Airport Search' is selected */}
+          <div className="flex flex-grow">
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
           </div>
 
-          <div className='flex '>
+          {/* AirportList is displayed when 'Routing Search' is selected */}
+          <div className='flex'>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
-                 onAirportClick={handleAirportClick}  // Pass handleAirportClick to AirportList
+                onAirportClick={handleAirportClick}
               />
             )}
           </div>
         </div>
 
-        <AirportWeatherDisplay
-          weatherData={weatherData}
-          gfaData={gfaData}
-          gfaType={gfaType}
-          setGfaType={setGfaType}
-          selectedTimestamp={selectedTimestamp}
-          setSelectedTimestamp={setSelectedTimestamp}
-          leftWidth={leftWidth}
-          resizerRef={resizerRef}
-          isResizing={isResizing}
-          setIsResizing={setIsResizing}
-          handleNotamTypeChange={setSelectedNotamType}
-          countFilteredNotams={countFilteredNotams}
-          searchTerm={searchTerm}
-          handleSearchChange={handleSearchChange}
-          categorizedNotams={categorizedNotams}
-          isCraneFilterActive={isCraneFilterActive}
-          toggleCraneFilter={toggleCraneFilter}
-          selectedNotamType={selectedNotamType}
-          renderNotamCard={renderNotamCard}
-          selectedForm={selectedForm}
-          flightDetails={flightDetails}
-          allWeatherData={allWeatherData}
-          selectedAirport={selectedAirport}
-        />
+        <div className=''>
+          <div className=''>
+            <AirportWeatherDisplay
+              weatherData={weatherData}
+              gfaData={gfaData}
+              gfaType={gfaType}
+              setGfaType={setGfaType}
+              selectedTimestamp={selectedTimestamp}
+              setSelectedTimestamp={setSelectedTimestamp}
+              leftWidth={leftWidth}
+              resizerRef={resizerRef}
+              isResizing={isResizing}
+              setIsResizing={setIsResizing}
+              handleNotamTypeChange={setSelectedNotamType}
+              countFilteredNotams={countFilteredNotams}
+              searchTerm={searchTerm}
+              handleSearchChange={handleSearchChange}
+              categorizedNotams={categorizedNotams}
+              isCraneFilterActive={isCraneFilterActive}
+              toggleCraneFilter={toggleCraneFilter}
+              selectedNotamType={selectedNotamType}
+              renderNotamCard={renderNotamCard}
+              selectedForm={selectedForm}
+              flightDetails={flightDetails}
+              allWeatherData={allWeatherData}
+              selectedAirport={selectedAirport}
+            />
+          </div>
+        </div>
       </div>
     </div>
+
   );
 }
