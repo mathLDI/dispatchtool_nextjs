@@ -761,7 +761,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         </div>
 
         <div className=''>
-          <div className='flex-1 overflow-y-auto'>
+          <div className=''>
             <AirportWeatherDisplay
               weatherData={weatherData}
               gfaData={gfaData}
