@@ -128,14 +128,18 @@ const AirportSearchForm = ({ fetchWeather }) => {
   };
 
   return (
-    <div className="grid ">
+    <div className="flex flex-grow overflow-auto ">
+
+
       <WarningModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
         message={`Airport code(s) ${duplicateAirports.join(', ')} already entered.`}
       />
 
-      <div className="pt-4">
+
+      <div className='flex-1'> 
+        <div className="pt-4">
         <form onSubmit={handleSubmit} className="mb-4 relative">
           <input
             type="text"
@@ -148,15 +152,20 @@ const AirportSearchForm = ({ fetchWeather }) => {
         </form>
       </div>
 
-      <div className=" gap-2">
-        <AirportList
-          airportsToShow={airportsToShow}
-          onAirportClick={handleAirportClick}
-          setWeatherData={setWeatherData}
-        />
-      </div>
+        <div className="flex flex-grow">
+          <AirportList
+            airportsToShow={airportsToShow}
+            onAirportClick={handleAirportClick}
+            setWeatherData={setWeatherData}
+          />
+        </div>
+        </div>
+
+
+
     </div>
   );
 };
 
 export default AirportSearchForm;
+

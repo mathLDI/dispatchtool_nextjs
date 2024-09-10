@@ -684,7 +684,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-      <div className="flex flex-col h-screen " ref={containerRef}>
+      <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
 
         <div className="flex-1  ">
 
@@ -700,14 +700,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
           </div>
 
-          <div class="flex ">
+          {/* below is the AirportSearchForm when AirportSearch is selected.  AirportSearchForm has the component AirportList  */}
+          {/* this mean AirportList and AirportSearch come together, be carefull when styling!*/}
+          <div class="flex flex-grow bg-orange-200 ">
             {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
 
           </div>
 
-   
 
-          <div className='    '>
+          {/* below is the AirportList when Routing Search is selected */}
+          <div className='flex   '>
             {selectedForm === 'Routing Search' && (
               <AirportList
                 airportsToShow={airportsToShow}
@@ -718,33 +720,36 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
         </div>
 
-        <div className='flex-1'>
-          <AirportWeatherDisplay
-            weatherData={weatherData}
-            gfaData={gfaData}
-            gfaType={gfaType}
-            setGfaType={setGfaType}
-            selectedTimestamp={selectedTimestamp}
-            setSelectedTimestamp={setSelectedTimestamp}
-            leftWidth={leftWidth}
-            resizerRef={resizerRef}
-            isResizing={isResizing}
-            setIsResizing={setIsResizing}
-            handleNotamTypeChange={setSelectedNotamType}
-            countFilteredNotams={countFilteredNotams}
-            searchTerm={searchTerm}
-            handleSearchChange={handleSearchChange}
-            categorizedNotams={categorizedNotams}
-            isCraneFilterActive={isCraneFilterActive}
-            toggleCraneFilter={toggleCraneFilter}
-            selectedNotamType={selectedNotamType}
-            renderNotamCard={renderNotamCard}
-            selectedForm={selectedForm}
-            flightDetails={flightDetails}
-            allWeatherData={allWeatherData}
-            selectedAirport={selectedAirport}
-          />
+        <div className=''>
+          <div className='flex-1 overflow-y-auto '>
+            <AirportWeatherDisplay
+              weatherData={weatherData}
+              gfaData={gfaData}
+              gfaType={gfaType}
+              setGfaType={setGfaType}
+              selectedTimestamp={selectedTimestamp}
+              setSelectedTimestamp={setSelectedTimestamp}
+              leftWidth={leftWidth}
+              resizerRef={resizerRef}
+              isResizing={isResizing}
+              setIsResizing={setIsResizing}
+              handleNotamTypeChange={setSelectedNotamType}
+              countFilteredNotams={countFilteredNotams}
+              searchTerm={searchTerm}
+              handleSearchChange={handleSearchChange}
+              categorizedNotams={categorizedNotams}
+              isCraneFilterActive={isCraneFilterActive}
+              toggleCraneFilter={toggleCraneFilter}
+              selectedNotamType={selectedNotamType}
+              renderNotamCard={renderNotamCard}
+              selectedForm={selectedForm}
+              flightDetails={flightDetails}
+              allWeatherData={allWeatherData}
+              selectedAirport={selectedAirport}
+            />
+          </div>
         </div>
+
 
       </div>
     </div>
