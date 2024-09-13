@@ -822,6 +822,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           </div>
         </div>
 
+      
+
+
         <div className=''>
           <div className=''>
             <AirportWeatherDisplay
@@ -832,8 +835,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               selectedTimestamp={selectedTimestamp}
               setSelectedTimestamp={setSelectedTimestamp}
               leftWidth={leftWidth}
-              resizerRef={resizerRef}
-              isResizing={isResizing}
               setIsResizing={setIsResizing}
               handleNotamTypeChange={setSelectedNotamType}
               countFilteredNotams={countFilteredNotams}
