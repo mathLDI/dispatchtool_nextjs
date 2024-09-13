@@ -42,6 +42,22 @@ const RoutingWXXForm = ({ onSave }) => {
     setFlightDetails({ ...flightDetails, [field]: value });
   };
 
+
+  {/**test below to update the airport in a list in routing search */}
+
+  const handleIcaoChange = (e) => {
+    const newIcao = e.target.value.toUpperCase(); // Get the new ICAO code
+    setFlightDetails((prevDetails) => ({
+      ...prevDetails,
+      icaoAirports: newIcao.split(' '), // Split input by spaces and store each ICAO code in an array
+    }));
+  };
+  
+  
+  
+  
+  
+
   const handleSave = () => {
     if (flightDetails.flightNumber && flightDetails.departure && flightDetails.destination) {
       onSave(flightDetails);
@@ -125,6 +141,36 @@ const RoutingWXXForm = ({ onSave }) => {
         {warnings.alternate2 && <span className="text-red-500">{warnings.alternate2}</span>}
       </div>
 
+{/**testing a list of airports********************************* */}
+
+<div className="pt-4">
+  <form onSubmit={(e) => handleSubmitIcaoAirports(e)} className="mb-4 relative">
+  <input
+  type="text"
+  value={flightDetails.icaoAirports.join(' ') || ''}  // Join the array with spaces, not commas
+  onChange={handleIcaoChange}
+  placeholder="Add ICAO Airports (use ICAO codes)"
+  className="border p-2 rounded w-full"
+  style={{ textTransform: 'uppercase' }}
+/>
+
+
+
+
+    {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
+  </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
       <div className="flex items-center space-x-2 p-2">
         <button
           onClick={handleSave}
@@ -174,6 +220,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSelectedForm,
     searchRouting,
     setSearchRouting,
+    
   } = useRccContext();
 
 

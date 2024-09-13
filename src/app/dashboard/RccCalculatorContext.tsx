@@ -13,7 +13,9 @@ interface FlightDetails {
   destination: string;
   alternate1: string;
   alternate2: string;
+  icaoAirports: string[]; // Add icaoAirports as a list
 }
+
 
 interface Routing {
   flightNumber: string;
@@ -199,6 +201,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         destination: '',
         alternate1: '',
         alternate2: '',
+        icaoAirports: [], // Initialize as an empty array
       };
     }
     return {
@@ -207,8 +210,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       destination: '',
       alternate1: '',
       alternate2: '',
+      icaoAirports: [], // Initialize as an empty array
     };
   });
+  
 
   // Save flightDetails to localStorage (client-side check)
   useEffect(() => {

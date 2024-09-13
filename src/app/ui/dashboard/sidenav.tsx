@@ -12,7 +12,9 @@ type Routing = {
   destination: string;
   alternate1?: string;
   alternate2?: string;
+  icaoAirports?: string[]; // Add this line to include icaoAirports
 };
+
 
 interface SideNavProps {
   savedRoutings: Routing[];
@@ -33,6 +35,7 @@ export default function SideNav({
 }: SideNavProps) {
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
+  
 
   const handleRoutingClick = (routing: Routing) => {
     setFlightDetails({
@@ -41,9 +44,14 @@ export default function SideNav({
       destination: routing.destination,
       alternate1: routing.alternate1 || '',
       alternate2: routing.alternate2 || '',
+      icaoAirports: Array.isArray(routing.icaoAirports) ? routing.icaoAirports : [], // Ensure icaoAirports is an array
     });
     setSelectedRouting(routing);
   };
+  
+  
+  
+  
 
 
   return (
@@ -128,6 +136,29 @@ export default function SideNav({
                     </span>
                   </div>
                 )}
+
+
+{/* Display ICAO airports list */}
+{Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
+  <div className="flex flex-col mt-2">
+    <span>ICAO Airports:</span>
+    {routing.icaoAirports.map((icao, idx) => (
+      <div key={idx} className="flex items-center space-x-1">
+        <span>{icao}</span>
+        <span
+          className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+          style={{ fontSize: '1.5rem' }}
+        >
+          &#9679;
+        </span>
+      </div>
+    ))}
+  </div>
+)}
+
+
+
+
               </div>
 
               <button
