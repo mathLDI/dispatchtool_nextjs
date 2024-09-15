@@ -10,10 +10,10 @@ type Routing = {
   flightNumber: string;
   departure: string;
   destination: string;
-  alternate1?: string;
-  alternate2?: string;
-  icaoAirports?: string[]; // Add this line to include icaoAirports
+  icaoAirports?: string[]; // Existing ICAO airport list
+  icaoAirportALTN?: string[]; // New ICAO alternate airport list
 };
+
 
 
 interface SideNavProps {
@@ -42,9 +42,8 @@ export default function SideNav({
       flightNumber: routing.flightNumber,
       departure: routing.departure,
       destination: routing.destination,
-      alternate1: routing.alternate1 || '',
-      alternate2: routing.alternate2 || '',
-      icaoAirports: Array.isArray(routing.icaoAirports) ? routing.icaoAirports : [], // Ensure icaoAirports is an array
+      icaoAirports: Array.isArray(routing.icaoAirports) ? routing.icaoAirports : [],
+      icaoAirportALTN: Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN : [], // Add this line
     });
     setSelectedRouting(routing);
   };
@@ -115,32 +114,26 @@ export default function SideNav({
 
 
 
-                {routing.alternate1 && (
-                  <div className="flex items-center space-x-1 mt-2">
-                    <span>ALTN 1:</span>
-                    <span>{routing.alternate1}</span>
-                    {/* Display the color dot for the alternate1 airport */}
-                    <span
-                      className={`ml-2 ${airportCategories?.[routing.alternate1]?.color || 'text-gray-500'}`}
-                      style={{ fontSize: '1.5rem' }}
-                    >
-                      &#9679;
-                    </span>
+                {/* Display ICAO Alternate airports list in a row with both airport names and color dots */}
+                {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
+                  <div className="flex flex-col mt-2">
+                    <span>ICAO Alternate Airports:</span>
+                    <div className="flex flex-row space-x-4"> {/* Use flex-row to align all alternate airports and their dots horizontally */}
+                      {routing.icaoAirportALTN.map((icao, idx) => (
+                        <div key={idx} className="flex items-center space-x-1"> {/* Each alternate airport and its dot in a row */}
+                          <span>{icao}</span> {/* Display the ICAO alternate airport code */}
+                          <span
+                            className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                            style={{ fontSize: '1.5rem' }}
+                          >
+                            &#9679;
+                          </span> {/* Display the color dot for each ICAO alternate airport */}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {routing.alternate2 && (
-                  <div className="flex items-center space-x-1 mt-2">
-                    <span>ALTN 2:</span>
-                    <span>{routing.alternate2}</span>
-                    {/* Display the color dot for the alternate2 airport */}
-                    <span
-                      className={`ml-2 ${airportCategories?.[routing.alternate2]?.color || 'text-gray-500'}`}
-                      style={{ fontSize: '1.5rem' }}
-                    >
-                      &#9679;
-                    </span>
-                  </div>
-                )}
+
 
               </div>
 

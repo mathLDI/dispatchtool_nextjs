@@ -11,10 +11,10 @@ interface FlightDetails {
   flightNumber: string;
   departure: string;
   destination: string;
-  alternate1: string;
-  alternate2: string;
-  icaoAirports: string[]; // Add icaoAirports as a list
+  icaoAirports: string[]; // Existing ICAO airports list
+  icaoAirportALTN: string[]; // New ICAO alternate airports list
 }
+
 
 
 interface Routing {
@@ -199,18 +199,16 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         flightNumber: '',
         departure: '',
         destination: '',
-        alternate1: '',
-        alternate2: '',
-        icaoAirports: [], // Initialize as an empty array
+        icaoAirports: [], // Initialize as empty array
+        icaoAirportALTN: [], // Initialize as empty array for alternate airports
       };
     }
     return {
       flightNumber: '',
       departure: '',
       destination: '',
-      alternate1: '',
-      alternate2: '',
-      icaoAirports: [], // Initialize as an empty array
+      icaoAirports: [], // Initialize as empty array
+      icaoAirportALTN: [], // Initialize as empty array for alternate airports
     };
   });
   

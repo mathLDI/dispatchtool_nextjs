@@ -30,11 +30,12 @@ import {
 const RoutingWXXForm = ({ onSave }) => {
   const { flightDetails, setFlightDetails } = useRccContext();
   const [warnings, setWarnings] = useState({
-    departure: '',
-    destination: '',
-    alternate1: '',
-    alternate2: '',
+    flightNumber: '',
+    icaoAirports: '',
+    alternates: '',
+    icaoAirportALTN: '', // Add this for icaoAirportALTN warnings
   });
+
 
   const handleChange = (e, field) => {
     const value = e.target.value.toUpperCase();
@@ -44,6 +45,7 @@ const RoutingWXXForm = ({ onSave }) => {
     });
     setFlightDetails({ ...flightDetails, [field]: value });
   };
+  
 
   const handleIcaoChange = (e) => {
     const newIcao = e.target.value.toUpperCase(); // Get the new ICAO code
@@ -53,18 +55,47 @@ const RoutingWXXForm = ({ onSave }) => {
     }));
   };
 
+
+  const handleIcaoAltnChange = (e) => {
+    const newIcaoAltn = e.target.value.toUpperCase().split(' '); // Convert input to uppercase and split by space
+  
+    // Update only the icaoAirportALTN field in the current routing
+    setFlightDetails((prevDetails) => ({
+      ...prevDetails,
+      icaoAirportALTN: newIcaoAltn, // Update the icaoAirportALTN field
+    }));
+  
+    // Update the routing in savedRoutings without creating a new routing
+    updateSavedRouting(newIcaoAltn);
+  };
+  
+  const updateSavedRouting = (newIcaoAltn) => {
+    setSavedRoutings((prevRoutings) =>
+      prevRoutings.map((routing) =>
+        routing.flightNumber === flightDetails.flightNumber &&
+        routing.departure === flightDetails.departure &&
+        routing.destination === flightDetails.destination
+          ? { ...routing, icaoAirportALTN: newIcaoAltn } // Update the icaoAirportALTN for the existing routing
+          : routing
+      )
+    );
+  };
+  
+
+
   const handleSave = () => {
-    // Check if both flightNumber and icaoAirports are non-empty
-    if (flightDetails.flightNumber && flightDetails.icaoAirports.length > 0) {
-      onSave(flightDetails); // Proceed with saving the routing
+    if (flightDetails.flightNumber && flightDetails.icaoAirports.length > 0 && flightDetails.icaoAirportALTN.length > 0) {
+      onSave(flightDetails);
     } else {
-      // Set warnings for missing flightNumber or icaoAirports
       setWarnings({
         flightNumber: !flightDetails.flightNumber ? 'Flight number is required' : '',
         icaoAirports: flightDetails.icaoAirports.length === 0 ? 'At least one ICAO airport is required' : '',
+        alternates: flightDetails.alternates.length === 0 ? 'At least one alternate airport is required' : '',
+        icaoAirportALTN: flightDetails.icaoAirportALTN.length === 0 ? 'At least one ICAO alternate airport is required' : '', // Add validation for icaoAirportALTN
       });
     }
   };
+
 
 
   const handleClear = () => {
@@ -89,7 +120,7 @@ const RoutingWXXForm = ({ onSave }) => {
     <div className="flex items-center space-x-4 mt-4 flex-wrap">
 
 
-      <div className='flex flex-1 flex-col bg-red-500'>test
+      <div className='flex flex-1 flex-col '>test
 
         <div>
           <input
@@ -102,61 +133,60 @@ const RoutingWXXForm = ({ onSave }) => {
           />
         </div>
 
-        
-      {/**testing a list of airports********************************* */}
 
-      <div className="pt-4">
-        <form className="mb-4 relative">
-          <input
-            type="text"
-            value={(flightDetails.icaoAirports || []).join(' ') || ''}
-            onChange={handleIcaoChange}
-            placeholder="Add ICAO Airports (use ICAO codes)"
-            className="border p-2 rounded w-full"
-            style={{ textTransform: 'uppercase' }}
-          />
-          {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
-        </form>
-      </div>
+        {/**testing a list of airports********************************* */}
 
-        <div>
-        <input
-          type="text"
-          placeholder="ALTERNATE 1"
-          value={flightDetails.alternate1 || ''}
-          onChange={(e) => handleChange(e, 'alternate1')}
-          className="p-2 border border-gray-300 rounded-md text-center"
-          style={{ width: '125px' }}
-        />
-        {warnings.alternate1 && <span className="text-red-500">{warnings.alternate1}</span>}
-      </div>
+        <div className="pt-4">
+          <form className="mb-4 relative">
+            <input
+              type="text"
+              value={(flightDetails.icaoAirports || []).join(' ') || ''}
+              onChange={handleIcaoChange}
+              placeholder="Add ICAO Airports (use ICAO codes)"
+              className="border p-2 rounded w-full"
+              style={{ textTransform: 'uppercase' }}
+            />
+            {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
+          </form>
+        </div>
 
-      <div>
-        <input
-          type="text"
-          placeholder="ALTERNATE 2"
-          value={flightDetails.alternate2 || ''}
-          onChange={(e) => handleChange(e, 'alternate2')}
-          className="p-2 border border-gray-300 rounded-md text-center"
-          style={{ width: '125px' }}
-        />
-        {warnings.alternate2 && <span className="text-red-500">{warnings.alternate2}</span>}
-      </div>
 
-      <div className="flex items-center space-x-2 p-2 bg-yellow-300">
-        <button
-          onClick={handleSave}
-          className="p-2 bg-red-500 text-white rounded-md"
-        >
-          Save
-        </button>
-        <button
-          onClick={handleClear}
-          className="p-2 bg-gray-500 text-white rounded-md"
-        >
-          Clear
-        </button>
-      </div>
+        {/**add list of alternates */}
+
+        <div className="pt-4 bg-indigo-200">
+          <form className="mb-4 relative">
+  <input
+        type="text"
+        value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
+        onChange={handleIcaoAltnChange}
+        placeholder="Add Alternate ICAO Airports (use ICAO codes)"
+        className="border p-2 rounded w-full"
+        style={{ textTransform: 'uppercase' }}
+      />
+
+
+            {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
+          </form>
+
+        </div>
+
+
+
+
+        <div className="flex items-center space-x-2 p-2 bg-yellow-300">
+          <button
+            onClick={handleSave}
+            className="p-2 bg-red-500 text-white rounded-md"
+          >
+            Save
+          </button>
+          <button
+            onClick={handleClear}
+            className="p-2 bg-gray-500 text-white rounded-md"
+          >
+            Clear
+          </button>
+        </div>
 
       </div>
 
@@ -267,14 +297,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   const filteredRoutings = savedRoutings.filter((routing) => {
     // Check if all search terms are found in any of the routing fields
     return searchTerms.every((term) =>
-      routing.flightNumber.toUpperCase().includes(term) ||
-      routing.departure.toUpperCase().includes(term) ||
-      routing.destination.toUpperCase().includes(term) ||
-      (routing.alternate1 && routing.alternate1.toUpperCase().includes(term)) ||
-      (routing.alternate2 && routing.alternate2.toUpperCase().includes(term)) ||
-      (Array.isArray(routing.icaoAirports) && routing.icaoAirports.some(icao => icao.toUpperCase().includes(term))) // Ensure ICAO airports is an array
+      (routing.flightNumber?.toUpperCase() || '').includes(term) ||  // Use optional chaining and default to an empty string
+      (routing.departure?.toUpperCase() || '').includes(term) ||     // Same for departure
+      (routing.destination?.toUpperCase() || '').includes(term) ||   // Same for destination
+      (routing.alternate1?.toUpperCase() || '').includes(term) ||    // Same for alternate1
+      (routing.alternate2?.toUpperCase() || '').includes(term) ||    // Same for alternate2
+      (Array.isArray(routing.icaoAirports) && routing.icaoAirports.some(icao => icao?.toUpperCase().includes(term))) || // Check for icaoAirports
+      (Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.some(icao => icao?.toUpperCase().includes(term))) // Check for icaoAirportALTN
     );
   });
+  
 
 
 
@@ -349,16 +381,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       const airportsToFetch = savedRoutings.flatMap((routing) => [
         routing.departure,
         routing.destination,
-        routing.alternate1,
-        routing.alternate2,
         ...(routing.icaoAirports || []),  // Always include ICAO Airports from saved routings
+        ...(routing.icaoAirportALTN || []),  // Include ICAO alternate airports from saved routings
       ]).filter(Boolean);  // Remove falsy values
-
-
+  
       for (const airportCode of airportsToFetch) {
         try {
           const data = await fetchWeather(airportCode);
-
+  
           setAllWeatherData((prevData) => ({
             ...prevData,
             [airportCode]: data,  // Add fetched data to the allWeatherData object
@@ -367,13 +397,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           console.error(`Failed to fetch weather data for ${airportCode}:`, error);
         }
       }
-
     };
-
     // Fetch initial data and every 2 minutes
     fetchAllWeatherData();
     const intervalId = setInterval(fetchAllWeatherData, 120000);
     return () => clearInterval(intervalId);
+
   }, [savedRoutings, fetchWeather, setAllWeatherData]);  // Fetch when savedRoutings change
 
 
@@ -409,162 +438,169 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-  // Fetch weather data based on the selected form
-  useEffect(() => {
-    const fetchWeatherDataForRouting = async () => {
-      const data = { ...allWeatherDataRef.current };
+// Fetch weather data based on the selected form
+useEffect(() => {
+  const fetchWeatherDataForRouting = async () => {
+    const data = { ...allWeatherDataRef.current };
 
-      const airports = savedRoutings.flatMap((routing) => [
-        { code: routing.departure },
-        { code: routing.destination },
-        routing.alternate1 && { code: routing.alternate1 },
-        routing.alternate2 && { code: routing.alternate2 },
-        ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map((icao) => ({ code: icao })) : []),  // Ensure it's an array
-      ]).filter(Boolean);
+    const airports = savedRoutings.flatMap((routing) => [
+      { code: routing.departure },
+      { code: routing.destination },
+      routing.alternate1 && { code: routing.alternate1 },
+      routing.alternate2 && { code: routing.alternate2 },
+      ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map((icao) => ({ code: icao })) : []),  // Ensure it's an array
+      ...(Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN.map((icao) => ({ code: icao })) : []),  // Include ICAO alternate airports
+    ]).filter(Boolean);
 
-      for (const airport of airports) {
-        if (!data[airport.code]) {
-          try {
-            const responseData = await fetchWeather(airport.code);
-            data[airport.code] = responseData;
-          } catch (error) {
-            console.error(`Failed to fetch weather data for ${airport.code}:`, error);
-          }
-        }
-      }
-
-      setAllWeatherData(data);
-      allWeatherDataRef.current = data;
-    };
-
-
-
-    const fetchWeatherDataForSearch = async () => {
-      const data = {};
-      const airports = selectedForm === 'Routing Search' && flightDetails.departure
-        ? [
-          { code: flightDetails.departure },
-          flightDetails.destination && { code: flightDetails.destination },
-          flightDetails.alternate1 && { code: flightDetails.alternate1 },
-          flightDetails.alternate2 && { code: flightDetails.alternate2 },
-          ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map((icao) => ({ code: icao })) : []),
-        ].filter(Boolean)
-        : airportValues;
-
-      for (const airport of airports) {
-        const storageKey = `weatherData_${airport.code}`;
-        let cachedData = {};
-        let cacheTimestamp = '';
-
-        // Client-side check for localStorage
-        if (typeof window !== 'undefined') {
-          const storedData = localStorage.getItem(storageKey);
-
-          if (storedData) { // Check if storedData is not null or undefined
-            try {
-              cachedData = JSON.parse(storedData);
-            } catch (e) {
-              console.error("Error parsing JSON data from localStorage", e);
-              cachedData = {}; // Set default value if parsing fails
-            }
-          }
-
-          cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
-        }
-
-
-        // Check if cache exists and is recent
-        if (cachedData && cacheTimestamp) {
-          const cacheAge = Date.now() - parseInt(cacheTimestamp, 10);
-
-          // If data is less than 2 minutes old, use cached data
-          if (cacheAge < 2 * 60 * 1000) {
-            console.log(`Using cached data for ${airport.code}`);
-            data[airport.code] = cachedData;
-            continue;
-          }
-        }
-
-        // Fetch fresh data from the server
+    for (const airport of airports) {
+      if (!data[airport.code]) {
         try {
           const responseData = await fetchWeather(airport.code);
           data[airport.code] = responseData;
-
-          // Update localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(storageKey, JSON.stringify(responseData));
-            localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
-          }
         } catch (error) {
           console.error(`Failed to fetch weather data for ${airport.code}:`, error);
         }
       }
-      setAllWeatherData(data);
-    };
-
-    if (selectedForm === 'Routing Search' && savedRoutings.length > 0) {
-      fetchWeatherDataForRouting();
-    } else if (selectedForm === 'Airport Search' && airportValues.length > 0) {
-      fetchWeatherDataForSearch();
     }
+
+    setAllWeatherData(data);
+    allWeatherDataRef.current = data;
+  };
+
+
+
+  const fetchWeatherDataForSearch = async () => {
+    const data = {};
+    const airports = selectedForm === 'Routing Search' && flightDetails.departure
+      ? [
+        { code: flightDetails.departure },
+        flightDetails.destination && { code: flightDetails.destination },
+        ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })), // Include primary ICAO airports
+        ...(flightDetails.icaoAirportALTN || []).map(icao => ({ code: icao })), // Include alternate ICAO airports
+      ].filter(Boolean)
+      : airportValues;
+  
+    for (const airport of airports) {
+      const storageKey = `weatherData_${airport.code}`;
+      let cachedData = {};
+      let cacheTimestamp = '';
+  
+      // Client-side check for localStorage
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem(storageKey);
+  
+        if (storedData) { // Check if storedData is not null or undefined
+          try {
+            cachedData = JSON.parse(storedData);
+          } catch (e) {
+            console.error("Error parsing JSON data from localStorage", e);
+            cachedData = {}; // Set default value if parsing fails
+          }
+        }
+  
+        cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
+      }
+  
+      // Check if cache exists and is recent
+      if (cachedData && cacheTimestamp) {
+        const cacheAge = Date.now() - parseInt(cacheTimestamp, 10);
+  
+        // If data is less than 2 minutes old, use cached data
+        if (cacheAge < 2 * 60 * 1000) {
+          console.log(`Using cached data for ${airport.code}`);
+          data[airport.code] = cachedData;
+          continue;
+        }
+      }
+  
+      // Fetch fresh data from the server
+      try {
+        const responseData = await fetchWeather(airport.code);
+        data[airport.code] = responseData;
+  
+        // Update localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(storageKey, JSON.stringify(responseData));
+          localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
+        }
+      } catch (error) {
+        console.error(`Failed to fetch weather data for ${airport.code}:`, error);
+      }
+    }
+    setAllWeatherData(data);
+  };
+  
+  if (selectedForm === 'Routing Search' && savedRoutings.length > 0) {
+    fetchWeatherDataForRouting();
+  } else if (selectedForm === 'Airport Search' && airportValues.length > 0) {
+    fetchWeatherDataForSearch();
+  }
+  
   }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm, setAllWeatherData]);
 
   {/**Function below control how the addition of airport is control. The new code now include the routing.icaoAirports as
     persistent airports in the list  */}
 
-  useEffect(() => {
-    if (Object.keys(allWeatherData).length > 0) {
-      const airportsFromSavedRoutings = savedRoutings.flatMap((routing) => [
-        routing.departure && { code: routing.departure },  // Ensure departure exists
-        routing.destination && { code: routing.destination },  // Ensure destination exists
-        routing.alternate1 && { code: routing.alternate1 },
-        routing.alternate2 && { code: routing.alternate2 },
-        ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map(icao => ({ code: icao })) : []), // Ensure ICAO Airports are included only if it's an array
-      ]).filter(Boolean);  // Remove any null or undefined values
-
-
-      // Combine airports from saved routings, airportValues, and icaoAirports
-      const airportsToInclude = [
-        ...airportValues,
-        ...airportsFromSavedRoutings,
-        ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })) // Convert string ICAOs to objects with 'code' property
-      ];
-
-      // Ensure unique airports
-      const uniqueAirportsToInclude = Array.from(
-        new Set(airportsToInclude.map((airport) => airport.code))
-      ).map((code) => ({ code }));
-
-      // Categorize airports
-      const newCategories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
-
-      // Merge new categories into existing categories, ensuring old airports are not removed
-      setAirportCategories((prevCategories) => ({
-        ...prevCategories,
-        ...newCategories,  // Add or update categories for new airports
-      }));
-    }
-  }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories]);
+    useEffect(() => {
+      if (Object.keys(allWeatherData).length > 0) {
+        const airportsFromSavedRoutings = savedRoutings.flatMap((routing) => [
+          routing.departure && { code: routing.departure },  // Ensure departure exists
+          routing.destination && { code: routing.destination },  // Ensure destination exists
+          routing.alternate1 && { code: routing.alternate1 },
+          routing.alternate2 && { code: routing.alternate2 },
+          ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map(icao => ({ code: icao })) : []), // Ensure ICAO Airports are included only if it's an array
+          ...(Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN.map(icao => ({ code: icao })) : []) // Include ICAO Alternate Airports
+        ]).filter(Boolean);  // Remove any null or undefined values
+    
+        // Combine airports from saved routings, airportValues, icaoAirports, and icaoAirportALTN
+        const airportsToInclude = [
+          ...airportValues, // Existing airport values
+          ...airportsFromSavedRoutings, // Airports from saved routings
+          ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })), // Convert ICAO Airports to objects
+          ...(flightDetails.icaoAirportALTN || []).map(icao => ({ code: icao })) // Convert ICAO Alternate Airports to objects
+        ];
+    
+        // Ensure unique airports
+        const uniqueAirportsToInclude = Array.from(
+          new Set(airportsToInclude.map((airport) => airport.code))
+        ).map((code) => ({ code }));
+    
+        // Categorize airports
+        const newCategories = allAirportsFlightCategory(uniqueAirportsToInclude, allWeatherData);
+    
+        // Merge new categories into existing categories, ensuring old airports are not removed
+        setAirportCategories((prevCategories) => ({
+          ...prevCategories,
+          ...newCategories,  // Add or update categories for new airports
+        }));
+      }
+    }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories, flightDetails.icaoAirportALTN]);
+    
 
 
 
 
   const handleSaveRouting = (newRouting) => {
-    // Find if a routing with the same flightNumber and icaoAirports already exists
+    // Find if a routing with the same flightNumber, icaoAirports, and icaoAirportALTN already exists
     const existingRoutingIndex = savedRoutings.findIndex((routing) => {
       return routing.flightNumber === newRouting.flightNumber &&
         Array.isArray(routing.icaoAirports) &&
         Array.isArray(newRouting.icaoAirports) &&
         routing.icaoAirports.length === newRouting.icaoAirports.length &&
-        routing.icaoAirports.every((icao, index) => icao === newRouting.icaoAirports[index]);
+        routing.icaoAirports.every((icao, index) => icao === newRouting.icaoAirports[index]) &&
+        Array.isArray(routing.icaoAirportALTN) &&
+        Array.isArray(newRouting.icaoAirportALTN) &&
+        routing.icaoAirportALTN.length === newRouting.icaoAirportALTN.length &&
+        routing.icaoAirportALTN.every((icao, index) => icao === newRouting.icaoAirportALTN[index]);
     });
-
-    // Add icaoAirports to newRouting if it exists
+  
+    // Add icaoAirports and icaoAirportALTN to newRouting if they exist
     const routingWithIcao = {
       ...newRouting,
       icaoAirports: flightDetails.icaoAirports || [], // Keep existing icaoAirports
+      icaoAirportALTN: flightDetails.icaoAirportALTN || [], // Add icaoAirportALTN
     };
-
+  
     // If an existing routing is found, prompt the user to modify or add a new one
     if (existingRoutingIndex !== -1) {
       setPendingRouting(routingWithIcao);
@@ -573,14 +609,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       // Otherwise, add the new routing to savedRoutings
       const updatedRoutings = [...savedRoutings, routingWithIcao];
       setSavedRoutings(updatedRoutings);
-
+  
       // Update localStorage if available
       if (typeof window !== 'undefined') {
         localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
       }
     }
   };
-
+  
 
 
 
@@ -833,6 +869,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         />
 
         <div className='flex-1  bg-gray-300'>
+
           <div className="flex">
             {selectedForm === 'Routing Search' && (
               <div className="flex justify-center items-center p-2 relative">
