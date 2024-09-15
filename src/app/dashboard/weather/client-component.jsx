@@ -394,14 +394,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-  const airportsToShow = [
-    ...airportValues,
-    flightDetails.departure && { code: flightDetails.departure },
-    flightDetails.destination && { code: flightDetails.destination },
-    flightDetails.alternate1 && { code: flightDetails.alternate1 },
-    flightDetails.alternate2 && { code: flightDetails.alternate2 },
-    ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao }))
-  ].filter(Boolean);
+  const airportsToShow = selectedForm === 'Airport Search' 
+  ? [...airportValues] // Only show airportValues when "Airport Search" is selected
+  : [
+      flightDetails.departure && { code: flightDetails.departure },
+      flightDetails.destination && { code: flightDetails.destination },
+      flightDetails.alternate1 && { code: flightDetails.alternate1 },
+      flightDetails.alternate2 && { code: flightDetails.alternate2 },
+      ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })),
+    ].filter(Boolean); // Show routing airports when "Routing Search" is selected
+
 
   useEffect(() => {
     if (selectedForm === 'Airport Search' && airportValues.length > 0) {
@@ -925,12 +927,6 @@ const fetchWeatherDataForRouting = async () => {
             )}
           </div>
         </div>
-
-<div className='bg-yellow-50'>test
-<AirportDotCategory allWeatherData={allWeatherData} airportValues={airportValues} />
-
-
-</div>
 
 
         <div className=''>
