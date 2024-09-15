@@ -35,7 +35,7 @@ export default function SideNav({
 }: SideNavProps) {
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
-  
+
 
   const handleRoutingClick = (routing: Routing) => {
     setFlightDetails({
@@ -48,10 +48,10 @@ export default function SideNav({
     });
     setSelectedRouting(routing);
   };
-  
-  
-  
-  
+
+
+
+
 
 
   return (
@@ -138,23 +138,26 @@ export default function SideNav({
                 )}
 
 
-{/* Display ICAO airports list */}
-{Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
-  <div className="flex flex-col mt-2">
-    <span>ICAO Airports:</span>
-    {routing.icaoAirports.map((icao, idx) => (
-      <div key={idx} className="flex items-center space-x-1">
-        <span>{icao}</span>
-        <span
-          className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
-          style={{ fontSize: '1.5rem' }}
-        >
-          &#9679;
-        </span>
-      </div>
-    ))}
-  </div>
-)}
+                {/* Display ICAO airports list */}
+                {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
+                  <div className="flex flex-col mt-2">
+                    <span>ICAO Airports:</span>
+                    {routing.icaoAirports.map((icao, idx) => (
+                      <div key={idx} className="flex items-center space-x-1 bg-red-300">
+                        <span>{icao}</span>
+                        {/* Display the color dot for each ICAO airport */}
+                        <span
+                          className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                          style={{ fontSize: '1.5rem' }}
+                        >
+                          &#9679;
+                        </span>
+                        <span className="text-sm">{airportCategories?.[icao]?.category || 'Unknown'}</span> {/* Add category display */}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
 
 
 

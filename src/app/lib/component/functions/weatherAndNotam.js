@@ -1,16 +1,80 @@
-// src/app/lib/component/functions/weatherAndNotam.js
+
+
+
+// Transform allWeatherData into the format of airportValues with correct property order
+// transformAllWeatherDataToAirportValues & calculateAirportCategories & allAirportsFlightCategory
+//all work together to find the correct category.  
+//
+export function transformAllWeatherDataToAirportValues(allWeatherData) {
+  // Check if allWeatherData is valid
+  if (!allWeatherData || typeof allWeatherData !== 'object' || Object.keys(allWeatherData).length === 0) {
+    return []; // Return an empty array if there's no weather data
+  }
+
+  // Transform each entry in allWeatherData into an airport object with id, name, and code in the correct order
+  const transformedAirports = Object.keys(allWeatherData).map((icaoCode) => {
+    return {
+      id: icaoCode,  // First property: id
+      name: `Airport ${icaoCode}`,  // Second property: name
+      code: icaoCode  // Third property: code
+    };
+  });
+
+  return transformedAirports;
+}
+
 
 ////AIRPORT FLIGHT CATEGORY LIST////
 
-export function calculateAirportCategories(airportValues, allWeatherData) {
+
+// Calculate airport categories based on transformed allWeatherData
+export function calculateAirportCategories(allWeatherData) {
   // Check if allWeatherData is defined and is an object
   if (!allWeatherData || typeof allWeatherData !== 'object' || Object.keys(allWeatherData).length === 0) {
     return {}; // Return an empty object if allWeatherData is not ready
   }
 
-  const categories = allAirportsFlightCategory(airportValues, allWeatherData);
+  // Directly use transformAllWeatherDataToAirportValues without import
+  const transformedAirportValues = transformAllWeatherDataToAirportValues(allWeatherData);
+
+  // Calculate categories using transformed airport values and weather data
+  const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
+  
   return categories;
 }
+
+// Calculate the flight categories for each airport
+export function allAirportsFlightCategory(airportValues, weatherData) {
+  const airportCategories = {};
+
+  airportValues.forEach((airport) => {
+    // Find the latest METAR or SPECI report for the airport
+    const latestMetar = weatherData[airport.code]?.data?.find((item) => item.type === 'metar' || item.type === 'speci');
+
+    if (latestMetar) {
+      // Parse ceiling and visibility from the METAR report
+      const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(latestMetar.text);
+
+      // Determine the flight category and color
+      const { category, color } = getFlightCategory(ceiling, visibilityValue);
+
+      airportCategories[airport.code] = {
+        category,
+        color,
+      };
+    } else {
+      // Default to 'Unknown' if there's no METAR data
+      airportCategories[airport.code] = {
+        category: 'Unknown',
+        color: 'text-gray-500',
+      };
+    }
+  });
+
+  return airportCategories;
+}
+
+
 
 
 ////METAR///
@@ -211,31 +275,6 @@ function parseMETARForCeilingAndVisibility(metarString) {
   return { ceiling, visibilityValue };
 }
 
-export function allAirportsFlightCategory(airportValues, weatherData) {
-  const airportCategories = {};
-
-  airportValues.forEach((airport) => {
-    const latestMetar = weatherData[airport.code]?.data?.find((item) => item.type === 'metar' || item.type === 'speci');
-
-    if (latestMetar) {
-      const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(latestMetar.text);
-
-      const { category, color } = getFlightCategory(ceiling, visibilityValue);
-
-      airportCategories[airport.code] = {
-        category,
-        color,
-      };
-    } else {
-      airportCategories[airport.code] = {
-        category: 'Unknown',
-        color: 'text-gray-500',
-      };
-    }
-  });
-
-  return airportCategories;
-}
 
 export const renderNotamsW = (notams, title) => {
   const notamsToRender = notams.filter(notam => {
