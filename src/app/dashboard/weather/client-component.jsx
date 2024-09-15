@@ -284,29 +284,34 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       routing.departure.toUpperCase().includes(term) ||
       routing.destination.toUpperCase().includes(term) ||
       (routing.alternate1 && routing.alternate1.toUpperCase().includes(term)) ||
-      (routing.alternate2 && routing.alternate2.toUpperCase().includes(term))
+      (routing.alternate2 && routing.alternate2.toUpperCase().includes(term)) ||
+      (Array.isArray(routing.icaoAirports) && routing.icaoAirports.some(icao => icao.toUpperCase().includes(term))) // Ensure ICAO airports is an array
     );
   });
+  
 
 
 
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
     setSavedRoutings(updatedRoutings);
-
+  
     // Check for window object and update localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
     }
-
+  
+    // Reset flight details, including clearing icaoAirports
     setFlightDetails({
       flightNumber: '',
       departure: '',
       destination: '',
       alternate1: '',
       alternate2: '',
+      icaoAirports: [], // Clear the ICAO airports as part of the flight details reset
     });
   };
+  
 
   const handleAirportClick = useCallback(async (airportCode) => {
     try {
