@@ -84,17 +84,27 @@ const RoutingWXXForm = ({ onSave }) => {
 
 
   const handleSave = () => {
-    if (flightDetails.flightNumber && flightDetails.icaoAirports.length > 0 && flightDetails.icaoAirportALTN.length > 0) {
-      onSave(flightDetails);
+    const icaoAirports = flightDetails.icaoAirports || []; // Default to empty array if undefined
+    const icaoAirportALTN = flightDetails.icaoAirportALTN || []; // Default to empty array if undefined
+  
+    // Check if flightNumber, icaoAirports, and icaoAirportALTN are valid
+    if (flightDetails.flightNumber && icaoAirports.length > 0 && icaoAirportALTN.length > 0) {
+      onSave(flightDetails); // Proceed with saving if all fields are valid
     } else {
-      setWarnings({
-        flightNumber: !flightDetails.flightNumber ? 'Flight number is required' : '',
-        icaoAirports: flightDetails.icaoAirports.length === 0 ? 'At least one ICAO airport is required' : '',
-        alternates: flightDetails.alternates.length === 0 ? 'At least one alternate airport is required' : '',
-        icaoAirportALTN: flightDetails.icaoAirportALTN.length === 0 ? 'At least one ICAO alternate airport is required' : '', // Add validation for icaoAirportALTN
-      });
+      // Check and show alert messages for missing fields
+      if (!flightDetails.flightNumber) {
+        alert("Please provide a valid flight number.");
+      }
+      if (icaoAirports.length === 0) {
+        alert("Please provide at least one ICAO airport.");
+      }
+      if (icaoAirportALTN.length === 0) {
+        alert("Please provide at least one ICAO alternate airport.");
+      }
     }
   };
+  
+  
 
 
 
@@ -217,14 +227,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setAirportCategories,
     isCraneFilterActive,
     setIsCraneFilterActive,
-    flightDetails,
-    setFlightDetails,
-    savedRoutings,
-    setSavedRoutings,
     selectedForm,
     setSelectedForm,
     searchRouting,
     setSearchRouting,
+    savedRoutings = [],  // Ensure it's an array
+    setSavedRoutings,
+    flightDetails = {},   // Ensure it's an object
+    setFlightDetails,
 
   } = useRccContext();
 
