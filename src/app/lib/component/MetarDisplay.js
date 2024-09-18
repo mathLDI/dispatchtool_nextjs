@@ -17,20 +17,22 @@ const MetarDisplay = ({ weatherData }) => {
           const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
           return timeB.localeCompare(timeA);
         })
+        .slice(0, 4)  // Limit to the last 4 METARs
         .map((metar, index) => {
           const parsedMetar = parseMETAR(metar.text);
           const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
-
+  
           const formattedText = formatMetarText(metarString, ceiling, visibilityValue, category);
-
+  
           return (
-            <div key={index} className="mb-4">
+            <div key={index} className="mb-1.5">
               <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
             </div>
           );
         })}
     </div>
   );
+  
 };
 
 function formatMetarText(metarText, ceiling, visibility, category) {

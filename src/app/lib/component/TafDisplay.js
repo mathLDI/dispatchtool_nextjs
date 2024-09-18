@@ -82,7 +82,7 @@ function formatTAF(tafText) {
           : firstLineColor;
 
     return (
-      <p key={index} className={lineColor}>
+      <p key={index} className={`${lineColor} mb-1.5`}>
         {line}
       </p>
     );

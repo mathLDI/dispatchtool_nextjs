@@ -41,14 +41,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const mainContentStyle: React.CSSProperties = {
-    marginLeft: isHovered || isPinned ? '200px' : '20px', // Adjust marginLeft based on SideNav state
+    marginLeft: isHovered || isPinned ? '200px' : '20px',
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: '24px',
     overflow: 'auto',
-    fontFamily: 'Roboto, sans-serif', // Set Roboto as the main font
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: '10px', // Add this line to reduce the font size
+    lineHeight: '1.0', // Reduce line spacing
+
   };
+  
 
   return (
     <RccProvider>

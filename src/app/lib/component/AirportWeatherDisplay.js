@@ -241,8 +241,8 @@ export default function AirportWeatherDisplay({
         {/* Conditional Rendering for NOTAMS */}
         {selectedButton === 'NOTAMS' && (
           <div>
-            <div className="mb-4">
-              <div className="mb-4 flex items-center">
+            <div className="">
+              <div className="mb-2 flex items-center">
               </div>
 
               <div className="flex space-x-2">

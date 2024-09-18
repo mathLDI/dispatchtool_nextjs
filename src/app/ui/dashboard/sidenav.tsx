@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import AcmeLogo from '@/app/ui/acme-logo';
-import { PrinterIcon } from '@heroicons/react/outline';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 import clsx from 'clsx';
 
@@ -13,8 +12,6 @@ type Routing = {
   icaoAirports?: string[]; // Existing ICAO airport list
   icaoAirportALTN?: string[]; // New ICAO alternate airport list
 };
-
-
 
 interface SideNavProps {
   savedRoutings: Routing[];
@@ -29,7 +26,6 @@ export default function SideNav({
   savedRoutings = [],
   showWeatherAndRcam = true,
   showLogo = true,
-  showPrinterIcon = true,
   onDeleteRouting,
   airportCategories, // Destructure the new prop
 }: SideNavProps) {
@@ -94,11 +90,11 @@ export default function SideNav({
                 {/* Display ICAO airports list in a row with both airport names and color dots */}
                 {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
                   <div className="flex flex-col mt-2">
-                    <span>ICAO Airports:</span>
+                   {/* <span>ICAO Airports:</span> */}
                     <div className="flex flex-row space-x-4"> {/* Use flex-row to align all airports and their dots horizontally */}
                       {routing.icaoAirports.map((icao, idx) => (
                         <div key={idx} className="flex items-center space-x-1"> {/* Each airport and its dot in a row */}
-                          <span>{icao}</span> {/* Display the ICAO airport code */}
+                       {/*   <span>{icao}</span> {/* Display the ICAO airport code */}
                           <span
                             className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
                             style={{ fontSize: '1.5rem' }}
@@ -117,7 +113,7 @@ export default function SideNav({
                 {/* Display ICAO Alternate airports list in a row with both airport names and color dots */}
                 {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
                   <div className="flex flex-col mt-2">
-                    <span>ICAO Alternate Airports:</span>
+                    <span>Alternate Airports:</span>
                     <div className="flex flex-row space-x-4"> {/* Use flex-row to align all alternate airports and their dots horizontally */}
                       {routing.icaoAirportALTN.map((icao, idx) => (
                         <div key={idx} className="flex items-center space-x-1"> {/* Each alternate airport and its dot in a row */}

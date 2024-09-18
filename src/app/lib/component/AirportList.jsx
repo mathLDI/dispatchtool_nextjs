@@ -21,8 +21,8 @@ const AirportList = ({ onAirportClick }) => {
 
   const renderAirportList = (airports, label) => (
     <>
-      <h3 className="text-lg font-bold mt-4 mb-2">{label}</h3>
-      <ul className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-4 w-full">
+     <h3 className="text-sm font-bold mt-2 mb-2">{label}</h3> {/* Reduced font size */}
+     <ul className="grid grid-cols-[repeat(auto-fill,_minmax(100px,_1fr))] gap-2 w-full"> {/* Reduced minmax size and gap */}
         {airports.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500';
@@ -58,13 +58,19 @@ const AirportList = ({ onAirportClick }) => {
   );
 
   return (
-    <div className="flex p-3 rounded-lg w-full">
-      {/* Render ICAO Airports */}
-      {renderAirportList(icaoAirportsToShow, 'ICAO Airports')}
+    <div className="flex flex-col p-2 rounded-lg w-full">
 
-      {/* Render ICAO Alternate Airports */}
-      {renderAirportList(icaoAirportALTNToShow, 'ICAO Alternate Airports')}
+      <div className='flex-1'>
+          {/* Render ICAO Airports */}
+      {renderAirportList(icaoAirportsToShow, '')}
+      </div>
+      <hr className="my-2 border-gray-300" />
+      <div className='flex-1'>
+  {/* Render ICAO Alternate Airports */}
+  {renderAirportList(icaoAirportALTNToShow, '')}
     </div>
+</div>
+      
   );
 };
 

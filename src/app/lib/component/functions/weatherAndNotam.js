@@ -355,7 +355,7 @@ export const renderNotamsE = (notams, title) => {
 
   return (
     <div>
-      <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
+      <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
       {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
