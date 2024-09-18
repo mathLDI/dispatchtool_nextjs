@@ -52,7 +52,7 @@ export default function AirportWeatherDisplay({
     <div className="flex flex-col ">
 
 
-<div className="flex items-center dark:bg-gray-700 justify-start p-2 space-x-2 rounded-md shadow-lg">
+      <div className="flex items-center dark:bg-gray-700 justify-start p-2 space-x-2 rounded-md shadow-lg">
         <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm ${selectedButton === 'METAR/TAF' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
           onClick={() => setSelectedButton('METAR/TAF')}>
@@ -121,16 +121,25 @@ export default function AirportWeatherDisplay({
           {/* Conditional Rendering for ALL METAR */}
           {selectedButton === 'ALL METAR' && selectedForm === 'Routing Search' && (
             <>
-              <div className="flex">
-                <Card title="METAR - Departure" status={null} className="h-full">
-                  <MetarDisplay weatherData={allWeatherData[flightDetails.departure]} />
-                </Card>
-              </div>
-              <div className="flex">
-                <Card title="METAR - Destination" status={null} className="h-full">
-                  <MetarDisplay weatherData={allWeatherData[flightDetails.destination]} />
-                </Card>
-              </div>
+              {/* METAR for Departure */}
+              {flightDetails.departure && (
+                <div className="flex">
+                  <Card title="METAR - Departure" status={null} className="h-full">
+                    <MetarDisplay weatherData={allWeatherData[flightDetails.departure]} />
+                  </Card>
+                </div>
+              )}
+
+              {/* METAR for Destination */}
+              {flightDetails.destination && (
+                <div className="flex">
+                  <Card title="METAR - Destination" status={null} className="h-full">
+                    <MetarDisplay weatherData={allWeatherData[flightDetails.destination]} />
+                  </Card>
+                </div>
+              )}
+
+              {/* METAR for Alternate 1 */}
               {flightDetails.alternate1 && (
                 <div className="flex">
                   <Card title="METAR - Alternate 1" status={null} className="h-full">
@@ -138,6 +147,8 @@ export default function AirportWeatherDisplay({
                   </Card>
                 </div>
               )}
+
+              {/* METAR for Alternate 2 */}
               {flightDetails.alternate2 && (
                 <div className="flex">
                   <Card title="METAR - Alternate 2" status={null} className="h-full">
@@ -145,8 +156,35 @@ export default function AirportWeatherDisplay({
                   </Card>
                 </div>
               )}
+
+              {/* Loop through and render METAR for each ICAO Airport */}
+              {Array.isArray(flightDetails.icaoAirports) && flightDetails.icaoAirports.length > 0 && (
+                <div className="flex flex-col">
+                  {flightDetails.icaoAirports.map((icao, index) => (
+                    <div key={index} className="flex">
+                      <Card title={`METAR - ICAO Airport ${icao}`} status={null} className="h-full">
+                        <MetarDisplay weatherData={allWeatherData[icao]} />
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Loop through and render METAR for each ICAO Alternate Airport */}
+              {Array.isArray(flightDetails.icaoAirportALTN) && flightDetails.icaoAirportALTN.length > 0 && (
+                <div className="flex flex-col">
+                  {flightDetails.icaoAirportALTN.map((icaoAltn, index) => (
+                    <div key={index} className="flex">
+                      <Card title={`METAR - ICAO Alternate ${icaoAltn}`} status={null} className="h-full">
+                        <MetarDisplay weatherData={allWeatherData[icaoAltn]} />
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
+
 
 
 
