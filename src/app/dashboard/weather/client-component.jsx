@@ -57,19 +57,21 @@ const RoutingWXXForm = ({ onSave }) => {
 
 
   const handleIcaoAltnChange = (e) => {
-    const newIcaoAltn = e.target.value.toUpperCase().split(' '); // Convert input to uppercase and split by space
+    const newIcaoAltn = e.target.value.toUpperCase(); // Convert input to uppercase and split by space
   
     // Update only the icaoAirportALTN field in the current routing
     setFlightDetails((prevDetails) => ({
       ...prevDetails,
-      icaoAirportALTN: newIcaoAltn, // Update the icaoAirportALTN field
+      icaoAirportALTN: newIcaoAltn.split(' '), // 
     }));
   
-    // Update the routing in savedRoutings without creating a new routing
-    updateSavedRouting(newIcaoAltn);
   };
+
+
   
   const updateSavedRouting = (newIcaoAltn) => {
+    console.log("setSavedRoutings from updateSavedrouting",setSavedRoutings);  // Check if setSavedRoutings is defined here
+
     setSavedRoutings((prevRoutings) =>
       prevRoutings.map((routing) =>
         routing.flightNumber === flightDetails.flightNumber &&
@@ -231,9 +233,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     setSelectedForm,
     searchRouting,
     setSearchRouting,
-    savedRoutings = [],  // Ensure it's an array
+    savedRoutings = [],  
     setSavedRoutings,
-    flightDetails = {},   // Ensure it's an object
+    flightDetails = {},  
     setFlightDetails,
 
   } = useRccContext();
@@ -590,42 +592,64 @@ useEffect(() => {
 
 
 
-  const handleSaveRouting = (newRouting) => {
-    // Find if a routing with the same flightNumber, icaoAirports, and icaoAirportALTN already exists
-    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
-      return routing.flightNumber === newRouting.flightNumber &&
-        Array.isArray(routing.icaoAirports) &&
-        Array.isArray(newRouting.icaoAirports) &&
-        routing.icaoAirports.length === newRouting.icaoAirports.length &&
-        routing.icaoAirports.every((icao, index) => icao === newRouting.icaoAirports[index]) &&
-        Array.isArray(routing.icaoAirportALTN) &&
-        Array.isArray(newRouting.icaoAirportALTN) &&
-        routing.icaoAirportALTN.length === newRouting.icaoAirportALTN.length &&
-        routing.icaoAirportALTN.every((icao, index) => icao === newRouting.icaoAirportALTN[index]);
-    });
-  
-    // Add icaoAirports and icaoAirportALTN to newRouting if they exist
-    const routingWithIcao = {
-      ...newRouting,
-      icaoAirports: flightDetails.icaoAirports || [], // Keep existing icaoAirports
-      icaoAirportALTN: flightDetails.icaoAirportALTN || [], // Add icaoAirportALTN
-    };
-  
-    // If an existing routing is found, prompt the user to modify or add a new one
-    if (existingRoutingIndex !== -1) {
-      setPendingRouting(routingWithIcao);
-      setIsModalOpen(true);
-    } else {
-      // Otherwise, add the new routing to savedRoutings
-      const updatedRoutings = [...savedRoutings, routingWithIcao];
-      setSavedRoutings(updatedRoutings);
-  
-      // Update localStorage if available
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+    const handleSaveRouting = (newRouting) => {
+      // Find if a routing with the same flightNumber, departure, and destination already exists
+      const existingRoutingIndex = savedRoutings.findIndex((routing) => {
+        return (
+          routing.flightNumber === newRouting.flightNumber &&
+          routing.departure === newRouting.departure &&
+          routing.destination === newRouting.destination
+        );
+      });
+    
+      // Create a new routing with updated icaoAirports and icaoAirportALTN from flightDetails
+      const routingWithIcao = {
+        ...newRouting,
+        icaoAirports: flightDetails.icaoAirports || [], // Keep existing icaoAirports
+        icaoAirportALTN: flightDetails.icaoAirportALTN || [], // Add icaoAirportALTN
+      };
+    
+      // If an existing routing is found, compare the icaoAirports and icaoAirportALTN
+      if (existingRoutingIndex !== -1) {
+        const existingRouting = savedRoutings[existingRoutingIndex];
+    
+        // Check if the icaoAirports or icaoAirportALTN have changed
+        const hasIcaoAirportsChanged =
+          JSON.stringify(existingRouting.icaoAirports) !==
+          JSON.stringify(routingWithIcao.icaoAirports);
+    
+        const hasIcaoAirportALTNChanged =
+          JSON.stringify(existingRouting.icaoAirportALTN) !==
+          JSON.stringify(routingWithIcao.icaoAirportALTN);
+    
+        // If there are changes in the airports, open the modal
+        if (hasIcaoAirportsChanged || hasIcaoAirportALTNChanged) {
+          setPendingRouting(routingWithIcao);
+          setIsModalOpen(true); // Trigger the modal to confirm changes
+        } else {
+          // If no changes, proceed with the update (or do nothing)
+          const updatedRoutings = [...savedRoutings];
+          updatedRoutings[existingRoutingIndex] = routingWithIcao;
+    
+          setSavedRoutings(updatedRoutings);
+    
+          // Update localStorage if available
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+          }
+        }
+      } else {
+        // If no existing routing, just add the new one
+        const updatedRoutings = [...savedRoutings, routingWithIcao];
+        setSavedRoutings(updatedRoutings);
+    
+        // Update localStorage if available
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+        }
       }
-    }
-  };
+    };
+    
   
 
 
