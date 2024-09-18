@@ -432,18 +432,15 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     ].filter(Boolean); // Show routing airports when "Routing Search" is selected
 
 
-  useEffect(() => {
-    if (selectedForm === 'Airport Search' && airportValues.length > 0) {
-      handleAirportClick(airportValues[0].code);
-    } else if (selectedForm === 'Routing Search') {
-      if (flightDetails.departure) {
-        handleAirportClick(flightDetails.departure);
+    useEffect(() => {
+      if (selectedForm === 'Airport Search' && airportValues.length > 0) {
+        handleAirportClick(airportValues[0].code);
+      } else if (selectedForm === 'Routing Search' && flightDetails.icaoAirports && flightDetails.icaoAirports.length > 0) {
+        // Select the first airport in icaoAirports if available
+        handleAirportClick(flightDetails.icaoAirports[0]);
       }
-      if (flightDetails.icaoAirports && flightDetails.icaoAirports.length > 0) {
-        flightDetails.icaoAirports.forEach(icao => handleAirportClick(icao));
-      }
-    }
-  }, [selectedForm, flightDetails.departure, flightDetails.icaoAirports, airportValues, handleAirportClick]);
+    }, [selectedForm, flightDetails.icaoAirports, airportValues, handleAirportClick]);
+    
 
 
 

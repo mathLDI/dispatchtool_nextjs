@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
 const AirportList = ({ onAirportClick }) => {
@@ -10,25 +10,20 @@ const AirportList = ({ onAirportClick }) => {
     flightDetails, // Import flightDetails from context
   } = useRccContext();
 
-  // Extract all airports from flightDetails and combine them into a single list
-  const airportsToShow = [
-    flightDetails.departure && { code: flightDetails.departure },
-    flightDetails.destination && { code: flightDetails.destination },
-    ...(flightDetails.icaoAirports || []).map((code) => ({ code })),  // Convert ICAO airports into objects
-    ...(flightDetails.icaoAirportALTN || []).map((code) => ({ code })),  // Convert ICAO alternate airports into objects
-  ].filter(Boolean);  // Filter out falsy values (null or undefined)
+  // Extract airports from flightDetails
+  const icaoAirportsToShow = (flightDetails.icaoAirports || []).map((code) => ({ code })); // Convert ICAO airports into objects
+  const icaoAirportALTNToShow = (flightDetails.icaoAirportALTN || []).map((code) => ({ code })); // Convert ICAO alternate airports into objects
 
   const handleRemoveClick = (e, airportCode) => {
     e.stopPropagation(); // Prevent li onClick from being called
     removeAirportValue(airportCode); // Call the remove function from context
   };
 
-
-  return (
-    <div className="flex p-3 rounded-lg w-full">
-      {/* Use CSS Grid with fixed-size columns */}
+  const renderAirportList = (airports, label) => (
+    <>
+      <h3 className="text-lg font-bold mt-4 mb-2">{label}</h3>
       <ul className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-4 w-full">
-        {airportsToShow.map((airport, index) => {
+        {airports.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500';
 
@@ -59,6 +54,16 @@ const AirportList = ({ onAirportClick }) => {
           );
         })}
       </ul>
+    </>
+  );
+
+  return (
+    <div className="flex p-3 rounded-lg w-full">
+      {/* Render ICAO Airports */}
+      {renderAirportList(icaoAirportsToShow, 'ICAO Airports')}
+
+      {/* Render ICAO Alternate Airports */}
+      {renderAirportList(icaoAirportALTNToShow, 'ICAO Alternate Airports')}
     </div>
   );
 };
