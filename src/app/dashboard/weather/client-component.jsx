@@ -591,8 +591,29 @@ useEffect(() => {
 
 
 
-
     const handleSaveRouting = (newRouting) => {
+      // Function to filter valid 4-letter/number ICAO airports and ignore invalid or whitespace-only entries
+      const filterValidAirports = (airports) => airports.filter(airport => /^[A-Za-z0-9]{4}$/.test(airport.trim()));
+    
+      // Function to check if there are any invalid airports (not exactly 4 characters)
+      const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
+    
+      // Filter out invalid airports (not exactly 4 characters or whitespace)
+      const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
+      const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []);
+    
+      // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
+      if (hasInvalidAirports(flightDetails.icaoAirports) || hasInvalidAirports(flightDetails.icaoAirportALTN)) {
+        alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
+        return; // Exit early to prevent saving an invalid routing
+      }
+    
+      // If both filtered icaoAirports and icaoAirportALTN are empty, prevent saving
+      if (filteredIcaoAirports.length === 0 || filteredIcaoAirportALTN.length === 0) {
+        alert('Please provide valid ICAO airports and alternate airports.');
+        return; // Exit early to prevent saving an invalid routing
+      }
+    
       // Find if a routing with the same flightNumber, departure, and destination already exists
       const existingRoutingIndex = savedRoutings.findIndex((routing) => {
         return (
@@ -602,11 +623,11 @@ useEffect(() => {
         );
       });
     
-      // Create a new routing with updated icaoAirports and icaoAirportALTN from flightDetails
+      // Create a new routing with filtered icaoAirports and icaoAirportALTN
       const routingWithIcao = {
         ...newRouting,
-        icaoAirports: flightDetails.icaoAirports || [], // Keep existing icaoAirports
-        icaoAirportALTN: flightDetails.icaoAirportALTN || [], // Add icaoAirportALTN
+        icaoAirports: filteredIcaoAirports, // Use the filtered airports
+        icaoAirportALTN: filteredIcaoAirportALTN, // Use the filtered alternate airports
       };
     
       // If an existing routing is found, compare the icaoAirports and icaoAirportALTN
@@ -650,8 +671,9 @@ useEffect(() => {
       }
     };
     
+    
+    
   
-
 
 
   const handleConfirm = () => {
