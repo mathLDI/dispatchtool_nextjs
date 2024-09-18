@@ -9,14 +9,12 @@ const AirportDotCategory = ({ allWeatherData }) => {
   useEffect(() => {
     // Combine ICAO Airports and ICAO Alternate Airports into one list
     const transformed = transformAllWeatherDataToAirportValues(allWeatherData);
-    console.log('Transformed Airports:', transformed);
     setTransformedAirports(transformed);
   }, [allWeatherData]);
 
   useEffect(() => {
     if (allWeatherData && transformedAirports.length > 0) {
       const categories = allAirportsFlightCategory(transformedAirports, allWeatherData);
-      console.log('Calculated airport categories:', categories);
       setAirportCategories(categories);
     }
   }, [allWeatherData, transformedAirports]);

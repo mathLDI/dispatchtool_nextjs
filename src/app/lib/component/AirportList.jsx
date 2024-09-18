@@ -1,13 +1,28 @@
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
-const AirportList = ({ airportsToShow, onAirportClick }) => {
-  const { selectedAirport, airportCategories, removeAirportValue, selectedForm } = useRccContext();
+const AirportList = ({ onAirportClick }) => {
+  const {
+    selectedAirport,
+    airportCategories,
+    removeAirportValue,
+    selectedForm,
+    flightDetails, // Import flightDetails from context
+  } = useRccContext();
+
+  // Extract all airports from flightDetails and combine them into a single list
+  const airportsToShow = [
+    flightDetails.departure && { code: flightDetails.departure },
+    flightDetails.destination && { code: flightDetails.destination },
+    ...(flightDetails.icaoAirports || []).map((code) => ({ code })),  // Convert ICAO airports into objects
+    ...(flightDetails.icaoAirportALTN || []).map((code) => ({ code })),  // Convert ICAO alternate airports into objects
+  ].filter(Boolean);  // Filter out falsy values (null or undefined)
 
   const handleRemoveClick = (e, airportCode) => {
     e.stopPropagation(); // Prevent li onClick from being called
     removeAirportValue(airportCode); // Call the remove function from context
   };
+
 
   return (
     <div className="flex p-3 rounded-lg w-full">

@@ -70,7 +70,6 @@ const RoutingWXXForm = ({ onSave }) => {
 
 
   const updateSavedRouting = (newIcaoAltn) => {
-    console.log("setSavedRoutings from updateSavedrouting", setSavedRoutings);  // Check if setSavedRoutings is defined here
 
     setSavedRoutings((prevRoutings) =>
       prevRoutings.map((routing) =>
