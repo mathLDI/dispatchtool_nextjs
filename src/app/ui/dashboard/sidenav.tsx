@@ -75,7 +75,7 @@ export default function SideNav({
 
         {/* Display saved routings */}
         <div className="mt-4">
-          {savedRoutings.map((routing, index) => (
+        {[...savedRoutings].reverse().map((routing, index) => (
             <div
               key={index}
               className={clsx(
