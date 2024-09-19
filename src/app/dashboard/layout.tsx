@@ -46,10 +46,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '24px',
-    overflow: 'auto',
+    
     fontFamily: 'Roboto, sans-serif',
-    fontSize: '10px', // Add this line to reduce the font size
-    lineHeight: '1.0', // Reduce line spacing
+    fontSize: '11px', // Add this line to reduce the font size
+    lineHeight: '1.25', // Reduce line spacing
 
   };
   

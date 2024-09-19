@@ -70,7 +70,7 @@ export default function SideNav({
 
 
         {/* Display saved routings */}
-        <div className="mt-4">
+        <div className="flex-1">
         {[...savedRoutings].reverse().map((routing, index) => (
             <div
               key={index}
@@ -89,9 +89,9 @@ export default function SideNav({
 
                 {/* Display ICAO airports list in a row with both airport names and color dots */}
                 {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
-                  <div className="flex flex-col mt-2">
+                  <div className="flex flex-col">
                    {/* <span>ICAO Airports:</span> */}
-                    <div className="flex flex-row space-x-4"> {/* Use flex-row to align all airports and their dots horizontally */}
+                    <div className="flex flex-row"> {/* Use flex-row to align all airports and their dots horizontally */}
                       {routing.icaoAirports.map((icao, idx) => (
                         <div key={idx} className="flex items-center space-x-1"> {/* Each airport and its dot in a row */}
                        {/*   <span>{icao}</span> {/* Display the ICAO airport code */}
@@ -112,14 +112,14 @@ export default function SideNav({
 
                 {/* Display ICAO Alternate airports list in a row with both airport names and color dots */}
                 {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
-                  <div className="flex flex-col mt-2">
+                  <div className="flex flex-col mt-1">
                     <span>Alternate Airports:</span>
-                    <div className="flex flex-row space-x-4"> {/* Use flex-row to align all alternate airports and their dots horizontally */}
+                    <div className="flex flex-row space-x-1"> {/* Use flex-row to align all alternate airports and their dots horizontally */}
                       {routing.icaoAirportALTN.map((icao, idx) => (
                         <div key={idx} className="flex items-center space-x-1"> {/* Each alternate airport and its dot in a row */}
                           <span>{icao}</span> {/* Display the ICAO alternate airport code */}
                           <span
-                            className={`ml-2 ${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                            className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
                             style={{ fontSize: '1.5rem' }}
                           >
                             &#9679;

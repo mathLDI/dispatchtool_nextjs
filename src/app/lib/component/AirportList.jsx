@@ -58,17 +58,20 @@ const AirportList = ({ onAirportClick }) => {
   );
 
   return (
-    <div className="flex flex-col p-2 rounded-lg w-full">
+    <div className="flex flex-col rounded-lg w-full">
 
-      <div className='flex-1'>
+      <div className='flex-1 pb-1'>
           {/* Render ICAO Airports */}
       {renderAirportList(icaoAirportsToShow, '')}
       </div>
-      <hr className="my-2 border-gray-300" />
+
+      <hr className=" border-gray-300" />
+
       <div className='flex-1'>
   {/* Render ICAO Alternate Airports */}
   {renderAirportList(icaoAirportALTNToShow, '')}
     </div>
+
 </div>
       
   );

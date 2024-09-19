@@ -128,7 +128,7 @@ const RoutingWXXForm = ({ onSave }) => {
 
 
   return (
-    <div className="flex items-center space-x-4 mt-4 flex-wrap">
+    <div className="flex items-center flex-wrap">
 
 
       <div className='flex flex-1 flex-col '>
@@ -147,8 +147,8 @@ const RoutingWXXForm = ({ onSave }) => {
 
         {/**testing a list of airports********************************* */}
 
-        <div className="pt-4">
-          <form className="mb-4 relative">
+        <div className="pt-2">
+          <form className="mb-2 relative">
             <input
               type="text"
               value={(flightDetails.icaoAirports || []).join(' ') || ''}
@@ -164,8 +164,8 @@ const RoutingWXXForm = ({ onSave }) => {
 
         {/**add list of alternates */}
 
-        <div className="pt-4 bg-indigo-200">
-          <form className="mb-4 relative">
+        <div className="flex-1">
+          <form className="relative">
             <input
               type="text"
               value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
@@ -184,7 +184,7 @@ const RoutingWXXForm = ({ onSave }) => {
 
 
 
-        <div className="flex items-center space-x-2 p-2 bg-yellow-300">
+        <div className="flex items-center pt-1 ">
           <button
             onClick={handleSave}
             className="p-2 bg-red-500 text-white rounded-md"
