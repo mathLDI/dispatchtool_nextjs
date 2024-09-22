@@ -10,13 +10,13 @@ import { inter, lusitana, roboto } from '../ui/fonts';
 
 interface LayoutProps {
   children: React.ReactNode;
-  // ... other properties
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isXWindModalOpen, setIsXWindModalOpen] = useState(false);
   const [isRccNotProvidedModalOpen, setIsRccNotProvidedModalOpen] = useState(false);
   const [isRccProvidedModalOpen, setIsRccProvidedModalOpen] = useState(false);
+  const [isQuickSearchModalOpen, setIsQuickSearchModalOpen] = useState(false); // New state for Quick Search modal
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(true); // New state for pinning the SideNav
 
@@ -46,13 +46,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '24px',
-    
     fontFamily: 'Roboto, sans-serif',
     fontSize: '11px', // Add this line to reduce the font size
     lineHeight: '1.25', // Reduce line spacing
-
   };
-  
 
   return (
     <RccProvider>
@@ -77,6 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             )}
           </div>
         </div>
+
         <div style={mainContentStyle}>
           {children}
           <div className="fixed bottom-4 right-4 flex space-x-4">
@@ -107,10 +105,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <CalculatorIcon className="h-5 w-5 text-white ml-2" />
               </span>
             </button>
+            {/* New Quick Search Button */}
+            <button
+              onClick={() => setIsQuickSearchModalOpen(!isQuickSearchModalOpen)}
+              className={`px-4 py-2 rounded ${isQuickSearchModalOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
+            >
+              <span className="flex items-center">
+                Quick Search
+                <CalculatorIcon className="h-5 w-5 text-white ml-2" />
+              </span>
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Modal logic */}
       {isXWindModalOpen && createPortal(
         <GlobalModalContent onClose={() => setIsXWindModalOpen(false)} contentType="x-wind" />,
         document.body
@@ -123,6 +132,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {isRccProvidedModalOpen && createPortal(
         <GlobalModalContent onClose={() => setIsRccProvidedModalOpen(false)} contentType="rcc-provided" />,
+        document.body
+      )}
+
+      {/* New Quick Search Modal */}
+      {isQuickSearchModalOpen && createPortal(
+        <GlobalModalContent onClose={() => setIsQuickSearchModalOpen(false)} contentType='Quick Search' />,
         document.body
       )}
     </RccProvider>

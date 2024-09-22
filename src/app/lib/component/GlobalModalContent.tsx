@@ -3,10 +3,20 @@ import Draggable from 'react-draggable';
 import SecondPageCrosswindCalculator from '../../dashboard/x-wind/page';
 import FirstPageRccNotProvided from '../../dashboard/firstPageRccNotProvided/page';
 import FirstPageRccProvided from '../../dashboard/firstPageRccProvided/page';
+import QuickSearch from '../../dashboard/quickSearch/page';
+
+// Example fetchWeather and fetchGFA functions
+const fetchWeather = async (airportCode: string) => {
+  // Your logic to fetch weather data for the given airport code
+};
+
+const fetchGFA = async (airportCode: string, gfaType: string) => {
+  // Your logic to fetch GFA data for the given airport code and GFA type
+};
 
 interface ModalContentProps {
   onClose: () => void;
-  contentType: 'x-wind' | 'rcc-not-provided' | 'rcc-provided';
+  contentType: 'x-wind' | 'rcc-not-provided' | 'rcc-provided' | 'Quick Search';
 }
 
 const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType }) => {
@@ -31,6 +41,7 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
             {contentType === 'x-wind' && <SecondPageCrosswindCalculator />}
             {contentType === 'rcc-not-provided' && <FirstPageRccNotProvided />}
             {contentType === 'rcc-provided' && <FirstPageRccProvided />}
+            {contentType === 'Quick Search' &&  <QuickSearch />}
           </div>
 
           {/* Footer with the close button */}
