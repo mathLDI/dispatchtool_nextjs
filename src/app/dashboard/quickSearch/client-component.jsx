@@ -11,10 +11,11 @@ import {
   categorizeNotams,
   renderNotamsW,
   renderNotamsE,
+  allAirportsFlightCategory,
   countFilteredNotams,
   filterAndHighlightNotams,
   extractTextBeforeFR,
-} from '../../lib/component/functions/weatherAndNotam';
+} from './QuickWeatherAndNotam';
 
 
 
@@ -24,35 +25,27 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
     selectedAirport,
     setSelectedAirport,
     selectedNotamTypeQuick,
-    setSelectedNotamType,
-    searchTerm,
-    setSearchTerm,
-    gfaType,
-    setGfaType,
-    gfaData,
-    setGfaData,
+    setSelectedNotamTypeQuick,
+    searchTermQuick,
+    setSearchTermQuick,
+    gfaTypeQuick,
+    setGfaTypeQuick,
+    gfaDataQuick,
+    setGfaDataQuick,
     selectedTimestamp,
     setSelectedTimestamp,
-    airportValues,
-    allWeatherData,
-    setAllWeatherData,
-    airportCategories,
-    setAirportCategories,
-    isCraneFilterActive,
-    setIsCraneFilterActive,
+    isCraneFilterActiveQuick,
+    setIsCraneFilterActiveQuick,
     selectedForm,
     setSelectedForm,
-    searchRouting,
-    setSearchRouting,
-    savedRoutings = [],
-    setSavedRoutings,
     flightDetails = {},
-    setFlightDetails,
-    quickWeatherData, 
+    quickWeatherData,
     setQuickWeatherData,
 
 
   } = useRccContext();
+
+
 
 
   const handleFormChange = (newForm) => {
@@ -63,10 +56,10 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
   const containerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
 
-//console.log('quickWeatherData from quicksearch:', quickWeatherData);
+  //console.log('quickWeatherData from quicksearch:', quickWeatherData);
 
 
-//////NEW CODE FOR QUICK SEARCH BELOW////////////////////////
+  //////NEW CODE FOR QUICK SEARCH BELOW////////////////////////
 
 
   // Local state to store weather data if context doesn't provide it
@@ -119,8 +112,8 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
 
   ////notam code below//////////////////////////////
 
-  const toggleCraneFilter = () => {
-    setIsCraneFilterActive((prevState) => !prevState);
+  const toggleCraneFilterQuick = () => {
+    setIsCraneFilterActiveQuick((prevState) => !prevState);
   };
 
   const handleMouseMove = useCallback((e) => {
@@ -151,103 +144,108 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
   }, [isResizing, handleMouseMove]);
 
   useEffect(() => {
-    if (selectedAirport && gfaType) {
-      fetchGFA(selectedAirport.code, gfaType).then((data) => {
-        setGfaData(data);
+    if (selectedAirport && gfaTypeQuick) {
+      fetchGFA(selectedAirport.code, gfaTypeQuick).then((data) => {
+        setGfaDataQuick(data);
       });
     }
-  }, [selectedAirport, gfaType, fetchGFA, setGfaData]);
+  }, [selectedAirport, gfaTypeQuick, fetchGFA, setGfaDataQuick]);
 
   useEffect(() => {
     if (quickWeatherData) {
     }
   }, [quickWeatherData]);
 
+
+  /////categorizedNotams is working fine/////////////////////
+
   const categorizedNotams = quickWeatherData
     ? categorizeNotams(quickWeatherData.data.filter((item) => item.type === 'notam'))
     : {};
 
-  const handleNotamTypeChange = (newNotamType) => {
-    setSelectedNotamType(newNotamType);
+  console.log("categorizedNotams from quick:", categorizedNotams);
+
+  const handleNotamTypeChangeQuick = (newNotamType) => {
+    setSelectedNotamTypeQuick(newNotamType);
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value || '');
+  const handleSearchChangeQuick = (event) => {
+    setSearchTermQuick(event.target.value || '');
   };
 
-  const renderNotamCard = () => {
+  const renderNotamCardQuick = () => {
     switch (selectedNotamTypeQuick) {
-      case 'AERODROME QUICK':
+      case 'AERODROME':
         return (
           <Card title="NOTAM AERODROME" status={null} className="h-full">
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'FUTURE'
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'TODAY'
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 7 DAYS'
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 30 DAYS'
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'OLDER'
             )}
           </Card>
         );
-      case 'ENROUTE QUICK':
+      case 'ENROUTE':
         return (
           <Card title="NOTAM ENROUTE" status={null} className="h-full">
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'FUTURE'
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'TODAY'
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 7 DAYS'
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 30 DAYS'
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'OLDER'
             )}
           </Card>
         );
-      case 'WARNING QUICK':
+      case 'WARNING':
         return (
           <Card title="NOTAM WARNING" status={null} className="h-full">
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'FUTURE'
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'TODAY'
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 7 DAYS'
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'LAST 30 DAYS'
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
               'OLDER'
             )}
           </Card>
@@ -305,13 +303,64 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
   };
 
 
+  ////////////////////////////////////////notam test below//////////////////////////
+  const renderNotamCardQuickTest = () => {
+    if (!categorizedNotams || Object.keys(categorizedNotams).length === 0) {
+      return <p>No categorized NOTAMs available.</p>;
+    }
+
+    // Helper function to render each category of NOTAMs
+    const renderNotams = (notams, title) => (
+      <div>
+        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        {notams.length === 0 ? (
+          <p>No NOTAMs found in this category.</p>
+        ) : (
+          notams.map((notam, index) => {
+            const notamText = JSON.parse(notam.text).raw;
+            const startValidity = new Date(notam.startValidity).toUTCString();
+            const endValidity = notam.endValidity ? new Date(notam.endValidity).toUTCString() : 'N/A';
+
+            return (
+              <div key={index} className="notam-card border p-4 mb-4 shadow-md">
+                <h3 className="text-lg font-bold">NOTAM {index + 1}</h3>
+                <p><strong>Location:</strong> {notam.location}</p>
+                <p><strong>Start Validity:</strong> {startValidity}</p>
+                <p><strong>End Validity:</strong> {endValidity}</p>
+                <p><strong>Text:</strong> {notamText}</p>
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+
+    // Rendering categorized NOTAMs
+    return (
+      <div>
+        {renderNotams(categorizedNotams.futureNotams, 'Future NOTAMs')}
+        {renderNotams(categorizedNotams.todayNotams, 'Today\'s NOTAMs')}
+        {renderNotams(categorizedNotams.last7DaysNotams, 'Last 7 Days NOTAMs')}
+        {renderNotams(categorizedNotams.last30DaysNotams, 'Last 30 Days NOTAMs')}
+        {renderNotams(categorizedNotams.olderNotams, 'Older NOTAMs')}
+      </div>
+    );
+  };
+
+
+  /////////////////////notam test ab
+
+
+
+  console.log('selectedNotamTypeQuick from quick:', selectedNotamTypeQuick);
+
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
 
 
-      <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
-        <div className="flex-1  ">
+      <div className="flex-1 " ref={containerRef}>
+        <div className="flex ">
           {/* Quick Airport Input Box */}
           <form onSubmit={handleQuickAirportInputSubmit}>
             <input
@@ -322,42 +371,40 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
               className="p-2 border border-gray-300 rounded-md mb-4"
               style={{ textTransform: 'uppercase' }}  // Optional: visually enforce uppercase in the UI
             />
-
-            <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Submit</button>
+            <button type="submit" className="bg-blue-500 text-white p-2  rounded-md ">Submit</button>
           </form>
         </div>
 
 
 
-        <div className=''>
+        <div className='flex'>
           <div className=''>
             <QuickAirportWeatherDisplay
-              quickWeatherData={quickWeatherData} // Pass quick search weather data
-              gfaData={gfaData}
-              gfaType={gfaType}
-              setGfaType={setGfaType}
+              quickWeatherData={quickWeatherData}
+              gfaDataQuick={gfaDataQuick}
+              gfaTypeQuick={gfaTypeQuick}
+              setGfaTypeQuick={setGfaTypeQuick}
               selectedTimestamp={selectedTimestamp}
               setSelectedTimestamp={setSelectedTimestamp}
               leftWidth={leftWidth}
               setIsResizing={setIsResizing}
-              handleNotamTypeChange={setSelectedNotamType}
+              handleNotamTypeChangeQuick={handleNotamTypeChangeQuick}  // Correct
               countFilteredNotams={countFilteredNotams}
-              searchTerm={searchTerm}
-              handleSearchChange={handleSearchChange}
+              searchTermQuick={searchTermQuick}
+              handleSearchChangeQuick={handleSearchChangeQuick}
               categorizedNotams={categorizedNotams}
-              isCraneFilterActive={isCraneFilterActive}
-              toggleCraneFilter={toggleCraneFilter}
+              isCraneFilterActiveQuick={isCraneFilterActiveQuick}
+              toggleCraneFilterQuick={toggleCraneFilterQuick}
               selectedNotamTypeQuick={selectedNotamTypeQuick}
-              renderNotamCard={renderNotamCard}
+              renderNotamCardQuick={renderNotamCardQuick}
               selectedForm={selectedForm}
               flightDetails={flightDetails}
-              allWeatherData={allWeatherData}
               selectedAirport={selectedAirport}
+
             />
           </div>
         </div>
 
-  
 
 
 

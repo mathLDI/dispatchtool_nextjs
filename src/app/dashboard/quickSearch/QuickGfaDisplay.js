@@ -1,12 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
 
-const QuickGfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
-  if (!gfaData || gfaData.data.length === 0) {
+const QuickGfaDisplay = ({ gfaDataQuick, selectedTimestamp, setSelectedTimestamp }) => {
+  if (!gfaDataQuick || gfaDataQuick.data.length === 0) {
     return <p>No GFA data available</p>;
   }
 
-  const frameLists = JSON.parse(gfaData.data[0].text).frame_lists;
+  const frameLists = JSON.parse(gfaDataQuick.data[0].text).frame_lists;
 
   const getLastFrames = (frameLists) => {
     const lastFrameList = frameLists[frameLists.length - 1];
@@ -14,7 +14,7 @@ const QuickGfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) =
   };
 
   const getImageUrl = () => {
-    if (!gfaData || !gfaData.data || gfaData.data.length === 0) return '';
+    if (!gfaDataQuick || !gfaDataQuick.data || gfaDataQuick.data.length === 0) return '';
 
     const lastFrames = getLastFrames(frameLists);
     const selectedFrame = lastFrames[selectedTimestamp];

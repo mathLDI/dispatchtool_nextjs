@@ -88,8 +88,17 @@ interface RccContextType {
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
+
+  selectedNotamTypeQuick: string;
+  setSelectedNotamTypeQuick: (type: string) => void;
+
+
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+
+  searchTermQuick: string;
+  setSearchTermQuick: (term: string) => void;
+
   gfaType: string;
   setGfaType: (type: string) => void;
   gfaData: any;
@@ -102,6 +111,10 @@ interface RccContextType {
   setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
   isCraneFilterActive: boolean;
   setIsCraneFilterActive: (active: boolean) => void;
+
+  isCraneFilterActiveQuick: boolean;
+  setIsCraneFilterActiveQuick: (active: boolean) => void;
+
   flightDetails: FlightDetails;
   setFlightDetails: (details: FlightDetails) => void;
   savedRoutings: Routing[];
@@ -185,13 +198,22 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
+
+  const [selectedNotamTypeQuick, setSelectedNotamTypeQuick] = useState('AERODROME');
+
   const [searchTerm, setSearchTerm] = useState('');
+
+
+  const [searchTermQuick, setSearchTermQuick] = useState('');
+
   const [gfaType, setGfaType] = useState('CLDWX');
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
+
+  const [isCraneFilterActiveQuick, setIsCraneFilterActiveQuick] = useState(false);
   const [selectedForm, setSelectedForm] = useState<string>('Routing Search');
 
   // Initialize flightDetails from localStorage (client-side check)
@@ -282,13 +304,20 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       removeAirportValue,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
+
+      selectedNotamTypeQuick, setSelectedNotamTypeQuick,
+
       searchTerm, setSearchTerm,
+      searchTermQuick, setSearchTermQuick,
+
+
       gfaType, setGfaType,
       gfaData, setGfaData,
       selectedTimestamp, setSelectedTimestamp,
       allWeatherData, setAllWeatherData,
       airportCategories, setAirportCategories,
       isCraneFilterActive, setIsCraneFilterActive,
+      isCraneFilterActiveQuick, setIsCraneFilterActiveQuick,
       flightDetails, setFlightDetails,
       savedRoutings, setSavedRoutings,
       selectedForm, setSelectedForm,

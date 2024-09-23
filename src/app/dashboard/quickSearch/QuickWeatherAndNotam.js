@@ -1,18 +1,18 @@
 
 
 
-// Transform quickWeatherData into the format of airportValues with correct property order
+// Transform allWeatherData into the format of airportValues with correct property order
 // transformAllWeatherDataToAirportValues & calculateAirportCategories & allAirportsFlightCategory
 //all work together to find the correct category.  
 //
-export function transformAllWeatherDataToAirportValues(quickWeatherData) {
-  // Check if quickWeatherData is valid
-  if (!quickWeatherData || typeof quickWeatherData !== 'object' || Object.keys(quickWeatherData).length === 0) {
+export function transformAllWeatherDataToAirportValues(allWeatherData) {
+  // Check if allWeatherData is valid
+  if (!allWeatherData || typeof allWeatherData !== 'object' || Object.keys(allWeatherData).length === 0) {
     return []; // Return an empty array if there's no weather data
   }
 
-  // Transform each entry in quickWeatherData into an airport object with id, name, and code in the correct order
-  const transformedAirports = Object.keys(quickWeatherData).map((icaoCode) => {
+  // Transform each entry in allWeatherData into an airport object with id, name, and code in the correct order
+  const transformedAirports = Object.keys(allWeatherData).map((icaoCode) => {
     return {
       id: icaoCode,  // First property: id
       name: `Airport ${icaoCode}`,  // Second property: name
@@ -27,18 +27,18 @@ export function transformAllWeatherDataToAirportValues(quickWeatherData) {
 ////AIRPORT FLIGHT CATEGORY LIST////
 
 
-// Calculate airport categories based on transformed quickWeatherData
-export function calculateAirportCategories(quickWeatherData) {
-  // Check if quickWeatherData is defined and is an object
-  if (!quickWeatherData || typeof quickWeatherData !== 'object' || Object.keys(quickWeatherData).length === 0) {
-    return {}; // Return an empty object if quickWeatherData is not ready
+// Calculate airport categories based on transformed allWeatherData
+export function calculateAirportCategories(allWeatherData) {
+  // Check if allWeatherData is defined and is an object
+  if (!allWeatherData || typeof allWeatherData !== 'object' || Object.keys(allWeatherData).length === 0) {
+    return {}; // Return an empty object if allWeatherData is not ready
   }
 
   // Directly use transformAllWeatherDataToAirportValues without import
-  const transformedAirportValues = transformAllWeatherDataToAirportValues(quickWeatherData);
+  const transformedAirportValues = transformAllWeatherDataToAirportValues(allWeatherData);
 
   // Calculate categories using transformed airport values and weather data
-  const categories = allAirportsFlightCategory(transformedAirportValues, quickWeatherData);
+  const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
   
   return categories;
 }

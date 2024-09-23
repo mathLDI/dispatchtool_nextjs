@@ -63,7 +63,7 @@ const SecondPageCrosswindCalculator = () => {
     };
 
     return (
-        <div className="flex flex-col flex-wrap p-4 space-x-4">
+        <div className="flex flex-col flex-wrap p-4 space-x-4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
             <Card cardTitle={"Crosswind Calculator"} status={null} className="w-full sm:w-auto">
                 <div className="space-y-4">
                     <div className="flex flex-col">

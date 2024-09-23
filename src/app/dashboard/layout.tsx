@@ -47,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     alignItems: 'center',
     padding: '24px',
     fontFamily: 'Roboto, sans-serif',
-    fontSize: '11px', // Add this line to reduce the font size
+    fontSize: '12px', // Add this line to reduce the font size
     lineHeight: '1.25', // Reduce line spacing
   };
 
