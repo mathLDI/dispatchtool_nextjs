@@ -112,6 +112,8 @@ interface RccContextType {
   setSearchRouting: (value: string) => void;
   searchAirport: string;
   setSearchAirport: (value: string) => void;
+  quickWeatherData: any;
+  setQuickWeatherData: (data: any) => void;
 }
 
 // Create the context with a default value
@@ -162,6 +164,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [eastOrWestVar, setEastOrWestVar] = useState("West");
   const [searchRouting, setSearchRouting] = useState(''); // New search state for filtering routings
   const [searchAirport, setSearchAirport] = useState('');
+  const [quickWeatherData, setQuickWeatherData] = useState<any>(null); // Initialize the quickWeatherData state
 
 
   const [airportValues, setAirportValues] = useState<Airport[]>(() => {
@@ -189,7 +192,7 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
-  const [selectedForm, setSelectedForm] = useState<string>('Airport Search');
+  const [selectedForm, setSelectedForm] = useState<string>('Routing Search');
 
   // Initialize flightDetails from localStorage (client-side check)
   const [flightDetails, setFlightDetails] = useState<FlightDetails>(() => {
@@ -289,8 +292,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       flightDetails, setFlightDetails,
       savedRoutings, setSavedRoutings,
       selectedForm, setSelectedForm,
-      searchRouting, setSearchRouting, // Add searchRouting to context
-      searchAirport, setSearchAirport, // Include searchAirport in the context
+      searchRouting, setSearchRouting, 
+      searchAirport, setSearchAirport, 
+      quickWeatherData, 
+      setQuickWeatherData, 
 
 
     }}>

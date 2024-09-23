@@ -1,4 +1,4 @@
-// src/app/dashboard/quickSearch/weatherActions.ts
+'use server';
 
 export const handleFetchWeather = async (location: string) => {
     'use server';

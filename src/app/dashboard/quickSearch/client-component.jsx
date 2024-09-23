@@ -1,104 +1,368 @@
-
 'use client';
 
-import { useState } from 'react';
-import { useRccContext } from '../RccCalculatorContext'; // Use relative path
-import SingleAirportWeatherDisplay from '../../lib/component/SingleAirportWeatherDisplay'; // Import your weather display component
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import Card from '../../lib/component/Card';
+import { useRccContext } from '../RccCalculatorContext';
+import QuickAirportWeatherDisplay from './QuickAirportWeatherDisplay';
 
-const QuickSearch = ({fetchWeather, fetchGFA }) => {
-  const [searchInput, setSearchInput] = useState(''); // State for input box value
-  const { airportValues, setAirportValues, setWeatherData, setSelectedAirport, selectedAirport, allWeatherData, gfaData, gfaType, setGfaType, selectedTimestamp, setSelectedTimestamp, searchTerm, handleSearchChange, categorizedNotams, isCraneFilterActive, toggleCraneFilter, selectedNotamType, renderNotamCard } = useRccContext(); // Access context
+import {
+  formatLocalDate,
+  parseNotamDate,
+  categorizeNotams,
+  renderNotamsW,
+  renderNotamsE,
+  countFilteredNotams,
+  filterAndHighlightNotams,
+  extractTextBeforeFR,
+} from '../../lib/component/functions/weatherAndNotam';
 
-  const handleInputChange = (e) => {
-    // Convert input to uppercase
-    setSearchInput(e.target.value.toUpperCase());
+
+
+
+export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
+  const {
+    selectedAirport,
+    setSelectedAirport,
+    selectedNotamTypeQuick,
+    setSelectedNotamType,
+    searchTerm,
+    setSearchTerm,
+    gfaType,
+    setGfaType,
+    gfaData,
+    setGfaData,
+    selectedTimestamp,
+    setSelectedTimestamp,
+    airportValues,
+    allWeatherData,
+    setAllWeatherData,
+    airportCategories,
+    setAirportCategories,
+    isCraneFilterActive,
+    setIsCraneFilterActive,
+    selectedForm,
+    setSelectedForm,
+    searchRouting,
+    setSearchRouting,
+    savedRoutings = [],
+    setSavedRoutings,
+    flightDetails = {},
+    setFlightDetails,
+    quickWeatherData, 
+    setQuickWeatherData,
+
+
+  } = useRccContext();
+
+
+  const handleFormChange = (newForm) => {
+    setSelectedForm(newForm);               // Update the selectedForm state
   };
 
-  const handleSearchAirport = (e) => {
-    e.preventDefault(); // Prevent the form from submitting and refreshing the page
-    if (searchInput.length === 4) { // Check for valid ICAO airport code length
-      const searchedAirport = {
-        id: searchInput,
-        name: `Airport ${searchInput}`,
-        code: searchInput,
-      };
+  const [leftWidth, setLeftWidth] = useState(50);
+  const containerRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
 
-      // Replace the existing airport with the searched one
-      setAirportValues([searchedAirport]);
-      setSelectedAirport(searchedAirport); // Set the selected airport in the context
+//console.log('quickWeatherData from quicksearch:', quickWeatherData);
 
-      setSearchInput(''); // Clear the input after searching
-    } else {
-      alert('Please enter a valid 4-letter ICAO airport code');
+
+//////NEW CODE FOR QUICK SEARCH BELOW////////////////////////
+
+
+  // Local state to store weather data if context doesn't provide it
+
+  const [quickAirportInput, setQuickAirportInput] = useState('');
+
+  const handleQuickAirportInputChange = (e) => {
+    const uppercaseValue = e.target.value.toUpperCase();  // Convert to uppercase
+    setQuickAirportInput(uppercaseValue);  // Set the uppercase value in the state
+  };
+
+
+  const handleQuickAirportInputSubmit = async (e) => {
+    e.preventDefault();
+
+    const quickAirportCode = quickAirportInput.toUpperCase();  // Capitalize the input
+
+    // Ensure the input is not empty
+    if (!quickAirportCode) {
+      return;
+    }
+
+    try {
+      // Log the input before making the request
+
+      // Fetch weather data for the input ICAO code
+      const data = await fetchQuickWeather(quickAirportCode);
+
+      // Use the local or context state to store the fetched weather data
+      if (setQuickWeatherData) {
+        setQuickWeatherData(data); // If setQuickWeatherData is available in the context, use it
+      } else {
+        setQuickWeatherData(data); // Otherwise, use the local state
+      }
+
+      setSelectedAirport({ code: quickAirportCode });
+
+    } catch (error) {
+      // Log any errors
+      console.error(`Failed to fetch weather data for ${quickAirportCode}:`, error);
     }
   };
 
-  const handleClearAirports = () => {
-    // Clear the airportValues state by setting it to an empty array
-    setAirportValues([]);
-    setWeatherData(null); // Clear any weather data as well
-    setSelectedAirport(null); // Clear the selected airport
-    setSearchInput(''); // Clear the input field
+
+  /////////////////////////////////////////////////////
+
+
+
+
+
+  ////notam code below//////////////////////////////
+
+  const toggleCraneFilter = () => {
+    setIsCraneFilterActive((prevState) => !prevState);
   };
 
-  console.log('Selected Airport from QuicSearch:', selectedAirport);
-console.log('Weather Data from QuickSearch:', allWeatherData[selectedAirport?.code]);
+  const handleMouseMove = useCallback((e) => {
+    if (!isResizing || !containerRef.current) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+    setLeftWidth(Math.min(Math.max(newLeftWidth, 20), 80));
+  }, [isResizing, containerRef]);
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove]);
+
+  useEffect(() => {
+    if (selectedAirport && gfaType) {
+      fetchGFA(selectedAirport.code, gfaType).then((data) => {
+        setGfaData(data);
+      });
+    }
+  }, [selectedAirport, gfaType, fetchGFA, setGfaData]);
+
+  useEffect(() => {
+    if (quickWeatherData) {
+    }
+  }, [quickWeatherData]);
+
+  const categorizedNotams = quickWeatherData
+    ? categorizeNotams(quickWeatherData.data.filter((item) => item.type === 'notam'))
+    : {};
+
+  const handleNotamTypeChange = (newNotamType) => {
+    setSelectedNotamType(newNotamType);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value || '');
+  };
+
+  const renderNotamCard = () => {
+    switch (selectedNotamTypeQuick) {
+      case 'AERODROME QUICK':
+        return (
+          <Card title="NOTAM AERODROME" status={null} className="h-full">
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsAandAE(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
+          </Card>
+        );
+      case 'ENROUTE QUICK':
+        return (
+          <Card title="NOTAM ENROUTE" status={null} className="h-full">
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsE(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
+          </Card>
+        );
+      case 'WARNING QUICK':
+        return (
+          <Card title="NOTAM WARNING" status={null} className="h-full">
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.futureNotams || [], searchTerm, isCraneFilterActive),
+              'FUTURE'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.todayNotams || [], searchTerm, isCraneFilterActive),
+              'TODAY'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.last7DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 7 DAYS'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.last30DaysNotams || [], searchTerm, isCraneFilterActive),
+              'LAST 30 DAYS'
+            )}
+            {renderNotamsW(
+              filterAndHighlightNotams(categorizedNotams.olderNotams || [], searchTerm, isCraneFilterActive),
+              'OLDER'
+            )}
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Function for NOTAMs with Q-Line that have an "A"
+  const renderNotamsAandAE = (notams, title) => {
+    const notamsToRender = notams.filter((notam) => {
+      const notamText = JSON.parse(notam.text);
+      const displayText = extractTextBeforeFR(notamText.raw);
+
+      const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
+      return qLineMatch && qLineMatch[2].startsWith('A');
+    });
+
+    return (
+      <div>
+        <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        {notamsToRender.length === 0 ? (
+          <p>No Applicable NOTAMs</p>
+        ) : (
+          notamsToRender.map((notam, index) => {
+            const notamText = JSON.parse(notam.text);
+            const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
+            const localTime = formatLocalDate(notam.startDate);
+
+            // Parse the expiration date using the C) field
+            const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
+            const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
+            const localExpirationDate = expirationDate
+              ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
+              : null;
+
+            const lines = displayText.split('\n');
+            let inBold = false;
+            const processedLines = lines.map((line) => {
+              if (line.includes('E)')) inBold = true;
+              if (line.includes('F)')) inBold = false;
+              return inBold ? `<strong>${line}</strong>` : line;
+            });
+
+            return (
+              <div key={index} className="mb-4">
+
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  };
+
 
 
   return (
-    <div className="flex flex-col h-full p-4">
-      <h1 className="text-2xl font-bold mb-4">Search Airport</h1>
-      
-      {/* Form with input and button */}
-      <form onSubmit={handleSearchAirport}>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={handleInputChange}
-          placeholder="Enter ICAO airport code"
-          className="p-2 border border-gray-300 rounded-md mb-4 w-full"
-          style={{ textTransform: 'uppercase' }} // Ensures input looks uppercase
-        />
+    <div className="flex min-h-screen">
 
-        <button
-          type="submit" // Triggers the form submission when pressing "Enter"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-4"
-        >
-          Search Airport
-        </button>
-      </form>
 
-      {/* Clear Button */}
-      <button
-        onClick={handleClearAirports}
-        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Clear Search
-      </button>
+      <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
+        <div className="flex-1  ">
+          {/* Quick Airport Input Box */}
+          <form onSubmit={handleQuickAirportInputSubmit}>
+            <input
+              type="text"
+              value={quickAirportInput}  // Ensure this is bound to the state
+              onChange={handleQuickAirportInputChange}  // Handle the input change
+              placeholder="Enter ICAO airport code"
+              className="p-2 border border-gray-300 rounded-md mb-4"
+              style={{ textTransform: 'uppercase' }}  // Optional: visually enforce uppercase in the UI
+            />
 
-      {/* Display the searched airport */}
-      <div className="mt-4">
-        <h2 className="text-lg font-bold">Searched Airport:</h2>
-        <ul>
-          {airportValues.length > 0 ? (
-            airportValues.map((airport) => (
-              <li key={airport.id}>
-                {airport.name} ({airport.code})
-              </li>
-            ))
-          ) : (
-            <li>No airports searched</li>
-          )}
-        </ul>
-      </div>
+            <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Submit</button>
+          </form>
+        </div>
 
-      <div className='bg-yellow-400'></div>
 
-      {/* Render SingleAirportWeatherDisplay */}
+
+        <div className=''>
+          <div className=''>
+            <QuickAirportWeatherDisplay
+              quickWeatherData={quickWeatherData} // Pass quick search weather data
+              gfaData={gfaData}
+              gfaType={gfaType}
+              setGfaType={setGfaType}
+              selectedTimestamp={selectedTimestamp}
+              setSelectedTimestamp={setSelectedTimestamp}
+              leftWidth={leftWidth}
+              setIsResizing={setIsResizing}
+              handleNotamTypeChange={setSelectedNotamType}
+              countFilteredNotams={countFilteredNotams}
+              searchTerm={searchTerm}
+              handleSearchChange={handleSearchChange}
+              categorizedNotams={categorizedNotams}
+              isCraneFilterActive={isCraneFilterActive}
+              toggleCraneFilter={toggleCraneFilter}
+              selectedNotamTypeQuick={selectedNotamTypeQuick}
+              renderNotamCard={renderNotamCard}
+              selectedForm={selectedForm}
+              flightDetails={flightDetails}
+              allWeatherData={allWeatherData}
+              selectedAirport={selectedAirport}
+            />
+          </div>
+        </div>
+
   
-      
-    </div>
-  );
-};
 
-export default QuickSearch;
+
+
+      </div>
+    </div>
+
+  );
+}

@@ -420,27 +420,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-
-  const airportsToShow = selectedForm === 'Airport Search'
-    ? [...airportValues] // Only show airportValues when "Airport Search" is selected
-    : [
-      flightDetails.departure && { code: flightDetails.departure },
-      flightDetails.destination && { code: flightDetails.destination },
-      flightDetails.alternate1 && { code: flightDetails.alternate1 },
-      flightDetails.alternate2 && { code: flightDetails.alternate2 },
-      ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })),
-    ].filter(Boolean); // Show routing airports when "Routing Search" is selected
+  const airportsToShow = [
+    flightDetails.departure && { code: flightDetails.departure },
+    flightDetails.destination && { code: flightDetails.destination },
+    flightDetails.alternate1 && { code: flightDetails.alternate1 },
+    flightDetails.alternate2 && { code: flightDetails.alternate2 },
+    ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })),
+  ].filter(Boolean); // Show routing airports only
 
 
-    useEffect(() => {
-      if (selectedForm === 'Airport Search' && airportValues.length > 0) {
-        handleAirportClick(airportValues[0].code);
-      } else if (selectedForm === 'Routing Search' && flightDetails.icaoAirports && flightDetails.icaoAirports.length > 0) {
-        // Select the first airport in icaoAirports if available
-        handleAirportClick(flightDetails.icaoAirports[0]);
-      }
-    }, [selectedForm, flightDetails.icaoAirports, airportValues, handleAirportClick]);
-    
+  useEffect(() => {
+    if (flightDetails.icaoAirports && flightDetails.icaoAirports.length > 0) {
+      // Select the first airport in icaoAirports if available
+      handleAirportClick(flightDetails.icaoAirports[0]);
+    }
+  }, [flightDetails.icaoAirports, handleAirportClick]);
+
 
 
 
@@ -475,76 +470,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       allWeatherDataRef.current = data;
     };
 
-
-
-    const fetchWeatherDataForSearch = async () => {
-      const data = {};
-      const airports = selectedForm === 'Routing Search' && flightDetails.departure
-        ? [
-          { code: flightDetails.departure },
-          flightDetails.destination && { code: flightDetails.destination },
-          ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })), // Include primary ICAO airports
-          ...(flightDetails.icaoAirportALTN || []).map(icao => ({ code: icao })), // Include alternate ICAO airports
-        ].filter(Boolean)
-        : airportValues;
-
-      for (const airport of airports) {
-        const storageKey = `weatherData_${airport.code}`;
-        let cachedData = {};
-        let cacheTimestamp = '';
-
-        // Client-side check for localStorage
-        if (typeof window !== 'undefined') {
-          const storedData = localStorage.getItem(storageKey);
-
-          if (storedData) { // Check if storedData is not null or undefined
-            try {
-              cachedData = JSON.parse(storedData);
-            } catch (e) {
-              console.error("Error parsing JSON data from localStorage", e);
-              cachedData = {}; // Set default value if parsing fails
-            }
-          }
-
-          cacheTimestamp = localStorage.getItem(`${storageKey}_timestamp`);
-        }
-
-        // Check if cache exists and is recent
-        if (cachedData && cacheTimestamp) {
-          const cacheAge = Date.now() - parseInt(cacheTimestamp, 10);
-
-          // If data is less than 2 minutes old, use cached data
-          if (cacheAge < 2 * 60 * 1000) {
-            console.log(`Using cached data for ${airport.code}`);
-            data[airport.code] = cachedData;
-            continue;
-          }
-        }
-
-        // Fetch fresh data from the server
-        try {
-          const responseData = await fetchWeather(airport.code);
-          data[airport.code] = responseData;
-
-          // Update localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(storageKey, JSON.stringify(responseData));
-            localStorage.setItem(`${storageKey}_timestamp`, Date.now().toString());
-          }
-        } catch (error) {
-          console.error(`Failed to fetch weather data for ${airport.code}:`, error);
-        }
-      }
-      setAllWeatherData(data);
-    };
-
-    if (selectedForm === 'Routing Search' && savedRoutings.length > 0) {
+    if (savedRoutings.length > 0) {
       fetchWeatherDataForRouting();
-    } else if (selectedForm === 'Airport Search' && airportValues.length > 0) {
-      fetchWeatherDataForSearch();
     }
+  }, [fetchWeather, flightDetails, savedRoutings, setAllWeatherData]);
 
-  }, [fetchWeather, airportValues, flightDetails, savedRoutings, selectedForm, setAllWeatherData]);
+
+
+
 
   {/**Function below control how the addition of airport is control. The new code now include the routing.icaoAirports as
     persistent airports in the list  */}
@@ -966,12 +899,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         <div className="flex-1  ">
 
           <div className='flex justify-between'>
-            <div className='flex'>
-              <NewChoiceListbox
-                choices={['Airport Search', 'Routing Search']}
-                callback={handleFormChange}
-              />
-            </div>
+
 
             <div className='ml-auto'>
               <div>UTC Time: {utcTime.split(' ')[4]}</div> {/* Extracting just the time part from UTC */}
@@ -990,13 +918,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
           <div className='pb-4'>
-            {selectedForm === 'Routing Search' && <RoutingWXXForm onSave={handleSaveRouting} />}
+            <RoutingWXXForm onSave={handleSaveRouting} />
           </div>
 
-          {/* AirportSearchForm is displayed when 'Airport Search' is selected */}
-          <div className="flex flex-grow">
-            {selectedForm === 'Airport Search' && <AirportSearchForm fetchWeather={fetchWeather} />}
-          </div>
+
 
           {/* AirportList is displayed when 'Routing Search' is selected */}
           <div className='flex'>

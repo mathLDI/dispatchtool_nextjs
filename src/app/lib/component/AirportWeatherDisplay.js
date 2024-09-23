@@ -88,13 +88,7 @@ export default function AirportWeatherDisplay({
 
 
 
-          {selectedForm === 'Airport Search' && (
-            <div className="flex">
-              <Card title="METAR" status={null} className="h-full">
-                <MetarDisplay weatherData={weatherData} />
-              </Card>
-            </div>
-          )}
+    
 
 
           {/* Conditional Rendering for METAR/TAF - Routing Search */}
@@ -184,21 +178,7 @@ export default function AirportWeatherDisplay({
               )}
             </>
           )}
-
-
-
-
-          {/*******  Add a conditional TAF rendering for the Airport Search *******/}
-
-
-          {selectedForm === 'Airport Search' && (
-            <div className="flex">
-              <Card title="TAF" status={null} className="h-full">
-                <TafDisplay weatherData={weatherData} />
-              </Card>
-            </div>
-          )}
-
+  
 
           {/* Conditional Rendering for GFA - Routing Search */}
           {selectedButton === 'GFA' && (
