@@ -2,12 +2,12 @@
 
 import React from 'react';
 
-const TafDisplay = ({ weatherData }) => {
-  if (!weatherData || weatherData.data.length === 0) {
+const QuickTafDisplay = ({ quickWeatherData }) => {
+  if (!quickWeatherData || quickWeatherData.data.length === 0) {
     return <p>No TAF data available</p>;
   }
 
-  const tafText = weatherData.data.find((item) => item.type === 'taf')?.text;
+  const tafText = quickWeatherData.data.find((item) => item.type === 'taf')?.text;
 
   if (!tafText) {
     return <p>No TAF data available</p>;
@@ -103,4 +103,4 @@ function getFlightCategory(ceiling, visibility) {
   }
 }
 
-export default TafDisplay;
+export default QuickTafDisplay;

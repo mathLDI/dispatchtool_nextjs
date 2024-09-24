@@ -28,6 +28,7 @@ const FirstPageRccProvided = (props) => {
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
     const [isExpanded, setIsExpanded] = useState(false);
 
+
     const resetButtonHandler = () => {
         setResetListBox(true);
         setRwycc1(6);
@@ -52,6 +53,8 @@ const FirstPageRccProvided = (props) => {
             ? true
             : false;
 
+
+
     const CorrectedLandingRwyccToUse =
         integerCorrectedLandingDistance === 0 || integerRunwayLength === 0 ||
             isNaN(integerCorrectedLandingDistance) || isNaN(integerRunwayLength)
@@ -64,6 +67,8 @@ const FirstPageRccProvided = (props) => {
                         ? Math.min(rwycc1, rwycc2, rwycc3)
                         : undefined;
 
+
+
     const lowestRcc = Math.min(rwycc1, rwycc2, rwycc3);
 
     const contam = contaminent;
@@ -72,8 +77,12 @@ const FirstPageRccProvided = (props) => {
 
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
+
+
+
+
     return (
-        <div className="flex flex-col flex-wrap p-4 space-x-4">
+        <div className="flex flex-col flex-wrap p-4 space-x-4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
 
 
             <div className="flex-1" name="calculator"  >
@@ -87,8 +96,8 @@ const FirstPageRccProvided = (props) => {
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
                                 reset={resetListBox}
-                                resetCallback={resetListbox1Handler} 
-                                />
+                                resetCallback={resetListbox1Handler}
+                            />
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
@@ -96,21 +105,25 @@ const FirstPageRccProvided = (props) => {
                             <NewChoiceListbox
                                 value={rwycc1}
                                 choices={rwyccChoices}
-                                callback={setRwycc1}
+                                callback={(value) => setRwycc1(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
-                                resetCallback={resetListbox1Handler} />
+                                resetCallback={resetListbox1Handler}
+                            />
                             <NewChoiceListbox
                                 value={rwycc2}
                                 choices={rwyccChoices}
-                                callback={setRwycc2}
+                                callback={(value) => setRwycc2(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
-                                resetCallback={resetListbox1Handler} />
+                                resetCallback={resetListbox1Handler}
+                            />
                             <NewChoiceListbox
                                 value={rwycc3}
                                 choices={rwyccChoices}
-                                callback={setRwycc3}
+                                callback={(value) => setRwycc3(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
-                                resetCallback={resetListbox1Handler} />
+                                resetCallback={resetListbox1Handler}
+                            />
+
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2 ">
@@ -205,7 +218,7 @@ const FirstPageRccProvided = (props) => {
 
                             <div style={{ marginBottom: '10px' }}>
                                 {enterDistances === true &&
-                                    (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    (<div className="flex flex-row bg-blue-500 rounded-md p-2 text-white justify-center items-center">
                                         Enter Distances
                                     </div>)}
                             </div>

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import AcmeLogo from '@/app/ui/acme-logo';
-import { PrinterIcon } from '@heroicons/react/outline';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 import clsx from 'clsx';
 
@@ -10,8 +9,8 @@ type Routing = {
   flightNumber: string;
   departure: string;
   destination: string;
-  alternate1?: string;
-  alternate2?: string;
+  icaoAirports?: string[]; // Existing ICAO airport list
+  icaoAirportALTN?: string[]; // New ICAO alternate airport list
 };
 
 interface SideNavProps {
@@ -27,23 +26,27 @@ export default function SideNav({
   savedRoutings = [],
   showWeatherAndRcam = true,
   showLogo = true,
-  showPrinterIcon = true,
   onDeleteRouting,
   airportCategories, // Destructure the new prop
 }: SideNavProps) {
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
 
+
   const handleRoutingClick = (routing: Routing) => {
     setFlightDetails({
       flightNumber: routing.flightNumber,
       departure: routing.departure,
       destination: routing.destination,
-      alternate1: routing.alternate1 || '',
-      alternate2: routing.alternate2 || '',
+      icaoAirports: Array.isArray(routing.icaoAirports) ? routing.icaoAirports : [],
+      icaoAirportALTN: Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN : [], // Add this line
     });
     setSelectedRouting(routing);
   };
+
+
+
+
 
 
   return (
@@ -67,83 +70,84 @@ export default function SideNav({
 
 
         {/* Display saved routings */}
-        <div className="mt-4">
-          {savedRoutings.map((routing, index) => (
-            <div
-              key={index}
-              className={clsx(
-                'p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
-                {
-                  'bg-sky-100 text-blue-600': selectedRouting === routing,
-                }
-              )}
-              onClick={() => handleRoutingClick(routing)}
-            >
-              <div>
-                <p className="font-bold">
-                  Flight: {routing.flightNumber}
-                </p>
-                <div className="flex items-center space-x-1">
-                  <span>{routing.departure}</span>
-                  {/* Display the color dot for the departure airport */}
-                  <span
-                    className={`ml-2 ${airportCategories?.[routing.departure]?.color || 'text-gray-500'}`}
-                    style={{ fontSize: '1.5rem' }}
-                  >
-                    &#9679;
-                  </span>
-                  <span>→</span>
-                  <span>{routing.destination}</span>
-                  {/* Display the color dot for the destination airport */}
-                  <span
-                    className={`ml-2 ${airportCategories?.[routing.destination]?.color || 'text-gray-500'}`}
-                    style={{ fontSize: '1.5rem' }}
-                  >
-                    &#9679;
-                  </span>
-                </div>
-                {routing.alternate1 && (
-                  <div className="flex items-center space-x-1 mt-2">
-                    <span>ALTN 1:</span>
-                    <span>{routing.alternate1}</span>
-                    {/* Display the color dot for the alternate1 airport */}
-                    <span
-                      className={`ml-2 ${airportCategories?.[routing.alternate1]?.color || 'text-gray-500'}`}
-                      style={{ fontSize: '1.5rem' }}
-                    >
-                      &#9679;
-                    </span>
-                  </div>
-                )}
-                {routing.alternate2 && (
-                  <div className="flex items-center space-x-1 mt-2">
-                    <span>ALTN 2:</span>
-                    <span>{routing.alternate2}</span>
-                    {/* Display the color dot for the alternate2 airport */}
-                    <span
-                      className={`ml-2 ${airportCategories?.[routing.alternate2]?.color || 'text-gray-500'}`}
-                      style={{ fontSize: '1.5rem' }}
-                    >
-                      &#9679;
-                    </span>
-                  </div>
-                )}
-              </div>
+        <div className="flex-1">
+          {[...savedRoutings].reverse().map((routing, reverseIndex) => {
+            const originalIndex = savedRoutings.length - 1 - reverseIndex; // Calculate the original index
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering the routing click
-                  onDeleteRouting(index); // Call the delete function
-                }}
-                className="flex items-center ml-1 relative"
+            return (
+              <div
+                key={originalIndex}
+                className={clsx(
+                  'p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
+                  {
+                    'bg-sky-100 text-blue-600': selectedRouting === routing,
+                  }
+                )}
+                onClick={() => handleRoutingClick(routing)}
               >
-                <div className='shadow-sm border hover:scale-110 transition-transform duration-150 px-1'>
-                  x
+                <div>
+                  <p className="font-bold">
+                    Flight: {routing.flightNumber}
+                  </p>
+
+                  {/* Display ICAO airports list in a responsive row/column layout with max-width */}
+                  {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
+                    <div className="flex flex-col">
+                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                        {routing.icaoAirports.map((icao, idx) => (
+                          <div key={idx} className="flex items-center space-x-2">
+
+                            <span
+                              className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                              style={{ fontSize: '1.5rem' }}
+                            >
+                              &#9679;
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Display ICAO Alternate airports list in a responsive row/column layout with max-width */}
+                  {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
+                    <div className="flex flex-col mt-1">
+                      <span>Alternate Airports:</span>
+                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                        {routing.icaoAirportALTN.map((icao, idx) => (
+                          <div key={idx} className="flex items-center space-x-2">
+                            <span>{icao}</span>
+                            <span
+                              className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                              style={{ fontSize: '1.5rem' }}
+                            >
+                              &#9679;
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+
                 </div>
-              </button>
-            </div>
-          ))}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the routing click
+                    onDeleteRouting(originalIndex); // Use the original index to delete the correct routing
+                  }}
+                  className="flex items-center ml-1 relative"
+                >
+                  <div className='shadow-sm border hover:scale-110 transition-transform duration-150 px-1'>
+                    x
+                  </div>
+                </button>
+              </div>
+            );
+          })}
         </div>
+
 
 
       </div>

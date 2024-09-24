@@ -1,12 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
 
-const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
-  if (!gfaData || gfaData.data.length === 0) {
+const QuickGfaDisplay = ({ gfaDataQuick, selectedTimestamp, setSelectedTimestamp }) => {
+  if (!gfaDataQuick || gfaDataQuick.data.length === 0) {
     return <p>No GFA data available</p>;
   }
 
-  const frameLists = JSON.parse(gfaData.data[0].text).frame_lists;
+  const frameLists = JSON.parse(gfaDataQuick.data[0].text).frame_lists;
 
   const getLastFrames = (frameLists) => {
     const lastFrameList = frameLists[frameLists.length - 1];
@@ -14,7 +14,7 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
   };
 
   const getImageUrl = () => {
-    if (!gfaData || !gfaData.data || gfaData.data.length === 0) return '';
+    if (!gfaDataQuick || !gfaDataQuick.data || gfaDataQuick.data.length === 0) return '';
 
     const lastFrames = getLastFrames(frameLists);
     const selectedFrame = lastFrames[selectedTimestamp];
@@ -41,20 +41,24 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
         <div style={{
           position: 'relative',
           width: '100%',          // The container takes full width of the parent
-          maxWidth: '1200px',     // Max width of the image to scale up
-          height: 'auto',         // Keep the aspect ratio intact
-          aspectRatio: '379 / 304', // Maintain the original aspect ratio
+          height: '100%',         // Ensure the container takes full height of the parent as well
+          maxWidth: '100vw',      // The image will take the full available width
+          maxHeight: '100vh',     // The image will take the full available height
+          aspectRatio: '71 / 57', // Maintain the specific aspect ratio
           margin: '0 auto',       // Center the container
         }}>
           <Image
             src={getImageUrl()}
             alt="GFA Image"
-            width={758}            // Original width of the image
-            height={608}           // Original height of the image
-            layout="responsive"    // Allow the image to resize responsively
-            style={{ objectFit: 'contain' }}  // Ensure the image fits within the container without distortion
+            fill
+            sizes="(max-width: 768px) 100vw, (min-width: 769px) and (max-width: 1200px) 50vw, 33vw"  // Adjust sizes for different screen widths
+            style={{ objectFit: 'contain' }}  // Contain ensures the image stays within the bounds without distortion
           />
         </div>
+
+
+
+
       </div>
 
       <div className="flex justify-center mt-2 space-x-4">
@@ -75,4 +79,4 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
   );
 };
 
-export default GfaDisplay;
+export default QuickGfaDisplay;

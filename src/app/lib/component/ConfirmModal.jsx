@@ -4,8 +4,8 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, onModify }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-md">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-md z-60 relative">
         <p className="mb-4">A routing with the same flight number, departure, and destination already exists. What would you like to do?</p>
         <div className="flex justify-end space-x-4">
           <button 

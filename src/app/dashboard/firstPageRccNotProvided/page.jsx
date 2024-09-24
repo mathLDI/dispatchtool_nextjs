@@ -110,9 +110,11 @@ console.log("rcctouse from notprovided::", rcc);
 
 
 
+
+
     return (
 
-        <div className="flex flex-col flex-wrap p-4 space-x-4">
+        <div className="flex flex-col flex-wrap p-4 space-x-4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
 
             <div className="flex-1" name="rwyccNotProvided"  >
 
@@ -164,7 +166,7 @@ console.log("rcctouse from notprovided::", rcc);
                                     <NewChoiceListbox
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
-                                        callback={setContaminationCoverage2}
+                                        callback={(value) => setContaminationCoverage2(Number(value))}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
                                     />
@@ -200,7 +202,7 @@ console.log("rcctouse from notprovided::", rcc);
                                         <NewChoiceListbox
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
-                                            callback={setContaminationCoverage4}
+                                            callback={(value) => setContaminationCoverage4(Number(value))}
                                             reset={resetListBox}
                                             resetCallback={resetListbox1Handler}
                                         />
@@ -229,7 +231,7 @@ console.log("rcctouse from notprovided::", rcc);
                                     <NewChoiceListbox
                                         value={contaminationCoverage1}
                                         choices={contaminationCoverage2List}
-                                        callback={setContaminationCoverage1}
+                                        callback={(value) => setContaminationCoverage1(Number(value))}
                                         reset={resetListBox}
                                         resetCallback={resetListbox1Handler}
                                     />
@@ -262,7 +264,7 @@ console.log("rcctouse from notprovided::", rcc);
                                         <NewChoiceListbox
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
-                                            callback={setContaminationCoverage3}
+                                            callback={(value) => setContaminationCoverage3(Number(value))}
                                             reset={resetListBox}
                                             resetCallback={resetListbox1Handler}
                                         />

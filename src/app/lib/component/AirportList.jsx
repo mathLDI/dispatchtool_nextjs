@@ -1,19 +1,29 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
-const AirportList = ({ airportsToShow, onAirportClick }) => {
-  const { selectedAirport, airportCategories, removeAirportValue, selectedForm } = useRccContext();
+const AirportList = ({ onAirportClick }) => {
+  const {
+    selectedAirport,
+    airportCategories,
+    removeAirportValue,
+    selectedForm,
+    flightDetails, // Import flightDetails from context
+  } = useRccContext();
+
+  // Extract airports from flightDetails
+  const icaoAirportsToShow = (flightDetails.icaoAirports || []).map((code) => ({ code })); // Convert ICAO airports into objects
+  const icaoAirportALTNToShow = (flightDetails.icaoAirportALTN || []).map((code) => ({ code })); // Convert ICAO alternate airports into objects
 
   const handleRemoveClick = (e, airportCode) => {
     e.stopPropagation(); // Prevent li onClick from being called
     removeAirportValue(airportCode); // Call the remove function from context
   };
 
-  return (
-    <div className="flex p-3 rounded-lg w-full">
-      {/* Use CSS Grid with fixed-size columns */}
-      <ul className="grid grid-cols-[repeat(auto-fill,_minmax(150px,_1fr))] gap-4 w-full">
-        {airportsToShow.map((airport, index) => {
+  const renderAirportList = (airports, label) => (
+    <>
+     <h3 className="text-sm font-bold mt-2 mb-2">{label}</h3> {/* Reduced font size */}
+     <ul className="grid grid-cols-[repeat(auto-fill,_minmax(100px,_1fr))] gap-2 w-full"> {/* Reduced minmax size and gap */}
+        {airports.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500';
 
@@ -44,7 +54,26 @@ const AirportList = ({ airportsToShow, onAirportClick }) => {
           );
         })}
       </ul>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col rounded-lg w-full">
+
+      <div className='flex-1 pb-1'>
+          {/* Render ICAO Airports */}
+      {renderAirportList(icaoAirportsToShow, '')}
+      </div>
+
+      <hr className=" border-gray-300" />
+
+      <div className='flex-1'>
+  {/* Render ICAO Alternate Airports */}
+  {renderAirportList(icaoAirportALTNToShow, '')}
     </div>
+
+</div>
+      
   );
 };
 

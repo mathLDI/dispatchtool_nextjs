@@ -18,7 +18,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
     setSelectedAirport,
     selectedForm,
     flightDetails,
-    searchAirport, 
+    searchAirport,
     setSearchAirport,
   } = useRccContext();
 
@@ -148,7 +148,7 @@ const AirportSearchForm = ({ fetchWeather }) => {
         message={`Airport code(s) ${duplicateAirports.join(', ')} already entered.`}
       />
 
-      <div className='flex-1'> 
+      <div className='flex-1'>
         <div className="pt-4">
           <form onSubmit={handleSubmit} className="mb-4 relative">
             <input
@@ -165,18 +165,18 @@ const AirportSearchForm = ({ fetchWeather }) => {
 
         {/* Search input for filtering the airport list */}
         <div className="relative flex justify-center items-center p-2">
-  <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-    <SearchIcon className="h-5 w-5 text-gray-500" />
-  </span>
-  <input
-    type="text"
-    placeholder="Search Airport(s)"
-    value={searchAirport}
-    onChange={(e) => setSearchAirport(e.target.value.toUpperCase())} // Automatically convert search input to uppercase
-    className="p-2 pl-10 border border-gray-300 rounded-md w-full"
-    style={{ textTransform: 'uppercase' }} // Display search input in uppercase
-  />
-</div>
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+            <SearchIcon className="h-5 w-5 text-gray-500" />
+          </span>
+          <input
+            type="text"
+            placeholder="Search Airport(s)"
+            value={searchAirport}
+            onChange={(e) => setSearchAirport(e.target.value.toUpperCase())} // Automatically convert search input to uppercase
+            className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+            style={{ textTransform: 'uppercase' }} // Display search input in uppercase
+          />
+        </div>
 
 
 
