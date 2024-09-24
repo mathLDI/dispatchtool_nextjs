@@ -28,7 +28,6 @@ const FirstPageRccProvided = (props) => {
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // console.log("integerRunwayLength:", integerRunwayLength);
 
     const resetButtonHandler = () => {
         setResetListBox(true);
@@ -78,16 +77,6 @@ const FirstPageRccProvided = (props) => {
 
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
-
-    //console.log("CorrectedLandingRwyccToUse:", CorrectedLandingRwyccToUse);
-    //console.log("selectedRccToMaxXwindLanding:", selectedRccToMaxXwindLanding);
-    //console.log("rwycc1:", rwycc1);
-    //console.log("rwycc2:", rwycc2);
-    //console.log("rwycc3:", rwycc3);
-    //console.log("correctedLandingDistance:", correctedLandingDistance);
-    //console.log("runwayLength:", runwayLength);
-    //console.log(typeof integerRunwayLength);  // Should return "number"
-    console.log(typeof rwycc3);  // Check if it's "number" or "string"
 
 
 
