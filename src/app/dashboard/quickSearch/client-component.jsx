@@ -56,7 +56,6 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
   const containerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
 
-  //console.log('quickWeatherData from quicksearch:', quickWeatherData);
 
 
   //////NEW CODE FOR QUICK SEARCH BELOW////////////////////////
@@ -163,7 +162,6 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
     ? categorizeNotams(quickWeatherData.data.filter((item) => item.type === 'notam'))
     : {};
 
-  console.log("categorizedNotams from quick:", categorizedNotams);
 
   const handleNotamTypeChangeQuick = (newNotamType) => {
     setSelectedNotamTypeQuick(newNotamType);
