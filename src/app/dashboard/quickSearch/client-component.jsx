@@ -368,7 +368,7 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
               type="text"
               value={quickAirportInput}  // Ensure this is bound to the state
               onChange={handleQuickAirportInputChange}  // Handle the input change
-              placeholder="Enter ICAO airport code"
+              placeholder="Enter ICAO code"
               className="p-2 border border-gray-300 rounded-md"
               style={{ textTransform: 'uppercase' }}  // Optional: visually enforce uppercase in the UI
             />
