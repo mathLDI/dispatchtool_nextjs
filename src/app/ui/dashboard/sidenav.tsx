@@ -90,44 +90,44 @@ export default function SideNav({
                     Flight: {routing.flightNumber}
                   </p>
 
-     {/* Display ICAO airports list in a responsive row/column layout with max-width */}
-{Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
-  <div className="flex flex-col">
-    <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
-      {routing.icaoAirports.map((icao, idx) => (
-        <div key={idx} className="flex items-center space-x-2">
-        
-          <span
-            className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
-            style={{ fontSize: '1.5rem' }}
-          >
-            &#9679;
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                  {/* Display ICAO airports list in a responsive row/column layout with max-width */}
+                  {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
+                    <div className="flex flex-col">
+                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                        {routing.icaoAirports.map((icao, idx) => (
+                          <div key={idx} className="flex items-center space-x-2">
 
-{/* Display ICAO Alternate airports list in a responsive row/column layout with max-width */}
-{Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
-  <div className="flex flex-col mt-1">
-    <span>Alternate Airports:</span>
-    <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
-      {routing.icaoAirportALTN.map((icao, idx) => (
-        <div key={idx} className="flex items-center space-x-2">
-          <span>{icao}</span>
-          <span
-            className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
-            style={{ fontSize: '1.5rem' }}
-          >
-            &#9679;
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                            <span
+                              className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                              style={{ fontSize: '1.5rem' }}
+                            >
+                              &#9679;
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Display ICAO Alternate airports list in a responsive row/column layout with max-width */}
+                  {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
+                    <div className="flex flex-col mt-1">
+                      <span>Alternate Airports:</span>
+                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                        {routing.icaoAirportALTN.map((icao, idx) => (
+                          <div key={idx} className="flex items-center space-x-2">
+                            <span>{icao}</span>
+                            <span
+                              className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
+                              style={{ fontSize: '1.5rem' }}
+                            >
+                              &#9679;
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
 
                 </div>

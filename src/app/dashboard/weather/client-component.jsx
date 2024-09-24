@@ -862,9 +862,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           onModify={handleModify}
         />
 
-        <div className='flex-1  bg-gray-300'>
+        <div className='flex-1  h-screen  '>
 
-          <div className="flex">
+          <div className="flex pt-2">
             {selectedForm === 'Routing Search' && (
               <div className="flex justify-center items-center p-2 relative">
                 {/* Search box to filter routings */}
@@ -876,7 +876,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                   placeholder="Search by Term(s)"
                   value={searchRouting}
                   onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
-                  className="p-2 pl-10 border border-gray-300 rounded-md w-full"
+                  className="p-2 pl-10  border border-gray-300 rounded-md w-full"
                   style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
                 />
               </div>
@@ -944,7 +944,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         </div>
 
 
-        <div className=''>
+        <div className='flex-1'>
           <div className=''>
             <AirportWeatherDisplay
               weatherData={weatherData}
