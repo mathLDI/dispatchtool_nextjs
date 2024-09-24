@@ -360,19 +360,48 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
 
 
       <div className="flex-1 " ref={containerRef}>
+
         <div className="flex ">
           {/* Quick Airport Input Box */}
-          <form onSubmit={handleQuickAirportInputSubmit}>
+          <form onSubmit={handleQuickAirportInputSubmit} className="flex justify-center items-center space-x-2">
             <input
               type="text"
               value={quickAirportInput}  // Ensure this is bound to the state
               onChange={handleQuickAirportInputChange}  // Handle the input change
               placeholder="Enter ICAO airport code"
-              className="p-2 border border-gray-300 rounded-md mb-4"
+              className="p-2 border border-gray-300 rounded-md"
               style={{ textTransform: 'uppercase' }}  // Optional: visually enforce uppercase in the UI
             />
-            <button type="submit" className="bg-blue-500 text-white p-2  rounded-md ">Submit</button>
+            <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Submit</button>
+
+            {/* Refresh Button */}
+            <button
+              type="button"
+              onClick={handleQuickAirportInputSubmit}  // Calls the same function as submitting the form
+              className="bg-gray-500 text-white p-2 rounded-md"
+            >
+              Refresh
+            </button>
+
+            {/* Reset Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setQuickAirportInput('');  // Clear the input field
+                setQuickWeatherData(null); // Clear the weather data
+              }}
+              className="bg-orange-400 text-white p-2 rounded-md"
+            >
+              Reset
+            </button>
+
+
           </form>
+
+
+
+
+
         </div>
 
 

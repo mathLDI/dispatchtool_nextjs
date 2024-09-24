@@ -125,7 +125,13 @@ const RoutingWXXForm = ({ onSave }) => {
     });
   };
 
-
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();  // Prevent form submission
+      window.alert('Click the "Save" Button');  // Show the popup message
+    }
+  };
+  
 
   return (
     <div className="flex items-center flex-wrap">
@@ -133,53 +139,56 @@ const RoutingWXXForm = ({ onSave }) => {
 
       <div className='flex flex-1 flex-col '>
 
-        <div>
-          <input
-            type="text"
-            placeholder="FLIGHT #"
-            value={flightDetails.flightNumber || ''}
-            onChange={(e) => setFlightDetails({ ...flightDetails, flightNumber: e.target.value.toUpperCase() })}
-            className="p-2 border border-gray-300 rounded-md text-center"
-            style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
-          />
-        </div>
+      <div className="flex items-center">
+  <span className="p-2 bg-gray-200 text-black border border-gray-300 rounded-l-md">CRQ</span>
+  <input
+    type="text"
+    placeholder="Enter Flight #"
+    value={flightDetails.flightNumber ? flightDetails.flightNumber.replace(/^CRQ/, '') : ''} // Remove 'CRQ' from the input value
+    onChange={(e) => {
+      const input = e.target.value.toUpperCase();
+      setFlightDetails({ ...flightDetails, flightNumber: `CRQ${input}` }); // Always prepend 'CRQ'
+    }}
+    className="p-2 border border-gray-300 rounded-r-md text-center"
+    style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
+  />
+</div>
 
 
-        {/**testing a list of airports********************************* */}
 
-        <div className="pt-2">
-          <form className="mb-2 relative">
-            <input
-              type="text"
-              value={(flightDetails.icaoAirports || []).join(' ') || ''}
-              onChange={handleIcaoChange}
-              placeholder="Add ICAO Airports (use ICAO codes)"
-              className="border p-2 rounded w-full"
-              style={{ textTransform: 'uppercase' }}
-            />
-            {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
-          </form>
-        </div>
+    {/**testing a list of airports********************************* */}
 
+    <div className="pt-2">
+      <form className="mb-2 relative">
+        <input
+          type="text"
+          value={(flightDetails.icaoAirports || []).join(' ') || ''}
+          onChange={handleIcaoChange}
+          onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
+          placeholder="Add ICAO Airports (use ICAO codes)"
+          className="border p-2 rounded w-full"
+          style={{ textTransform: 'uppercase' }}
+        />
+        {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
+      </form>
+    </div>
 
-        {/**add list of alternates */}
+    {/**add list of alternates */}
 
-        <div className="flex-1">
-          <form className="relative">
-            <input
-              type="text"
-              value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
-              onChange={handleIcaoAltnChange}
-              placeholder="Add Alternate ICAO Airports (use ICAO codes)"
-              className="border p-2 rounded w-full"
-              style={{ textTransform: 'uppercase' }}
-            />
-
-
-            {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
-          </form>
-
-        </div>
+    <div className="flex-1">
+      <form className="relative">
+        <input
+          type="text"
+          value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
+          onChange={handleIcaoAltnChange}
+          onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
+          placeholder="Add Alternate ICAO Airports (use ICAO codes)"
+          className="border p-2 rounded w-full"
+          style={{ textTransform: 'uppercase' }}
+        />
+        {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
+      </form>
+    </div>
 
 
 
@@ -187,7 +196,7 @@ const RoutingWXXForm = ({ onSave }) => {
         <div className="flex items-center pt-1 ">
           <button
             onClick={handleSave}
-            className="p-2 bg-red-500 text-white rounded-md"
+            className="p-2 bg-blue-500 text-white rounded-md"
           >
             Save
           </button>

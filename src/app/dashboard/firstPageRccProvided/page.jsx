@@ -205,7 +205,7 @@ const FirstPageRccProvided = (props) => {
 
                             <div style={{ marginBottom: '10px' }}>
                                 {enterDistances === true &&
-                                    (<div className="flex flex-row bg-orange-400 rounded-md p-2 text-white justify-center items-center">
+                                    (<div className="flex flex-row bg-blue-500 rounded-md p-2 text-white justify-center items-center">
                                         Enter Distances
                                     </div>)}
                             </div>
