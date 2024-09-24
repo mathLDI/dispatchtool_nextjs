@@ -853,7 +853,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-auto">
       <div className='flex pr-4 '>
         <ConfirmModal
           isOpen={isModalOpen}
@@ -904,7 +904,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       </div>
 
-      <div className="flex-1 flex-wrap flex-col h-screen " ref={containerRef}>
+      <div className="flex-1 flex-wrap flex-col  " ref={containerRef}>
         <div className="flex-1  ">
 
           <div className='flex justify-between'>

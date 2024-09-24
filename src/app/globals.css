@@ -65,3 +65,7 @@ body {
   color: #236ed8;; /* Replace with the exact hex code if different */
 }
 
+/* Added this so the outside overflow bar doesnt appear */
+body {
+  overflow: hidden;
+}

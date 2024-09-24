@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const Card = ({ children, cardTitle, status, className }) => {
   return (
-    <div className={`w-full mb-8 ${className || 'sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]'}`}> 
+    <div className={`w-full mb-2 ${className || 'sm:w-[100%] md:w-[75%] lg:w-[50%] xl:w-[40%]'}`}> 
       <div className="flex items-center">
         <div className="pb-2 pr-2 text-2xl font-bold tracking-tight text-default dark:text-dark">{cardTitle}</div>
         <div
