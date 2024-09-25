@@ -131,7 +131,7 @@ const RoutingWXXForm = ({ onSave }) => {
       window.alert('Click the "Save" Button');  // Show the popup message
     }
   };
-  
+
 
   return (
     <div className="flex items-center flex-wrap">
@@ -139,56 +139,56 @@ const RoutingWXXForm = ({ onSave }) => {
 
       <div className='flex flex-1 flex-col '>
 
-      <div className="flex items-center">
-  <span className="p-2 bg-gray-200 text-black border border-gray-300 rounded-l-md">CRQ</span>
-  <input
-    type="text"
-    placeholder="Enter Flight #"
-    value={flightDetails.flightNumber ? flightDetails.flightNumber.replace(/^CRQ/, '') : ''} // Remove 'CRQ' from the input value
-    onChange={(e) => {
-      const input = e.target.value.toUpperCase();
-      setFlightDetails({ ...flightDetails, flightNumber: `CRQ${input}` }); // Always prepend 'CRQ'
-    }}
-    className="p-2 border border-gray-300 rounded-r-md text-center"
-    style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
-  />
-</div>
+        <div className="flex items-center">
+          <span className="p-2 bg-gray-200 text-black border border-gray-300 rounded-l-md">CRQ</span>
+          <input
+            type="text"
+            placeholder="Enter Flight #"
+            value={flightDetails.flightNumber ? flightDetails.flightNumber.replace(/^CRQ/, '') : ''} // Remove 'CRQ' from the input value
+            onChange={(e) => {
+              const input = e.target.value.toUpperCase();
+              setFlightDetails({ ...flightDetails, flightNumber: `CRQ${input}` }); // Always prepend 'CRQ'
+            }}
+            className="p-2 border border-gray-300 rounded-r-md text-center"
+            style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
+          />
+        </div>
 
 
 
-    {/**testing a list of airports********************************* */}
+        {/**testing a list of airports********************************* */}
 
-    <div className="pt-2">
-      <form className="mb-2 relative">
-        <input
-          type="text"
-          value={(flightDetails.icaoAirports || []).join(' ') || ''}
-          onChange={handleIcaoChange}
-          onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
-          placeholder="Add ICAO Airports (use ICAO codes)"
-          className="border p-2 rounded w-full"
-          style={{ textTransform: 'uppercase' }}
-        />
-        {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
-      </form>
-    </div>
+        <div className="pt-2">
+          <form className="mb-2 relative">
+            <input
+              type="text"
+              value={(flightDetails.icaoAirports || []).join(' ') || ''}
+              onChange={handleIcaoChange}
+              onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
+              placeholder="Add ICAO Airports (use ICAO codes)"
+              className="border p-2 rounded w-full"
+              style={{ textTransform: 'uppercase' }}
+            />
+            {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
+          </form>
+        </div>
 
-    {/**add list of alternates */}
+        {/**add list of alternates */}
 
-    <div className="flex-1">
-      <form className="relative">
-        <input
-          type="text"
-          value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
-          onChange={handleIcaoAltnChange}
-          onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
-          placeholder="Add Alternate ICAO Airports (use ICAO codes)"
-          className="border p-2 rounded w-full"
-          style={{ textTransform: 'uppercase' }}
-        />
-        {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
-      </form>
-    </div>
+        <div className="flex-1">
+          <form className="relative">
+            <input
+              type="text"
+              value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
+              onChange={handleIcaoAltnChange}
+              onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
+              placeholder="Add Alternate ICAO Airports (use ICAO codes)"
+              className="border p-2 rounded w-full"
+              style={{ textTransform: 'uppercase' }}
+            />
+            {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
+          </form>
+        </div>
 
 
 
@@ -854,7 +854,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   return (
     <div className="flex h-screen overflow-auto">
-      <div className='flex pr-4 '>
+
+      <div className='flex  '>
         <ConfirmModal
           isOpen={isModalOpen}
           onClose={handleClose}
@@ -864,7 +865,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
         <div className='flex-1  h-screen  '>
 
-          <div className="flex pt-2">
+          <div className="flex pt-2 ">
             {selectedForm === 'Routing Search' && (
               <div className="flex justify-center items-center p-2 relative">
                 {/* Search box to filter routings */}
@@ -885,9 +886,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-          <div className="flex  h-screen overflow-y-auto   ">
+          <div className="flex  h-screen overflow-y-auto bg-gray-300   ">
             {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center h-full w-full ">
+              <div className="flex justify-center items-center h-full w-full  ">
                 <SideNav
                   savedRoutings={filteredRoutings} // Pass filtered routings based on search
                   onDeleteRouting={handleDeleteRouting}
@@ -904,7 +905,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       </div>
 
-      <div className="flex-1 flex-wrap flex-col  " ref={containerRef}>
+      <div className="flex-1 flex-wrap flex-col p-3 " ref={containerRef}>
         <div className="flex-1  ">
 
           <div className='flex justify-between'>
@@ -944,7 +945,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         </div>
 
 
-        <div className='flex-1'>
+        <div className='flex-1 '>
           <div className=''>
             <AirportWeatherDisplay
               weatherData={weatherData}
