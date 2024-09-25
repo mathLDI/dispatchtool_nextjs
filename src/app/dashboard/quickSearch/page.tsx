@@ -1,7 +1,6 @@
 import ClientComponent from './client-component';
 import { handleFetchWeather } from './server-actions'; // Import server actions
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering
 
 export default function Page() {
   return (
