@@ -45,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '24px',
+    padding: '5px',
     fontFamily: 'Roboto, sans-serif',
     fontSize: '12px', // Add this line to reduce the font size
     lineHeight: '1.25', // Reduce line spacing
