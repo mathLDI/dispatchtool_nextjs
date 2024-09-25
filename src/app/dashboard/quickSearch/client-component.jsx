@@ -20,7 +20,7 @@ import {
 
 
 
-export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
+export default function ClientComponent({ fetchQuickWeather }) {
   const {
     selectedAirport,
     setSelectedAirport,
@@ -127,6 +127,8 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
     setIsResizing(false);
   };
 
+
+
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -142,13 +144,15 @@ export default function ClientComponent({ fetchQuickWeather, fetchGFA }) {
     };
   }, [isResizing, handleMouseMove]);
 
-  useEffect(() => {
+
+  {/*   useEffect(() => {
     if (selectedAirport && gfaTypeQuick) {
       fetchGFA(selectedAirport.code, gfaTypeQuick).then((data) => {
         setGfaDataQuick(data);
       });
     }
-  }, [selectedAirport, gfaTypeQuick, fetchGFA, setGfaDataQuick]);
+  }, [selectedAirport, gfaTypeQuick, fetchGFA, setGfaDataQuick]); */ }
+
 
   useEffect(() => {
     if (quickWeatherData) {
