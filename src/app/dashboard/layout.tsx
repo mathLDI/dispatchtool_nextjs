@@ -1,5 +1,6 @@
 'use client';
 
+import { Analytics } from "@vercel/analytics/react"
 import React, { useState } from 'react';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import { RccProvider } from './RccCalculatorContext';
@@ -140,6 +141,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <GlobalModalContent onClose={() => setIsQuickSearchModalOpen(false)} contentType='Quick Search' />,
         document.body
       )}
+            <Analytics /> {/* Add this at the root level so it's included in all pages */}
+
     </RccProvider>
   );
 };
