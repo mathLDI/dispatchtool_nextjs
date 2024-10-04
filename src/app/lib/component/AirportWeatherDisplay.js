@@ -40,9 +40,7 @@ export default function AirportWeatherDisplay({
 
   const [selectedButton, setSelectedButton] = useState('METAR/TAF');
 
-
-
-
+//console.log("renderNotamCard from ", renderNotamCard);
 
   if (!categorizedNotams) {
     return null; // or you can return a loading spinner or a message indicating that data is being fetched
