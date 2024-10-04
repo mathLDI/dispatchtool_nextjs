@@ -14,19 +14,23 @@ export default function QuickAirportWeatherDisplay({
   countFilteredNotams,
   searchTermQuick,
   handleSearchChangeQuick,
-  categorizedNotams,
+  categorizedNotamsQuick,
   isCraneFilterActiveQuick,
   toggleCraneFilterQuick,
   renderNotamCardQuick,
+  selectedAirport,
+
 
 }) {
   const {
-    quickWeatherData
+    quickWeatherData,
+    selectedNotamTypeQuick,
+    setSelectedNotamTypeQuick,
   } = useRccContext();
 
   // Define local state for selectedNotamTypeQuick
-  const [selectedNotamTypeQuick, setSelectedNotamTypeQuick] = useState('AERODROME');
   const [QuickselectedButton, setSelectedButtonQuick] = useState('METAR/TAF');
+
 
   // Define the handleNotamTypeChangeQuick function
   const handleNotamTypeChangeQuick = (newNotamType) => {
@@ -34,10 +38,9 @@ export default function QuickAirportWeatherDisplay({
   };
 
 
-  if (!categorizedNotams) {
+  if (!categorizedNotamsQuick) {
     return null;
   }
-
 
 
   // Function to render the NOTAMs from quickWeatherData
@@ -77,54 +80,53 @@ export default function QuickAirportWeatherDisplay({
 
 
   return (
-    <div className=" flex-col ">
-    <div className="flex items-center dark:bg-gray-700 justify-start p-1 space-x-1 rounded-md shadow-lg">
-    <button
+    <div className="flex-1 flex-col overflow-y-auto max-h-screen">
+      <div className="flex items-center dark:bg-gray-700 justify-start p-1 space-x-1 rounded-md shadow-lg">
+        <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm ${QuickselectedButton === 'METAR/TAF' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
           onClick={() => setSelectedButtonQuick('METAR/TAF')}>
           METAR/TAF
         </button>
 
-        {/** 
- * 
- *     <button
+
+        <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm ${QuickselectedButton === 'NOTAMS' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
           onClick={() => setSelectedButtonQuick('NOTAMS')}>
           NOTAMS
         </button>
 
-        <button
+
+        {/** <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm ${QuickselectedButton === 'GFA' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
           onClick={() => setSelectedButtonQuick('GFA')}>
           GFA
         </button>
- * 
- * 
- * 
-*/}
+ */}
+
 
       </div>
 
       <div>
-        {/* METAR display */}
-        <div className="flex">
-          <Card title="METAR" status={null} className="h-full">
-            <QuickMetarDisplay quickWeatherData={quickWeatherData} />
-          </Card>
-        </div>
+        
+       {/* Conditionally render METAR/TAF display */}
+       {QuickselectedButton === 'METAR/TAF' && (
+          <>
+            <div className="flex">
+              <Card title="METAR" status={null} className="h-full">
+                <QuickMetarDisplay quickWeatherData={quickWeatherData} />
+              </Card>
+            </div>
 
-        {/* TAF display */}
-        <div className="flex">
-          <Card title="TAF" status={null} className="h-full">
-            <QuickTafDisplay quickWeatherData={quickWeatherData} />
-          </Card>
-        </div>
+            <div className="flex">
+              <Card title="TAF" status={null} className="h-full">
+                <QuickTafDisplay quickWeatherData={quickWeatherData} />
+              </Card>
+            </div>
+          </>
+        )}
 
 
-        {/* NOTAM display
-
-        {/* GFA display 
-         {QuickselectedButton === 'GFA' && (
+        {QuickselectedButton === 'GFA' && (
           <div className="mb-4 flex items-center">
             <Card title="GFA" status={null} className="h-full">
               <div className="flex justify-center mb-2">
@@ -150,51 +152,58 @@ export default function QuickAirportWeatherDisplay({
           </div>
         )}
 
-        
-        */}
 
-        {/* NOTAMS display 
+
+
+
+        {/* Conditional Rendering for NOTAMS */}
         {QuickselectedButton === 'NOTAMS' && (
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleNotamTypeChangeQuick('AERODROME')}
-              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-            >
-              AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A', searchTermQuick, isCraneFilterActiveQuick)}
-            </button>
-            <button
-              onClick={() => handleNotamTypeChangeQuick('ENROUTE')}
-              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-            >
-              ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E', searchTermQuick, isCraneFilterActiveQuick)}
-            </button>
-            <button
-              onClick={() => handleNotamTypeChangeQuick('WARNING')}
-              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-            >
-              WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W', searchTermQuick, isCraneFilterActiveQuick)}
-            </button>
-            <button
-              onClick={toggleCraneFilterQuick}
-              className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActiveQuick ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
-            >
-              CRANE
-            </button>
+          <div>
+            <div className="">
+              <div className="mb-2 flex items-center">
+              </div>
+
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleNotamTypeChangeQuick('AERODROME')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  AERODROME | {countFilteredNotams((categorizedNotamsQuick.futureNotams ?? []).concat(categorizedNotamsQuick.todayNotams ?? [], categorizedNotamsQuick.last7DaysNotams ?? [], categorizedNotamsQuick.last30DaysNotams ?? [], categorizedNotamsQuick.olderNotams ?? []), 'A', searchTermQuick, isCraneFilterActiveQuick)}
+                </button>
+                <button
+                  onClick={() => handleNotamTypeChangeQuick('ENROUTE')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  ENROUTE | {countFilteredNotams((categorizedNotamsQuick.futureNotams ?? []).concat(categorizedNotamsQuick.todayNotams ?? [], categorizedNotamsQuick.last7DaysNotams ?? [], categorizedNotamsQuick.last30DaysNotams ?? [], categorizedNotamsQuick.olderNotams ?? []), 'E', searchTermQuick, isCraneFilterActiveQuick)}
+                </button>
+                <button
+                  onClick={() => handleNotamTypeChangeQuick('WARNING')}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamTypeQuick === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  WARNING | {countFilteredNotams((categorizedNotamsQuick.futureNotams ?? []).concat(categorizedNotamsQuick.todayNotams ?? [], categorizedNotamsQuick.last7DaysNotams ?? [], categorizedNotamsQuick.last30DaysNotams ?? [], categorizedNotamsQuick.olderNotams ?? []), 'W', searchTermQuick, isCraneFilterActiveQuick)}
+                </button>
+                <button
+                  onClick={toggleCraneFilterQuick}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActiveQuick ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                >
+                  CRANE
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Search NOTAMs..."
+                value={searchTermQuick}
+                onChange={handleSearchChangeQuick}
+                className="mt-2 p-2 border border-gray-300 rounded-md w-full"
+              />
+            </div>
+
+            {renderNotamCardQuick()}
           </div>
         )}
 
 
-            <input
-          type="text QUICK"
-          placeholder="Search NOTAMs..."
-          value={searchTermQuick}
-          onChange={handleSearchChangeQuick}
-          className="mt-2 p-2 border border-gray-300 rounded-md w-full"
-        />
-        {renderNotamCardQuick()}
-   
-
-        */}
 
       </div>
     </div>
