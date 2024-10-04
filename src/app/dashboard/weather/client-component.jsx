@@ -86,10 +86,9 @@ const RoutingWXXForm = ({ onSave }) => {
 
   const handleSave = () => {
     const icaoAirports = flightDetails.icaoAirports || []; // Default to empty array if undefined
-    const icaoAirportALTN = flightDetails.icaoAirportALTN || []; // Default to empty array if undefined
 
-    // Check if flightNumber, icaoAirports, and icaoAirportALTN are valid
-    if (flightDetails.flightNumber && icaoAirports.length > 0 && icaoAirportALTN.length > 0) {
+    // Check if flightNumber and icaoAirports are valid
+    if (flightDetails.flightNumber && icaoAirports.length > 0) {
       onSave(flightDetails); // Proceed with saving if all fields are valid
     } else {
       // Check and show alert messages for missing fields
@@ -98,9 +97,6 @@ const RoutingWXXForm = ({ onSave }) => {
       }
       if (icaoAirports.length === 0) {
         alert("Please provide at least one ICAO airport.");
-      }
-      if (icaoAirportALTN.length === 0) {
-        alert("Please provide at least one ICAO alternate airport.");
       }
     }
   };
@@ -525,93 +521,89 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories, flightDetails.icaoAirportALTN]);
 
-
-
-
   const handleSaveRouting = (newRouting) => {
     // Function to filter valid 4-letter/number ICAO airports and ignore invalid or whitespace-only entries
     const filterValidAirports = (airports) => airports.filter(airport => /^[A-Za-z0-9]{4}$/.test(airport.trim()));
-
+  
     // Function to check if there are any invalid airports (not exactly 4 characters)
     const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
-
-    // Filter out invalid airports (not exactly 4 characters or whitespace)
+  
+    // Filter out invalid airports for both main ICAO airports and alternates
     const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
-    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []);
-
-    // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
+    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Alternates
+  
+    // Check for invalid ICAO airports and alternates, and show a warning if found
     if (hasInvalidAirports(flightDetails.icaoAirports) || hasInvalidAirports(flightDetails.icaoAirportALTN)) {
-      alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
+      alert('Incorrect entry. ICAO airport codes must be exactly 4 alphanumeric characters.'); // Warning for invalid ICAO airports
       return; // Exit early to prevent saving an invalid routing
     }
-
-    // If both filtered icaoAirports and icaoAirportALTN are empty, prevent saving
-    if (filteredIcaoAirports.length === 0 || filteredIcaoAirportALTN.length === 0) {
-      alert('Please provide valid ICAO airports and alternate airports.');
+  
+    // If there are no valid icaoAirports, prevent saving
+    if (filteredIcaoAirports.length === 0) {
+      alert('Please provide at least one valid ICAO airport.');
       return; // Exit early to prevent saving an invalid routing
     }
-
-    // Find if a routing with the same flightNumber, departure, and destination already exists
-    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
-      return (
-        routing.flightNumber === newRouting.flightNumber &&
-        routing.departure === newRouting.departure &&
-        routing.destination === newRouting.destination
-      );
-    });
-
-    // Create a new routing with filtered icaoAirports and icaoAirportALTN
+  
+    // Create a new routing with filtered ICAO airports and alternates
     const routingWithIcao = {
       ...newRouting,
       icaoAirports: filteredIcaoAirports, // Use the filtered airports
-      icaoAirportALTN: filteredIcaoAirportALTN, // Use the filtered alternate airports
+      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates
     };
-
-    // If an existing routing is found, compare the icaoAirports and icaoAirportALTN
+  
+    // Find if a routing with the same flightNumber and icaoAirports already exists
+    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
+      return routing.flightNumber === newRouting.flightNumber;
+    });
+  
     if (existingRoutingIndex !== -1) {
       const existingRouting = savedRoutings[existingRoutingIndex];
-
-      // Check if the icaoAirports or icaoAirportALTN have changed
-      const hasIcaoAirportsChanged =
-        JSON.stringify(existingRouting.icaoAirports) !==
-        JSON.stringify(routingWithIcao.icaoAirports);
-
-      const hasIcaoAirportALTNChanged =
-        JSON.stringify(existingRouting.icaoAirportALTN) !==
-        JSON.stringify(routingWithIcao.icaoAirportALTN);
-
-      // If there are changes in the airports, open the modal
-      if (hasIcaoAirportsChanged || hasIcaoAirportALTNChanged) {
-        setPendingRouting(routingWithIcao);
-        setIsModalOpen(true); // Trigger the modal to confirm changes
-      } else {
-        // If no changes, proceed with the update (or do nothing)
-        const updatedRoutings = [...savedRoutings];
-        updatedRoutings[existingRoutingIndex] = routingWithIcao;
-
-        setSavedRoutings(updatedRoutings);
-
-        // Update localStorage if available
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+  
+      // Check if the current icaoAirports are exactly the same as the existing routing's icaoAirports
+      const isIcaoAirportsSame =
+        JSON.stringify(existingRouting.icaoAirports) === JSON.stringify(filteredIcaoAirports);
+  
+      // If the ICAO airports haven't changed, and alternates have been added, don't show any warning
+      const hasAlternatesChanged = JSON.stringify(existingRouting.icaoAirportALTN) !== JSON.stringify(filteredIcaoAirportALTN);
+  
+      // If no changes to main ICAO airports, show the "Routing already exists" message
+      if (isIcaoAirportsSame && !hasAlternatesChanged) {
+        alert("Routing already exists.");
+        return; // Exit early to prevent redundant saving
+      }
+  
+      // Check if new ICAO airports are added (i.e., if the new list has airports that weren't in the existing routing)
+      const newAirportsAdded = filteredIcaoAirports.some(
+        (airport) => !existingRouting.icaoAirports.includes(airport)
+      );
+  
+      // If new ICAO airports are added, show a confirmation prompt
+      if (newAirportsAdded) {
+        const confirmed = window.confirm("You are adding new ICAO airports to an existing routing. Do you want to proceed?");
+        if (!confirmed) {
+          return; // Exit early if the user doesn't confirm
         }
       }
+    }
+  
+    // Add or update the routing
+    if (existingRoutingIndex !== -1) {
+      const updatedRoutings = [...savedRoutings];
+      updatedRoutings[existingRoutingIndex] = routingWithIcao;
+      setSavedRoutings(updatedRoutings);
     } else {
-      // If no existing routing, just add the new one
       const updatedRoutings = [...savedRoutings, routingWithIcao];
       setSavedRoutings(updatedRoutings);
-
-      // Update localStorage if available
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
-      }
+    }
+  
+    // Update localStorage if available
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
     }
   };
-
-
-
-
-
+  
+  
+  
 
   const handleConfirm = () => {
     if (pendingRouting) {
