@@ -528,13 +528,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     // Function to check if there are any invalid airports (not exactly 4 characters)
     const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
   
-    // Filter out invalid airports for both main ICAO airports and alternates
+    // Filter out invalid airports (not exactly 4 characters or whitespace)
     const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
-    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Alternates
+    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Keep alternates filtered but don't compare with the main airports
   
-    // Check for invalid ICAO airports and alternates, and show a warning if found
-    if (hasInvalidAirports(flightDetails.icaoAirports) || hasInvalidAirports(flightDetails.icaoAirportALTN)) {
-      alert('Incorrect entry. ICAO airport codes must be exactly 4 alphanumeric characters.'); // Warning for invalid ICAO airports
+    // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
+    if (hasInvalidAirports(flightDetails.icaoAirports)) {
+      alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
       return; // Exit early to prevent saving an invalid routing
     }
   
@@ -544,11 +544,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       return; // Exit early to prevent saving an invalid routing
     }
   
-    // Create a new routing with filtered ICAO airports and alternates
+    // Create a new routing with filtered icaoAirports
     const routingWithIcao = {
       ...newRouting,
-      icaoAirports: filteredIcaoAirports, // Use the filtered airports
-      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates
+      icaoAirports: filteredIcaoAirports, // Use the filtered main airports
+      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates included but don't compare
     };
   
     // Find if a routing with the same flightNumber and icaoAirports already exists
@@ -601,6 +601,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
     }
   };
+  
   
   
   
