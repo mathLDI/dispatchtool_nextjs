@@ -57,6 +57,15 @@ export default function ClientComponent({ fetchQuickWeather }) {
   // Local state to store weather data if context doesn't provide it
 
   const [quickAirportInput, setQuickAirportInput] = useState('');
+  const inputRef = useRef(null); // Create a ref for the input element
+
+
+  // Automatically focus the input when the component mounts
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus(); // Focus on the input
+    }
+  }, []);
 
   const handleQuickAirportInputChange = (e) => {
     const uppercaseValue = e.target.value.toUpperCase();  // Convert to uppercase
@@ -264,13 +273,13 @@ export default function ClientComponent({ fetchQuickWeather }) {
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-  
+
       // Ensure that the Q-line matches for Aerodrome (starts with 'A')
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-  
+
     return (
       <div>
         <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -281,14 +290,14 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             // Parse the expiration date using the C) field
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
             const processedLines = lines.map((line) => {
@@ -296,7 +305,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               if (line.includes('F)')) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-  
+
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
@@ -318,19 +327,19 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
+
 
   const renderNotamsW = (notams, title) => {
     const notamsToRender = notams.filter(notam => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-  
+
       // Ensure Q-line starts with 'W' for warning NOTAMs
       return qLineMatch && qLineMatch[2].startsWith('W');
     });
-  
+
     return (
       <div>
         <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -341,14 +350,14 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             // Parse the expiration date using the C) field
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
             const processedLines = lines.map((line) => {
@@ -356,7 +365,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               if (line.includes('F)')) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-  
+
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
@@ -384,18 +393,18 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
-  
- const renderNotamsE = (notams, title) => {
+
+
+  const renderNotamsE = (notams, title) => {
     const notamsToRender = notams.filter(notam => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
 
       return qLineMatch && qLineMatch[2].startsWith('E');
     });
-  
+
     return (
       <div>
         <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -406,7 +415,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch
               ? parseNotamDate(expirationMatch[1])
@@ -417,7 +426,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
                 expirationDate.getTimezoneOffset() * 60000
               )
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
             const processedLines = lines.map((line) => {
@@ -425,7 +434,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               if (line.includes('F)')) inBold = false;
               return inBold ? `<strong>${line}</strong>` : line;
             });
-  
+
             return (
               <div key={index} className="mb-4">
                 {processedLines.map((line, lineIndex) => (
@@ -453,8 +462,8 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
-  
+
+
 
   console.log('quickWeatherData', quickWeatherData);
 
@@ -468,12 +477,13 @@ export default function ClientComponent({ fetchQuickWeather }) {
           {/* Quick Airport Input Box */}
           <form onSubmit={handleQuickAirportInputSubmit} className="flex justify-center items-center space-x-2">
             <input
+              ref={inputRef} // Attach the ref to the input element
               type="text"
-              value={quickAirportInput}  // Ensure this is bound to the state
-              onChange={handleQuickAirportInputChange}  // Handle the input change
+              value={quickAirportInput} // Ensure this is bound to the state
+              onChange={handleQuickAirportInputChange} // Handle the input change
               placeholder="Enter ICAO code"
               className="p-2 border border-gray-300 rounded-md"
-              style={{ textTransform: 'uppercase' }}  // Optional: visually enforce uppercase in the UI
+              style={{ textTransform: 'uppercase' }} // Optional: visually enforce uppercase in the UI
             />
             <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Submit</button>
 
@@ -510,8 +520,8 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
 
         <div className='flex'>
-        <div className="h-full w-full flex flex-col overflow-y-auto max-h-screen">
-        <QuickAirportWeatherDisplay
+          <div className="h-full w-full flex flex-col overflow-y-auto max-h-screen">
+            <QuickAirportWeatherDisplay
               quickWeatherData={quickWeatherData}
               gfaDataQuick={gfaDataQuick}
               gfaTypeQuick={gfaTypeQuick}
