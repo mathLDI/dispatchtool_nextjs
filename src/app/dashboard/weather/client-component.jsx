@@ -788,14 +788,14 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-
+  
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-
+  
     return (
       <div>
-        <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -803,27 +803,31 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            // Parse the expiration date using the C) field
+  
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-
+  
             const lines = displayText.split('\n');
             let inBold = false;
-            const processedLines = lines.map((line) => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
-              return inBold ? `<strong>${line}</strong>` : line;
-            });
-
+  
             return (
               <div key={index} className="mb-4">
-                {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
-                ))}
+                {lines.map((line, lineIndex) => {
+                  if (line.includes('E)')) inBold = true;
+                  if (line.includes('F)')) inBold = false;
+                  return (
+                    <p key={lineIndex} className="mb-1">
+                      {inBold ? (
+                        <strong>{highlightNotamTermsJSX(line)}</strong>
+                      ) : (
+                        highlightNotamTermsJSX(line)
+                      )}
+                    </p>
+                  );
+                })}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
                 {expirationDate && (
@@ -832,7 +836,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                     <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
-                {/* Divider below each NOTAM entry except the last one */}
                 {index !== notamsToRender.length - 1 && (
                   <hr className="my-2 border-gray-300" />
                 )}
@@ -843,7 +846,40 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
     );
   };
-
+  
+  // Reuse the highlightNotamTermsJSX function to highlight terms:
+  const highlightNotamTermsJSX = (text) => {
+    const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
+    const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
+    const mvfrTerms = /\b(TWY CLOSED)\b/g;
+  
+    const parts = text.split(/(\s+)/); // Split text into words and spaces
+  
+    return parts.map((part, index) => {
+      if (lifrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#ff40ff' }}>
+            {part}
+          </span>
+        );
+      } else if (ifrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#ff2700' }}>
+            {part}
+          </span>
+        );
+      } else if (mvfrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#236ed8' }}>
+            {part}
+          </span>
+        );
+      } else {
+        return <span key={index}>{part} </span>; // Return normal text if no match
+      }
+    });
+  };
+  
 
 
   return (
