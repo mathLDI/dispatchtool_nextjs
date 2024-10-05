@@ -1,7 +1,7 @@
 'use client';
 
-import { Analytics } from "@vercel/analytics/react"
-import React, { useState } from 'react';
+import { Analytics } from "@vercel/analytics/react";
+import React, { useState, useEffect } from 'react';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import { RccProvider } from './RccCalculatorContext';
 import { createPortal } from 'react-dom';
@@ -17,9 +17,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isXWindModalOpen, setIsXWindModalOpen] = useState(false);
   const [isRccNotProvidedModalOpen, setIsRccNotProvidedModalOpen] = useState(false);
   const [isRccProvidedModalOpen, setIsRccProvidedModalOpen] = useState(false);
-  const [isQuickSearchModalOpen, setIsQuickSearchModalOpen] = useState(false); // New state for Quick Search modal
+  const [isQuickSearchModalOpen, setIsQuickSearchModalOpen] = useState(false); // State for Quick Search modal
   const [isHovered, setIsHovered] = useState(false);
-  const [isPinned, setIsPinned] = useState(true); // New state for pinning the SideNav
+  const [isPinned, setIsPinned] = useState(true); // State for pinning the SideNav
 
   const togglePin = () => setIsPinned(!isPinned);
 
@@ -31,6 +31,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     backgroundColor: 'white',
     transition: 'transform 0.3s ease',
     transform: isHovered || isPinned ? 'translateX(0)' : `translateX(-${200 - 20}px)`,
+    overflowY: 'auto',  // Enable vertical scrolling
+
   };
 
   const pinIconStyle: React.CSSProperties = {
@@ -52,9 +54,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     lineHeight: '1.25', // Reduce line spacing
   };
 
+  // UseEffect to listen for CTRL + Q shortcut to open/close Quick Search Modal
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if CTRL + Q is pressed
+      if (event.ctrlKey && event.key === 'q') {
+        event.preventDefault(); // Prevent the default action
+        setIsQuickSearchModalOpen((prevState) => !prevState); // Toggle the Quick Search modal
+      }
+    };
+
+    // Attach the event listener to the document
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
+
   return (
     <RccProvider>
-      <div className={`flex min-h-screen ${roboto.className}`}>
+      <div className={`flex min-h-screen ${roboto.className}` }>
         <div
           style={sideNavStyles}
           onMouseEnter={() => setIsHovered(true)}
@@ -141,8 +162,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <GlobalModalContent onClose={() => setIsQuickSearchModalOpen(false)} contentType='Quick Search' />,
         document.body
       )}
-            <Analytics /> {/* Add this at the root level so it's included in all pages */}
-
+      <Analytics /> {/* Add this at the root level so it's included in all pages */}
     </RccProvider>
   );
 };

@@ -86,10 +86,9 @@ const RoutingWXXForm = ({ onSave }) => {
 
   const handleSave = () => {
     const icaoAirports = flightDetails.icaoAirports || []; // Default to empty array if undefined
-    const icaoAirportALTN = flightDetails.icaoAirportALTN || []; // Default to empty array if undefined
 
-    // Check if flightNumber, icaoAirports, and icaoAirportALTN are valid
-    if (flightDetails.flightNumber && icaoAirports.length > 0 && icaoAirportALTN.length > 0) {
+    // Check if flightNumber and icaoAirports are valid
+    if (flightDetails.flightNumber && icaoAirports.length > 0) {
       onSave(flightDetails); // Proceed with saving if all fields are valid
     } else {
       // Check and show alert messages for missing fields
@@ -98,9 +97,6 @@ const RoutingWXXForm = ({ onSave }) => {
       }
       if (icaoAirports.length === 0) {
         alert("Please provide at least one ICAO airport.");
-      }
-      if (icaoAirportALTN.length === 0) {
-        alert("Please provide at least one ICAO alternate airport.");
       }
     }
   };
@@ -527,7 +523,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-
   const handleSaveRouting = (newRouting) => {
     // Function to filter valid 4-letter/number ICAO airports and ignore invalid or whitespace-only entries
     const filterValidAirports = (airports) => airports.filter(airport => /^[A-Za-z0-9]{4}$/.test(airport.trim()));
@@ -537,74 +532,77 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
     // Filter out invalid airports (not exactly 4 characters or whitespace)
     const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
-    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []);
+    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Keep alternates filtered but don't compare with the main airports
 
     // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
-    if (hasInvalidAirports(flightDetails.icaoAirports) || hasInvalidAirports(flightDetails.icaoAirportALTN)) {
+    if (hasInvalidAirports(flightDetails.icaoAirports)) {
       alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
       return; // Exit early to prevent saving an invalid routing
     }
 
-    // If both filtered icaoAirports and icaoAirportALTN are empty, prevent saving
-    if (filteredIcaoAirports.length === 0 || filteredIcaoAirportALTN.length === 0) {
-      alert('Please provide valid ICAO airports and alternate airports.');
+    // If there are no valid icaoAirports, prevent saving
+    if (filteredIcaoAirports.length === 0) {
+      alert('Please provide at least one valid ICAO airport.');
       return; // Exit early to prevent saving an invalid routing
     }
 
-    // Find if a routing with the same flightNumber, departure, and destination already exists
-    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
-      return (
-        routing.flightNumber === newRouting.flightNumber &&
-        routing.departure === newRouting.departure &&
-        routing.destination === newRouting.destination
-      );
-    });
-
-    // Create a new routing with filtered icaoAirports and icaoAirportALTN
+    // Create a new routing with filtered icaoAirports
     const routingWithIcao = {
       ...newRouting,
-      icaoAirports: filteredIcaoAirports, // Use the filtered airports
-      icaoAirportALTN: filteredIcaoAirportALTN, // Use the filtered alternate airports
+      icaoAirports: filteredIcaoAirports, // Use the filtered main airports
+      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates included but don't compare
     };
 
-    // If an existing routing is found, compare the icaoAirports and icaoAirportALTN
+    let updatedRoutings;
+
+    // Find if a routing with the same flightNumber and icaoAirports already exists
+    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
+      return routing.flightNumber === newRouting.flightNumber;
+    });
+
     if (existingRoutingIndex !== -1) {
       const existingRouting = savedRoutings[existingRoutingIndex];
 
-      // Check if the icaoAirports or icaoAirportALTN have changed
-      const hasIcaoAirportsChanged =
-        JSON.stringify(existingRouting.icaoAirports) !==
-        JSON.stringify(routingWithIcao.icaoAirports);
+      // Check if the current icaoAirports are exactly the same as the existing routing's icaoAirports
+      const isIcaoAirportsSame =
+        JSON.stringify(existingRouting.icaoAirports) === JSON.stringify(filteredIcaoAirports);
 
-      const hasIcaoAirportALTNChanged =
-        JSON.stringify(existingRouting.icaoAirportALTN) !==
-        JSON.stringify(routingWithIcao.icaoAirportALTN);
+      // If the ICAO airports haven't changed, and alternates have been added, don't show any warning
+      const hasAlternatesChanged = JSON.stringify(existingRouting.icaoAirportALTN) !== JSON.stringify(filteredIcaoAirportALTN);
 
-      // If there are changes in the airports, open the modal
-      if (hasIcaoAirportsChanged || hasIcaoAirportALTNChanged) {
-        setPendingRouting(routingWithIcao);
-        setIsModalOpen(true); // Trigger the modal to confirm changes
-      } else {
-        // If no changes, proceed with the update (or do nothing)
-        const updatedRoutings = [...savedRoutings];
-        updatedRoutings[existingRoutingIndex] = routingWithIcao;
+      // If no changes to main ICAO airports, show the "Routing already exists" message
+      if (isIcaoAirportsSame && !hasAlternatesChanged) {
+        alert("Routing already exists.");
+        return; // Exit early to prevent redundant saving
+      }
 
-        setSavedRoutings(updatedRoutings);
+      // Check if new ICAO airports are added (i.e., if the new list has airports that weren't in the existing routing)
+      const newAirportsAdded = filteredIcaoAirports.some(
+        (airport) => !existingRouting.icaoAirports.includes(airport)
+      );
 
-        // Update localStorage if available
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+      // If new ICAO airports are added, show a confirmation prompt
+      if (newAirportsAdded) {
+        const confirmed = window.confirm("You are adding new ICAO airports to an existing routing. Do you want to proceed?");
+        if (!confirmed) {
+          return; // Exit early if the user doesn't confirm
         }
       }
-    } else {
-      // If no existing routing, just add the new one
-      const updatedRoutings = [...savedRoutings, routingWithIcao];
-      setSavedRoutings(updatedRoutings);
 
-      // Update localStorage if available
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
-      }
+      // Update the existing routing
+      updatedRoutings = [...savedRoutings];
+      updatedRoutings[existingRoutingIndex] = routingWithIcao;
+    } else {
+      // Add the new routing
+      updatedRoutings = [...savedRoutings, routingWithIcao];
+    }
+
+    // Update the state with the updated routings
+    setSavedRoutings(updatedRoutings);
+
+    // Update localStorage if available
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
     }
   };
 
@@ -802,7 +800,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
     return (
       <div>
-        <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -811,7 +809,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
 
-            // Parse the expiration date using the C) field
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
@@ -820,17 +817,22 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
             const lines = displayText.split('\n');
             let inBold = false;
-            const processedLines = lines.map((line) => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
-              return inBold ? `<strong>${line}</strong>` : line;
-            });
 
             return (
               <div key={index} className="mb-4">
-                {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
-                ))}
+                {lines.map((line, lineIndex) => {
+                  if (line.includes('E)')) inBold = true;
+                  if (line.includes('F)')) inBold = false;
+                  return (
+                    <p key={lineIndex} className="mb-1">
+                      {inBold ? (
+                        <strong>{highlightNotamTermsJSX(line)}</strong>
+                      ) : (
+                        highlightNotamTermsJSX(line)
+                      )}
+                    </p>
+                  );
+                })}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
                 {expirationDate && (
@@ -839,7 +841,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                     <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
-                {/* Divider below each NOTAM entry except the last one */}
                 {index !== notamsToRender.length - 1 && (
                   <hr className="my-2 border-gray-300" />
                 )}
@@ -851,12 +852,45 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     );
   };
 
+  // Reuse the highlightNotamTermsJSX function to highlight terms:
+  const highlightNotamTermsJSX = (text) => {
+    const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
+    const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
+    const mvfrTerms = /\b(TWY CLOSED)\b/g;
+
+    const parts = text.split(/(\s+)/); // Split text into words and spaces
+
+    return parts.map((part, index) => {
+      if (lifrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#ff40ff' }}>
+            {part}
+          </span>
+        );
+      } else if (ifrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#ff2700' }}>
+            {part}
+          </span>
+        );
+      } else if (mvfrTerms.test(part)) {
+        return (
+          <span key={index} style={{ color: '#236ed8' }}>
+            {part}
+          </span>
+        );
+      } else {
+        return <span key={index}>{part} </span>; // Return normal text if no match
+      }
+    });
+  };
+
 
 
   return (
-    <div className="flex h-screen overflow-auto">
+    <div className="flex overflow-auto">
 
-      <div className='flex  '>
+      <div className='flex'>
         <ConfirmModal
           isOpen={isModalOpen}
           onClose={handleClose}
@@ -864,32 +898,27 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           onModify={handleModify}
         />
 
-        <div className='flex-1  h-screen  '>
+        <div className='flex-1    '>
 
-          <div className="flex pt-2 ">
-            {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center p-2 relative">
-                {/* Search box to filter routings */}
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <SearchIcon className="h-5 w-5 text-gray-500" />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search by Term(s)"
-                  value={searchRouting}
-                  onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
-                  className="p-2 pl-10  border border-gray-300 rounded-md w-full"
-                  style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
-                />
-              </div>
-            )}
+          <div className="flex  ">
+
+            <input
+              type="text"
+              placeholder="Search by Term(s)"
+              value={searchRouting}
+              onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+              className="p-1 pl-1 border border-gray-300 rounded-md"
+              style={{ textTransform: 'uppercase', width: '135px' }} // Set a fixed width of 300px
+            />
+
+
           </div>
 
 
 
-          <div className="flex  h-screen overflow-y-auto bg-gray-300   ">
+          <div className="flex-1 bg-gray-300 flex flex-col justify-center items-center"> {/* Added flex-col to stack items vertically */}
             {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center h-full w-full  ">
+              <div className="flex justify-center items-center   ">
                 <SideNav
                   savedRoutings={filteredRoutings} // Pass filtered routings based on search
                   onDeleteRouting={handleDeleteRouting}
@@ -906,7 +935,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       </div>
 
-      <div className="flex-1 flex-wrap flex-col p-3 " ref={containerRef}>
+      <div className="flex-1 flex-wrap flex-col p-1 " ref={containerRef}>
         <div className="flex-1  ">
 
           <div className='flex justify-between'>
@@ -928,7 +957,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           </div>
 
 
-          <div className='pb-4'>
+          <div className='pb-1'>
             <RoutingWXXForm onSave={handleSaveRouting} />
           </div>
 

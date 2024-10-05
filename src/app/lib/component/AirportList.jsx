@@ -7,22 +7,22 @@ const AirportList = ({ onAirportClick }) => {
     airportCategories,
     removeAirportValue,
     selectedForm,
-    flightDetails, // Import flightDetails from context
+    flightDetails,
   } = useRccContext();
 
   // Extract airports from flightDetails
-  const icaoAirportsToShow = (flightDetails.icaoAirports || []).map((code) => ({ code })); // Convert ICAO airports into objects
-  const icaoAirportALTNToShow = (flightDetails.icaoAirportALTN || []).map((code) => ({ code })); // Convert ICAO alternate airports into objects
+  const icaoAirportsToShow = (flightDetails.icaoAirports || []).map((code) => ({ code })); 
+  const icaoAirportALTNToShow = (flightDetails.icaoAirportALTN || []).map((code) => ({ code })); 
 
   const handleRemoveClick = (e, airportCode) => {
-    e.stopPropagation(); // Prevent li onClick from being called
-    removeAirportValue(airportCode); // Call the remove function from context
+    e.stopPropagation(); 
+    removeAirportValue(airportCode); 
   };
 
   const renderAirportList = (airports, label) => (
     <>
-     <h3 className="text-sm font-bold mt-2 mb-2">{label}</h3> {/* Reduced font size */}
-     <ul className="grid grid-cols-[repeat(auto-fill,_minmax(100px,_1fr))] gap-2 w-full"> {/* Reduced minmax size and gap */}
+      <h3 className="text-sm font-bold mt-1 mb-1">{label}</h3> 
+      <ul className="grid grid-cols-[repeat(auto-fill,_minmax(60px,_1fr))] gap-1 w-full"> 
         {airports.map((airport, index) => {
           const categoryInfo = airportCategories[airport.code] || {};
           const dotColorClass = categoryInfo.color || 'text-gray-500';
@@ -30,26 +30,24 @@ const AirportList = ({ onAirportClick }) => {
           return (
             <li
               key={index}
-              onClick={() => onAirportClick(airport.code)} // Use the passed down onAirportClick
-              className={`flex items-center bg-gray-100 dark:bg-gray-700 justify-between p-2 
+              onClick={() => onAirportClick(airport.code)} 
+              className={`flex items-center bg-gray-100 dark:bg-gray-700 justify-between p-1 
                 rounded-md shadow-sm ${selectedAirport && selectedAirport.code === airport.code ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'
                 } cursor-pointer`}
             >
               <span>{airport.code}</span>
 
-              <button
-                onClick={(e) => handleRemoveClick(e, airport.code)}
-                className="flex items-center ml-1 relative"
-              >
-                <span className={`mr-2 ${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
+              <div className="flex items-center space-x-1"> {/* Ensure space between dot and code */}
+                <span className={`${dotColorClass}`} style={{ fontSize: '1.5rem' }}>
                   &#9679;
                 </span>
 
-                {/* Conditionally show the 'x' div only for "Airport Search" */}
                 {selectedForm === 'Airport Search' && (
-                  <div className='shadow-sm border hover:scale-110 transition-transform duration-150'>x</div>
+                  <div className='shadow-sm border hover:scale-110 transition-transform duration-150'>
+                    x
+                  </div>
                 )}
-              </button>
+              </div>
             </li>
           );
         })}
@@ -59,21 +57,16 @@ const AirportList = ({ onAirportClick }) => {
 
   return (
     <div className="flex flex-col rounded-lg w-full">
-
       <div className='flex-1 pb-1'>
-          {/* Render ICAO Airports */}
-      {renderAirportList(icaoAirportsToShow, '')}
+        {renderAirportList(icaoAirportsToShow, '')}
       </div>
 
-      <hr className=" border-gray-300" />
+      <hr className="border-gray-300" />
 
       <div className='flex-1'>
-  {/* Render ICAO Alternate Airports */}
-  {renderAirportList(icaoAirportALTNToShow, '')}
+        {renderAirportList(icaoAirportALTNToShow, '')}
+      </div>
     </div>
-
-</div>
-      
   );
 };
 
