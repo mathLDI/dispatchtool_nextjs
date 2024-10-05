@@ -233,7 +233,7 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
 
       if (normalizedSearchTerm) {
         const searchTermRegex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
-        highlightedText = highlightedText.replace(searchTermRegex, '<mark>$1</mark>');
+        highlightedText = highlightedText.replace(searchTermRegex, '$1');
       }
 
       return { ...notam, highlightedText };

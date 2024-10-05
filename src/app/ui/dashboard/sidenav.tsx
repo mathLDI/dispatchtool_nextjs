@@ -50,12 +50,12 @@ export default function SideNav({
 
 
   return (
-    <div className="flex h-full flex-col px-2 py-2 md:px-1 overflow-y-auto">
+    <div className="flex flex-col px-1 py-1 md:px-1 overflow-y-auto" style={{ lineHeight: '1.0' }}> {/* Reduced line spacing */}
       <div>
 
         {showLogo && (
           <Link
-            className="mb-1 flex h-16 items-end justify-start rounded-md bg-blue-600 p-2 md:h-32"
+            className="mb-1 flex  items-end justify-start rounded-md bg-blue-600  md:h-32"
             href="/"
           >
             <div className="w-24 text-white md:w-32">
@@ -70,7 +70,7 @@ export default function SideNav({
 
 
         {/* Display saved routings */}
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto max-h-screen"> {/* Added overflow-y-auto and max-height constraint */}
           {[...savedRoutings].reverse().map((routing, reverseIndex) => {
             const originalIndex = savedRoutings.length - 1 - reverseIndex; // Calculate the original index
 
@@ -78,7 +78,7 @@ export default function SideNav({
               <div
                 key={originalIndex}
                 className={clsx(
-                  'p-2 bg-gray-100 rounded-md mb-2 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
+                  ' bg-gray-100 rounded-md mb-1 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
                   {
                     'bg-sky-100 text-blue-600': selectedRouting === routing,
                   }
@@ -86,16 +86,17 @@ export default function SideNav({
                 onClick={() => handleRoutingClick(routing)}
               >
                 <div>
-                  <p className="font-bold">
+                  <p className="font-bold mb-0">
                     Flight: {routing.flightNumber}
                   </p>
+
 
                   {/* Display ICAO airports list in a responsive row/column layout with max-width */}
                   {Array.isArray(routing.icaoAirports) && routing.icaoAirports.length > 0 && (
                     <div className="flex flex-col">
-                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                      <div className="flex flex-wrap gap-1" style={{ maxWidth: '100px' }}> {/* Add maxWidth here */}
                         {routing.icaoAirports.map((icao, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
+                          <div key={idx} className="flex items-center ">
 
                             <span
                               className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
@@ -111,11 +112,11 @@ export default function SideNav({
 
                   {/* Display ICAO Alternate airports list in a responsive row/column layout with max-width */}
                   {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
-                    <div className="flex flex-col mt-1">
+                    <div className="flex flex-col ">
                       <span>Alternate Airports:</span>
-                      <div className="flex flex-wrap gap-2" style={{ maxWidth: '150px' }}> {/* Add maxWidth here */}
+                      <div className="flex flex-wrap " style={{ maxWidth: '100px' }}> {/* Add maxWidth here */}
                         {routing.icaoAirportALTN.map((icao, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
+                          <div key={idx} className="flex items-center ">
                             <span>{icao}</span>
                             <span
                               className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`}
@@ -139,7 +140,7 @@ export default function SideNav({
                   }}
                   className="flex items-center ml-1 relative"
                 >
-                  <div className='shadow-sm border hover:scale-110 transition-transform duration-150 px-1'>
+                  <div className='shadow-sm border hover:scale-110 transition-transform duration-150 '>
                     x
                   </div>
                 </button>

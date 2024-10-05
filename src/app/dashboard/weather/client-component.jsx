@@ -523,93 +523,93 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
- const handleSaveRouting = (newRouting) => {
-  // Function to filter valid 4-letter/number ICAO airports and ignore invalid or whitespace-only entries
-  const filterValidAirports = (airports) => airports.filter(airport => /^[A-Za-z0-9]{4}$/.test(airport.trim()));
+  const handleSaveRouting = (newRouting) => {
+    // Function to filter valid 4-letter/number ICAO airports and ignore invalid or whitespace-only entries
+    const filterValidAirports = (airports) => airports.filter(airport => /^[A-Za-z0-9]{4}$/.test(airport.trim()));
 
-  // Function to check if there are any invalid airports (not exactly 4 characters)
-  const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
+    // Function to check if there are any invalid airports (not exactly 4 characters)
+    const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
 
-  // Filter out invalid airports (not exactly 4 characters or whitespace)
-  const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
-  const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Keep alternates filtered but don't compare with the main airports
+    // Filter out invalid airports (not exactly 4 characters or whitespace)
+    const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
+    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Keep alternates filtered but don't compare with the main airports
 
-  // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
-  if (hasInvalidAirports(flightDetails.icaoAirports)) {
-    alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
-    return; // Exit early to prevent saving an invalid routing
-  }
+    // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
+    if (hasInvalidAirports(flightDetails.icaoAirports)) {
+      alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
+      return; // Exit early to prevent saving an invalid routing
+    }
 
-  // If there are no valid icaoAirports, prevent saving
-  if (filteredIcaoAirports.length === 0) {
-    alert('Please provide at least one valid ICAO airport.');
-    return; // Exit early to prevent saving an invalid routing
-  }
+    // If there are no valid icaoAirports, prevent saving
+    if (filteredIcaoAirports.length === 0) {
+      alert('Please provide at least one valid ICAO airport.');
+      return; // Exit early to prevent saving an invalid routing
+    }
 
-  // Create a new routing with filtered icaoAirports
-  const routingWithIcao = {
-    ...newRouting,
-    icaoAirports: filteredIcaoAirports, // Use the filtered main airports
-    icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates included but don't compare
+    // Create a new routing with filtered icaoAirports
+    const routingWithIcao = {
+      ...newRouting,
+      icaoAirports: filteredIcaoAirports, // Use the filtered main airports
+      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates included but don't compare
+    };
+
+    let updatedRoutings;
+
+    // Find if a routing with the same flightNumber and icaoAirports already exists
+    const existingRoutingIndex = savedRoutings.findIndex((routing) => {
+      return routing.flightNumber === newRouting.flightNumber;
+    });
+
+    if (existingRoutingIndex !== -1) {
+      const existingRouting = savedRoutings[existingRoutingIndex];
+
+      // Check if the current icaoAirports are exactly the same as the existing routing's icaoAirports
+      const isIcaoAirportsSame =
+        JSON.stringify(existingRouting.icaoAirports) === JSON.stringify(filteredIcaoAirports);
+
+      // If the ICAO airports haven't changed, and alternates have been added, don't show any warning
+      const hasAlternatesChanged = JSON.stringify(existingRouting.icaoAirportALTN) !== JSON.stringify(filteredIcaoAirportALTN);
+
+      // If no changes to main ICAO airports, show the "Routing already exists" message
+      if (isIcaoAirportsSame && !hasAlternatesChanged) {
+        alert("Routing already exists.");
+        return; // Exit early to prevent redundant saving
+      }
+
+      // Check if new ICAO airports are added (i.e., if the new list has airports that weren't in the existing routing)
+      const newAirportsAdded = filteredIcaoAirports.some(
+        (airport) => !existingRouting.icaoAirports.includes(airport)
+      );
+
+      // If new ICAO airports are added, show a confirmation prompt
+      if (newAirportsAdded) {
+        const confirmed = window.confirm("You are adding new ICAO airports to an existing routing. Do you want to proceed?");
+        if (!confirmed) {
+          return; // Exit early if the user doesn't confirm
+        }
+      }
+
+      // Update the existing routing
+      updatedRoutings = [...savedRoutings];
+      updatedRoutings[existingRoutingIndex] = routingWithIcao;
+    } else {
+      // Add the new routing
+      updatedRoutings = [...savedRoutings, routingWithIcao];
+    }
+
+    // Update the state with the updated routings
+    setSavedRoutings(updatedRoutings);
+
+    // Update localStorage if available
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
+    }
   };
 
-  let updatedRoutings;
 
-  // Find if a routing with the same flightNumber and icaoAirports already exists
-  const existingRoutingIndex = savedRoutings.findIndex((routing) => {
-    return routing.flightNumber === newRouting.flightNumber;
-  });
 
-  if (existingRoutingIndex !== -1) {
-    const existingRouting = savedRoutings[existingRoutingIndex];
 
-    // Check if the current icaoAirports are exactly the same as the existing routing's icaoAirports
-    const isIcaoAirportsSame =
-      JSON.stringify(existingRouting.icaoAirports) === JSON.stringify(filteredIcaoAirports);
 
-    // If the ICAO airports haven't changed, and alternates have been added, don't show any warning
-    const hasAlternatesChanged = JSON.stringify(existingRouting.icaoAirportALTN) !== JSON.stringify(filteredIcaoAirportALTN);
-
-    // If no changes to main ICAO airports, show the "Routing already exists" message
-    if (isIcaoAirportsSame && !hasAlternatesChanged) {
-      alert("Routing already exists.");
-      return; // Exit early to prevent redundant saving
-    }
-
-    // Check if new ICAO airports are added (i.e., if the new list has airports that weren't in the existing routing)
-    const newAirportsAdded = filteredIcaoAirports.some(
-      (airport) => !existingRouting.icaoAirports.includes(airport)
-    );
-
-    // If new ICAO airports are added, show a confirmation prompt
-    if (newAirportsAdded) {
-      const confirmed = window.confirm("You are adding new ICAO airports to an existing routing. Do you want to proceed?");
-      if (!confirmed) {
-        return; // Exit early if the user doesn't confirm
-      }
-    }
-
-    // Update the existing routing
-    updatedRoutings = [...savedRoutings];
-    updatedRoutings[existingRoutingIndex] = routingWithIcao;
-  } else {
-    // Add the new routing
-    updatedRoutings = [...savedRoutings, routingWithIcao];
-  }
-
-  // Update the state with the updated routings
-  setSavedRoutings(updatedRoutings);
-
-  // Update localStorage if available
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('savedRoutings', JSON.stringify(updatedRoutings));
-  }
-};
-
-  
-  
-  
-  
 
   const handleConfirm = () => {
     if (pendingRouting) {
@@ -793,11 +793,11 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-  
+
     return (
       <div>
         <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -808,16 +808,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
-  
+
             return (
               <div key={index} className="mb-4">
                 {lines.map((line, lineIndex) => {
@@ -851,15 +851,15 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
     );
   };
-  
+
   // Reuse the highlightNotamTermsJSX function to highlight terms:
   const highlightNotamTermsJSX = (text) => {
     const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
     const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
     const mvfrTerms = /\b(TWY CLOSED)\b/g;
-  
+
     const parts = text.split(/(\s+)/); // Split text into words and spaces
-  
+
     return parts.map((part, index) => {
       if (lifrTerms.test(part)) {
         return (
@@ -884,13 +884,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       }
     });
   };
-  
+
 
 
   return (
-    <div className="flex h-screen overflow-auto">
+    <div className="flex overflow-auto">
 
-      <div className='flex  '>
+      <div className='flex'>
         <ConfirmModal
           isOpen={isModalOpen}
           onClose={handleClose}
@@ -898,32 +898,27 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           onModify={handleModify}
         />
 
-        <div className='flex-1  h-screen  '>
+        <div className='flex-1    '>
 
-          <div className="flex pt-2 ">
-            {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center p-2 relative">
-                {/* Search box to filter routings */}
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <SearchIcon className="h-5 w-5 text-gray-500" />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search by Term(s)"
-                  value={searchRouting}
-                  onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
-                  className="p-2 pl-10  border border-gray-300 rounded-md w-full"
-                  style={{ textTransform: 'uppercase' }} // Visually display the input in uppercase
-                />
-              </div>
-            )}
+          <div className="flex  ">
+
+            <input
+              type="text"
+              placeholder="Search by Term(s)"
+              value={searchRouting}
+              onChange={(e) => setSearchRouting(e.target.value.toUpperCase())} // Convert input to uppercase
+              className="p-1 pl-1 border border-gray-300 rounded-md"
+              style={{ textTransform: 'uppercase', width: '135px' }} // Set a fixed width of 300px
+            />
+
+
           </div>
 
 
 
-          <div className="flex  h-screen overflow-y-auto bg-gray-300   ">
+          <div className="flex-1 bg-gray-300 flex flex-col justify-center items-center"> {/* Added flex-col to stack items vertically */}
             {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center h-full w-full  ">
+              <div className="flex justify-center items-center   ">
                 <SideNav
                   savedRoutings={filteredRoutings} // Pass filtered routings based on search
                   onDeleteRouting={handleDeleteRouting}
@@ -940,7 +935,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
       </div>
 
-      <div className="flex-1 flex-wrap flex-col p-3 " ref={containerRef}>
+      <div className="flex-1 flex-wrap flex-col p-1 " ref={containerRef}>
         <div className="flex-1  ">
 
           <div className='flex justify-between'>
@@ -962,7 +957,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           </div>
 
 
-          <div className='pb-4'>
+          <div className='pb-1'>
             <RoutingWXXForm onSave={handleSaveRouting} />
           </div>
 

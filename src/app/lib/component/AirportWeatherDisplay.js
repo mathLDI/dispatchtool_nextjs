@@ -40,14 +40,14 @@ export default function AirportWeatherDisplay({
 
   const [selectedButton, setSelectedButton] = useState('METAR/TAF');
 
-//console.log("renderNotamCard from ", renderNotamCard);
+  //console.log("renderNotamCard from ", renderNotamCard);
 
   if (!categorizedNotams) {
     return null; // or you can return a loading spinner or a message indicating that data is being fetched
   }
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col  ">
 
 
       <div className="flex items-center dark:bg-gray-700 justify-start p-2 space-x-2 rounded-md shadow-lg">
@@ -78,22 +78,20 @@ export default function AirportWeatherDisplay({
 
 
 
-      <div>
-
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ maxHeight: '75vh', overflowY: 'auto', paddingBottom: '250px' }} // Add padding for better spacing
+      >
         <div>
 
           {/*******  Add a conditional METAR rendering for the Airport Search *******/}
-
-
-
-    
 
 
           {/* Conditional Rendering for METAR/TAF - Routing Search */}
           {selectedButton === 'METAR/TAF' && selectedForm === 'Routing Search' && (
             <>
               {/*******  Conditional METAR rendering for Routing Search - Individual airport *******/}
-              <div className="flex">
+              <div className="flex ">
                 <Card title="METAR" status={null} className="h-full">
                   <MetarDisplay weatherData={weatherData} />
                 </Card>
@@ -176,7 +174,7 @@ export default function AirportWeatherDisplay({
               )}
             </>
           )}
-  
+
 
           {/* Conditional Rendering for GFA - Routing Search */}
           {selectedButton === 'GFA' && (

@@ -30,8 +30,8 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
       <Draggable handle=".drag-handle" cancel=".non-draggable">
         <div
           className="flex flex-col fixed z-50 rounded-lg shadow-lg bg-white p-4"
-          style={{ top: '20%', left: '50%', transform: 'translate(-50%, -20%)' }}
-        >
+          style={{ top: '20%', left: '30%', transform: 'translate(-50%, -50%)' }}
+          >
           {/* Draggable area (extremity, like a header) */}
           <div className="drag-handle cursor-move mb-2 bg-gray-200 p-2 rounded-t-lg">
             {/* Optional header for dragging */}
