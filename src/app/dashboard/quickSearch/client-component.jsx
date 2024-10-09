@@ -13,6 +13,7 @@ import {
   countFilteredNotams,
   filterAndHighlightNotams,
   extractTextBeforeFR,
+  highlightNotamTermsJSX,
 } from './QuickWeatherAndNotam';
 
 
@@ -174,9 +175,10 @@ export default function ClientComponent({ fetchQuickWeather }) {
   };
 
   const handleSearchChangeQuick = (event) => {
-    setSearchTermQuick(event.target.value || '');
+    const upperCaseSearchTermQuick = event.target.value.toUpperCase(); // Convert to uppercase
+    setSearchTermQuick(upperCaseSearchTermQuick);
   };
-
+  
 
 
 
@@ -187,24 +189,29 @@ export default function ClientComponent({ fetchQuickWeather }) {
         return (
           <Card title="NOTAM AERODROME QUICK" status={null} className="h-full">
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Future NOTAMs for AERODROME
+              'FUTURE',
+              searchTermQuick // Pass the search term for highlighting
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Today NOTAMs for AERODROME
+              'TODAY',
+              searchTermQuick
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 7 Days NOTAMs for AERODROME
+              'LAST 7 DAYS',
+              searchTermQuick
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 30 Days NOTAMs for AERODROME
+              'LAST 30 DAYS',
+              searchTermQuick
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Older NOTAMs for AERODROME
+              'OLDER',
+              searchTermQuick
             )}
           </Card>
         );
@@ -212,24 +219,29 @@ export default function ClientComponent({ fetchQuickWeather }) {
         return (
           <Card title="NOTAM ENROUTE QUICK" status={null} className="h-full">
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Future NOTAMs for ENROUTE
+              'FUTURE',
+              searchTermQuick
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Today NOTAMs for ENROUTE
+              'TODAY',
+              searchTermQuick
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 7 Days NOTAMs for ENROUTE
+              'LAST 7 DAYS',
+              searchTermQuick
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 30 Days NOTAMs for ENROUTE
+              'LAST 30 DAYS',
+              searchTermQuick
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Older NOTAMs for ENROUTE
+              'OLDER',
+              searchTermQuick
             )}
           </Card>
         );
@@ -237,24 +249,29 @@ export default function ClientComponent({ fetchQuickWeather }) {
         return (
           <Card title="NOTAM WARNING QUICK" status={null} className="h-full">
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotamsQuick.futureNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Future NOTAMs for WARNING
+              'FUTURE',
+              searchTermQuick
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotamsQuick.todayNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Today NOTAMs for WARNING
+              'TODAY',
+              searchTermQuick
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last7DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 7 Days NOTAMs for WARNING
+              'LAST 7 DAYS',
+              searchTermQuick
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotamsQuick.last30DaysNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Last 30 Days NOTAMs for WARNING
+              'LAST 30 DAYS',
+              searchTermQuick
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick),
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotamsQuick.olderNotams || [], searchTermQuick, isCraneFilterActiveQuick), // Older NOTAMs for WARNING
+              'OLDER',
+              searchTermQuick
             )}
           </Card>
         );
@@ -262,24 +279,27 @@ export default function ClientComponent({ fetchQuickWeather }) {
         return null;
     }
   };
-
+  
 
 
   //////////////////////////////////////
 
 
   // Function for NOTAMs with Q-Line that have an "A"
-  const renderNotamsAandAE = (notams, title) => {
+  const renderNotamsAandAE = (notams, title, searchTerm) => {
+    if (!Array.isArray(notams)) {
+      console.error('Expected an array but received:', notams);
+      return <p>No Applicable NOTAMs</p>; // Or handle the error appropriately
+    }
+  
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-
+  
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-
-      // Ensure that the Q-line matches for Aerodrome (starts with 'A')
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-
+  
     return (
       <div>
         <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -288,29 +308,33 @@ export default function ClientComponent({ fetchQuickWeather }) {
         ) : (
           notamsToRender.map((notam, index) => {
             const notamText = JSON.parse(notam.text);
-            const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
+            const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            // Parse the expiration date using the C) field
+  
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-
+  
             const lines = displayText.split('\n');
             let inBold = false;
-            const processedLines = lines.map((line) => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
-              return inBold ? `<strong>${line}</strong>` : line;
-            });
-
+  
             return (
               <div key={index} className="mb-4">
-                {processedLines.map((line, lineIndex) => (
-                  <p key={lineIndex} className="mb-1" dangerouslySetInnerHTML={{ __html: line }}></p>
-                ))}
+                {lines.map((line, lineIndex) => {
+                  if (line.includes('E)')) inBold = true;
+                  if (line.includes('F)')) inBold = false;
+                  return (
+                    <p key={lineIndex} className="mb-1">
+                      {inBold ? (
+                        <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
+                      ) : (
+                        highlightNotamTermsJSX(line, searchTerm)
+                      )}
+                    </p>
+                  );
+                })}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
                 {expirationDate && (
@@ -319,7 +343,9 @@ export default function ClientComponent({ fetchQuickWeather }) {
                     <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
-                {index !== notamsToRender.length - 1 && <hr className="my-2 border-gray-300" />}
+                {index !== notamsToRender.length - 1 && (
+                  <hr className="my-2 border-gray-300" />
+                )}
               </div>
             );
           })
@@ -327,19 +353,17 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
+  
 
-
-  const renderNotamsW = (notams, title) => {
-    const notamsToRender = notams.filter(notam => {
+  const renderNotamsW = (notams, title, searchTerm) => {
+    const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-
+  
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-
-      // Ensure Q-line starts with 'W' for warning NOTAMs
       return qLineMatch && qLineMatch[2].startsWith('W');
     });
-
+  
     return (
       <div>
         <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -350,31 +374,31 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
-            // Parse the expiration date using the C) field
+  
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-
+  
             const lines = displayText.split('\n');
             let inBold = false;
-            const processedLines = lines.map((line) => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
-              return inBold ? `<strong>${line}</strong>` : line;
-            });
-
+  
             return (
               <div key={index} className="mb-4">
-                {processedLines.map((line, lineIndex) => (
-                  <p
-                    key={lineIndex}
-                    className="mb-1"
-                    dangerouslySetInnerHTML={{ __html: line }}
-                  ></p>
-                ))}
+                {lines.map((line, lineIndex) => {
+                  if (line.includes('E)')) inBold = true;
+                  if (line.includes('F)')) inBold = false;
+                  return (
+                    <p key={lineIndex} className="mb-1">
+                      {inBold ? (
+                        <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
+                      ) : (
+                        highlightNotamTermsJSX(line, searchTerm)
+                      )}
+                    </p>
+                  );
+                })}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
                 {expirationDate && (
@@ -393,21 +417,20 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-
-
-  const renderNotamsE = (notams, title) => {
+  
+  
+  const renderNotamsE = (notams, title, searchTerm) => {
     const notamsToRender = notams.filter(notam => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-
+  
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
-
       return qLineMatch && qLineMatch[2].startsWith('E');
     });
-
+  
     return (
       <div>
-        <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -415,35 +438,33 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-
+  
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch
               ? parseNotamDate(expirationMatch[1])
               : null;
             const localExpirationDate = expirationDate
-              ? new Date(
-                expirationDate.getTime() -
-                expirationDate.getTimezoneOffset() * 60000
-              )
+              ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-
+  
             const lines = displayText.split('\n');
             let inBold = false;
-            const processedLines = lines.map((line) => {
-              if (line.includes('E)')) inBold = true;
-              if (line.includes('F)')) inBold = false;
-              return inBold ? `<strong>${line}</strong>` : line;
-            });
-
+  
             return (
               <div key={index} className="mb-4">
-                {processedLines.map((line, lineIndex) => (
-                  <p
-                    key={lineIndex}
-                    className="mb-1"
-                    dangerouslySetInnerHTML={{ __html: line }}
-                  ></p>
-                ))}
+                {lines.map((line, lineIndex) => {
+                  if (line.includes('E)')) inBold = true;
+                  if (line.includes('F)')) inBold = false;
+                  return (
+                    <p key={lineIndex} className="mb-1">
+                      {inBold ? (
+                        <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
+                      ) : (
+                        highlightNotamTermsJSX(line, searchTerm)
+                      )}
+                    </p>
+                  );
+                })}
                 <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
                 <p className="text-blue-800">Effective (Local): {localTime}</p>
                 {expirationDate && (
@@ -462,6 +483,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
+  
 
   return (
     <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.0' }}>
