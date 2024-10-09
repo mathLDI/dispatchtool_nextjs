@@ -281,7 +281,7 @@ function parseMETARForCeilingAndVisibility(metarString) {
 }
 
 
-export const renderNotamsW = (notams, title) => {
+export const renderNotamsW = (notams, title, searchTerm) => {
   const notamsToRender = notams.filter((notam) => {
     const notamText = JSON.parse(notam.text);
     const displayText = extractTextBeforeFR(notamText.raw);
@@ -318,9 +318,9 @@ export const renderNotamsW = (notams, title) => {
                 return (
                   <p key={lineIndex} className="mb-1">
                     {inBold ? (
-                      <strong>{highlightNotamTermsJSX(line)}</strong>
+                      <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
                     ) : (
-                      highlightNotamTermsJSX(line)
+                      highlightNotamTermsJSX(line, searchTerm)
                     )}
                   </p>
                 );
@@ -344,7 +344,8 @@ export const renderNotamsW = (notams, title) => {
   );
 };
 
-export const renderNotamsE = (notams, title) => {
+
+export const renderNotamsE = (notams, title, searchTerm) => {
   const notamsToRender = notams.filter(notam => {
     const notamText = JSON.parse(notam.text);
     const displayText = extractTextBeforeFR(notamText.raw);
@@ -383,9 +384,9 @@ export const renderNotamsE = (notams, title) => {
                 return (
                   <p key={lineIndex} className="mb-1">
                     {inBold ? (
-                      <strong>{highlightNotamTermsJSX(line)}</strong>
+                      <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
                     ) : (
-                      highlightNotamTermsJSX(line)
+                      highlightNotamTermsJSX(line, searchTerm)
                     )}
                   </p>
                 );
@@ -409,16 +410,24 @@ export const renderNotamsE = (notams, title) => {
   );
 };
 
-// Function to highlight specific terms with JSX without showing <span>
-const highlightNotamTermsJSX = (text) => {
+
+export const highlightNotamTermsJSX = (text, searchTerm) => {
   const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
   const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
   const mvfrTerms = /\b(TWY CLOSED)\b/g;
 
-  const parts = text.split(/(\s+)/); // Split text into words and spaces
+  const searchTermRegex = searchTerm ? new RegExp(`(${searchTerm})`, 'gi') : null;
+
+  const parts = text.split(/(\s+)/);
 
   return parts.map((part, index) => {
-    if (lifrTerms.test(part)) {
+    if (searchTerm && searchTermRegex && searchTermRegex.test(part)) {
+      return (
+        <span key={index} style={{ backgroundColor: 'yellow' }}>
+          {part}
+        </span>
+      );
+    } else if (lifrTerms.test(part)) {
       return (
         <span key={index} style={{ color: '#ff40ff' }}>
           {part}
@@ -437,7 +446,7 @@ const highlightNotamTermsJSX = (text) => {
         </span>
       );
     } else {
-      return <span key={index}>{part} </span>; // Return normal text if no match
+      return <span key={index}>{part}</span>;
     }
   });
 };

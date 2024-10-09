@@ -23,6 +23,7 @@ import {
   countFilteredNotams,
   filterAndHighlightNotams,
   extractTextBeforeFR,
+  highlightNotamTermsJSX,
 } from '../../lib/component/functions/weatherAndNotam';
 
 
@@ -704,8 +705,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value || '');
+    const upperCaseSearchTerm = event.target.value.toUpperCase(); // Convert the input to uppercase
+    setSearchTerm(upperCaseSearchTerm);
   };
+  
 
   const renderNotamCard = () => {
     switch (selectedNotamType) {
@@ -713,24 +716,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         return (
           <Card title="NOTAM AERODROME" status={null} className="h-full">
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs for AERODROME
+              'FUTURE',
+              searchTerm // Pass the search term for highlighting
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs for AERODROME
+              'TODAY',
+              searchTerm
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs for AERODROME
+              'LAST 7 DAYS',
+              searchTerm
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs for AERODROME
+              'LAST 30 DAYS',
+              searchTerm
             )}
             {renderNotamsAandAE(
-              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs for AERODROME
+              'OLDER',
+              searchTerm
             )}
           </Card>
         );
@@ -738,24 +746,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         return (
           <Card title="NOTAM ENROUTE" status={null} className="h-full">
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs for ENROUTE
+              'FUTURE',
+              searchTerm
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs for ENROUTE
+              'TODAY',
+              searchTerm
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs for ENROUTE
+              'LAST 7 DAYS',
+              searchTerm
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs for ENROUTE
+              'LAST 30 DAYS',
+              searchTerm
             )}
             {renderNotamsE(
-              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs for ENROUTE
+              'OLDER',
+              searchTerm
             )}
           </Card>
         );
@@ -763,24 +776,29 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         return (
           <Card title="NOTAM WARNING" status={null} className="h-full">
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs
-              'FUTURE'
+              filterAndHighlightNotams(categorizedNotams[0] || [], searchTerm, isCraneFilterActive), // Future NOTAMs for WARNING
+              'FUTURE',
+              searchTerm
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs
-              'TODAY'
+              filterAndHighlightNotams(categorizedNotams[1] || [], searchTerm, isCraneFilterActive), // Today NOTAMs for WARNING
+              'TODAY',
+              searchTerm
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs
-              'LAST 7 DAYS'
+              filterAndHighlightNotams(categorizedNotams[2] || [], searchTerm, isCraneFilterActive), // Last 7 Days NOTAMs for WARNING
+              'LAST 7 DAYS',
+              searchTerm
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs
-              'LAST 30 DAYS'
+              filterAndHighlightNotams(categorizedNotams[3] || [], searchTerm, isCraneFilterActive), // Last 30 Days NOTAMs for WARNING
+              'LAST 30 DAYS',
+              searchTerm
             )}
             {renderNotamsW(
-              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs
-              'OLDER'
+              filterAndHighlightNotams(categorizedNotams[4] || [], searchTerm, isCraneFilterActive), // Older NOTAMs for WARNING
+              'OLDER',
+              searchTerm
             )}
           </Card>
         );
@@ -789,8 +807,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   };
   
+  
   // Function for NOTAMs with Q-Line that have an "A"
-  const renderNotamsAandAE = (notams, title) => {
+  const renderNotamsAandAE = (notams, title, searchTerm) => {
     if (!Array.isArray(notams)) {
       console.error('Expected an array but received:', notams);
       return <p>No Applicable NOTAMs</p>; // Or handle the error appropriately
@@ -812,7 +831,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         ) : (
           notamsToRender.map((notam, index) => {
             const notamText = JSON.parse(notam.text);
-            const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
+            const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
   
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
@@ -832,9 +851,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                   return (
                     <p key={lineIndex} className="mb-1">
                       {inBold ? (
-                        <strong>{highlightNotamTermsJSX(line)}</strong>
+                        <strong>{highlightNotamTermsJSX(line, searchTerm)}</strong>
                       ) : (
-                        highlightNotamTermsJSX(line)
+                        highlightNotamTermsJSX(line, searchTerm)
                       )}
                     </p>
                   );
@@ -857,38 +876,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
     );
   };
-  // Reuse the highlightNotamTermsJSX function to highlight terms:
-  const highlightNotamTermsJSX = (text) => {
-    const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
-    const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
-    const mvfrTerms = /\b(TWY CLOSED)\b/g;
+  
 
-    const parts = text.split(/(\s+)/); // Split text into words and spaces
 
-    return parts.map((part, index) => {
-      if (lifrTerms.test(part)) {
-        return (
-          <span key={index} style={{ color: '#ff40ff' }}>
-            {part}
-          </span>
-        );
-      } else if (ifrTerms.test(part)) {
-        return (
-          <span key={index} style={{ color: '#ff2700' }}>
-            {part}
-          </span>
-        );
-      } else if (mvfrTerms.test(part)) {
-        return (
-          <span key={index} style={{ color: '#236ed8' }}>
-            {part}
-          </span>
-        );
-      } else {
-        return <span key={index}>{part} </span>; // Return normal text if no match
-      }
-    });
-  };
+  
 
 
 
