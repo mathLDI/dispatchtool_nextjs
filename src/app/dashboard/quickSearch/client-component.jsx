@@ -463,10 +463,6 @@ export default function ClientComponent({ fetchQuickWeather }) {
     );
   };
 
-
-
-  console.log('quickWeatherData', quickWeatherData);
-
   return (
     <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.0' }}>
 

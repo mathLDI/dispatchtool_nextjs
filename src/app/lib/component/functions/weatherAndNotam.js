@@ -194,14 +194,16 @@ export function categorizeNotams(notams) {
     }
   });
 
-  return {
-    futureNotams,
-    todayNotams,
-    last7DaysNotams,
-    last30DaysNotams,
-    olderNotams,
-  };
+  // Return an array of categorized NOTAMs
+  return [
+    futureNotams,    // Index 0: Future NOTAMs
+    todayNotams,     // Index 1: Today's NOTAMs
+    last7DaysNotams, // Index 2: NOTAMs from the last 7 days
+    last30DaysNotams,// Index 3: NOTAMs from the last 30 days
+    olderNotams      // Index 4: Older NOTAMs
+  ];
 }
+
 
 export function extractTextBeforeFR(text) {
   const frIndex = text.indexOf('FR:');
@@ -243,15 +245,18 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
 
 
 export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActive) {
+  // Filter NOTAMs based on the search term and crane filter
   const filteredNotams = filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive);
 
+  // Return the count of filtered NOTAMs that match the specified type
   return filteredNotams.filter((notam) => {
     const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
     const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
     if (!qLineMatch) return false;
-    return qLineMatch[2].startsWith(type);
+    return qLineMatch[2].startsWith(type); // Check if the NOTAM matches the type
   }).length;
 }
+
 
 
 function parseMETARForCeilingAndVisibility(metarString) {
