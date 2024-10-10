@@ -21,7 +21,7 @@ const FirstPageRccProvided = (props) => {
     } = useRccContext();
 
     const rwyccChoices = [6, 5, 4, 3, 2, 1, 0];
-    const buttonAircraftType = ["DHC-8", "HS-748"];
+    const buttonAircraftType = ["DHC-8", "HS-748","ATR-72"];
     const [callDxp] = useState(null);
     const [resetListBox, setResetListBox] = useState(false);
     const integerRunwayLength = parseInt(runwayLength, 10);
