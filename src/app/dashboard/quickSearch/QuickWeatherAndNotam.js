@@ -227,9 +227,9 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText
-        .replace(ifrTerms, '<span class="text-custom-ifr">$&</span>')
-        .replace(lifrTerms, '<span class="text-custom-lifr">$&</span>')
-        .replace(mvfrTerms, '<span class="text-custom-mvfr">$&</span>');
+        .replace(ifrTerms, '$&')
+        .replace(lifrTerms, '$&')
+        .replace(mvfrTerms, '$&');
 
       if (normalizedSearchTerm) {
         const searchTermRegex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
@@ -409,4 +409,45 @@ export const renderNotamsE = (notams, title) => {
       )}
     </div>
   );
+};
+
+
+export const highlightNotamTermsJSX = (text, searchTerm) => {
+  const lifrTerms = /\b(RSC|SERVICE|AUTH)\b/g;
+  const ifrTerms = /\b(CLOSED|CLSD|OUT OF SERVICE|RWY|U\/S)\b/g;
+  const mvfrTerms = /\b(TWY CLOSED)\b/g;
+
+  const searchTermRegex = searchTerm ? new RegExp(`(${searchTerm})`, 'gi') : null;
+
+  const parts = text.split(/(\s+)/);
+
+  return parts.map((part, index) => {
+    if (searchTerm && searchTermRegex && searchTermRegex.test(part)) {
+      return (
+        <span key={index} style={{ backgroundColor: 'yellow' }}>
+          {part}
+        </span>
+      );
+    } else if (lifrTerms.test(part)) {
+      return (
+        <span key={index} style={{ color: '#ff40ff' }}>
+          {part}
+        </span>
+      );
+    } else if (ifrTerms.test(part)) {
+      return (
+        <span key={index} style={{ color: '#ff2700' }}>
+          {part}
+        </span>
+      );
+    } else if (mvfrTerms.test(part)) {
+      return (
+        <span key={index} style={{ color: '#236ed8' }}>
+          {part}
+        </span>
+      );
+    } else {
+      return <span key={index}>{part}</span>;
+    }
+  });
 };

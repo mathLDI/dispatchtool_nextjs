@@ -36,15 +36,14 @@ export default function AirportWeatherDisplay({
 
   } = useRccContext();
 
-
-
   const [selectedButton, setSelectedButton] = useState('METAR/TAF');
 
-  //console.log("renderNotamCard from ", renderNotamCard);
+
 
   if (!categorizedNotams) {
     return null; // or you can return a loading spinner or a message indicating that data is being fetched
   }
+
 
   return (
     <div className="flex flex-col  ">
@@ -226,20 +225,23 @@ export default function AirportWeatherDisplay({
                   onClick={() => handleNotamTypeChange('AERODROME')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  AERODROME | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'A', searchTerm, isCraneFilterActive)}
+                  AERODROME | {countFilteredNotams(categorizedNotams.flat(), 'A', searchTerm, isCraneFilterActive)}
                 </button>
+
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  ENROUTE | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'E', searchTerm, isCraneFilterActive)}
+                  ENROUTE | {countFilteredNotams(categorizedNotams.flat(), 'E', searchTerm, isCraneFilterActive)}
                 </button>
+
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  WARNING | {countFilteredNotams((categorizedNotams.futureNotams ?? []).concat(categorizedNotams.todayNotams ?? [], categorizedNotams.last7DaysNotams ?? [], categorizedNotams.last30DaysNotams ?? [], categorizedNotams.olderNotams ?? []), 'W', searchTerm, isCraneFilterActive)}
+                  WARNING | {countFilteredNotams(categorizedNotams.flat(), 'W', searchTerm, isCraneFilterActive)}
                 </button>
+
                 <button
                   onClick={toggleCraneFilter}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
@@ -247,6 +249,7 @@ export default function AirportWeatherDisplay({
                   CRANE
                 </button>
               </div>
+
 
               <input
                 type="text"

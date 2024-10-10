@@ -211,9 +211,9 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   const [allWeatherData, setAllWeatherData] = useState<any>({});
   const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
-  const [isCraneFilterActive, setIsCraneFilterActive] = useState(false);
+  const [isCraneFilterActive, setIsCraneFilterActive] = useState(true);
 
-  const [isCraneFilterActiveQuick, setIsCraneFilterActiveQuick] = useState(false);
+  const [isCraneFilterActiveQuick, setIsCraneFilterActiveQuick] = useState(true);
   const [selectedForm, setSelectedForm] = useState<string>('Routing Search');
 
   // Initialize flightDetails from localStorage (client-side check)
