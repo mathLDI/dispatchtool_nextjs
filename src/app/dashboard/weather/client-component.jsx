@@ -878,14 +878,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
   
 
-
-  
-
-
-
-
-
-
   return (
     <div className="flex overflow-auto">
 

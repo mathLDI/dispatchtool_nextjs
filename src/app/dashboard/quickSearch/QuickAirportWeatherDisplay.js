@@ -81,7 +81,7 @@ export default function QuickAirportWeatherDisplay({
 
   return (
     <div className="flex-1 flex-col overflow-y-auto max-h-screen">
-      <div className="flex items-center dark:bg-gray-700 justify-start p-1 space-x-1 rounded-md shadow-lg">
+      <div className="flex items-center dark:bg-gray-700 justify-start p-1 space-x-1 rounded-md shadow-lg ">
         <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm ${QuickselectedButton === 'METAR/TAF' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
           onClick={() => setSelectedButtonQuick('METAR/TAF')}>
@@ -106,10 +106,13 @@ export default function QuickAirportWeatherDisplay({
 
       </div>
 
-      <div>
-        
-       {/* Conditionally render METAR/TAF display */}
-       {QuickselectedButton === 'METAR/TAF' && (
+      <div
+        className=""
+        style={{ maxHeight: '75vh', overflowY: 'auto', paddingBottom: '150px' }} // Add padding for better spacing
+      >
+
+        {/* Conditionally render METAR/TAF display */}
+        {QuickselectedButton === 'METAR/TAF' && (
           <>
             <div className="flex">
               <Card title="METAR" status={null} className="h-full">
