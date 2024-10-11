@@ -1,10 +1,11 @@
 // src/app/page.tsx
 
-import { redirect } from 'next/navigation';
+import Login from './lib/component/Login';
 
-export default function Home() {
-  // Redirect to the desired page
-  redirect('/dashboard/weather');
-  
-  return null; // No need to render anything
+export default function HomePage() {
+  return (
+    <div>
+      <Login />
+    </div>
+  );
 }
