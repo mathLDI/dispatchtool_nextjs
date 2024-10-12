@@ -19,7 +19,7 @@ const SecondPageCrosswindCalculator = () => {
         eastOrWestVar, setEastOrWestVar
     } = useRccContext();
 
-    const buttonAircraftType = ["DHC-8", "HS-748"];
+    const buttonAircraftType = ["DHC-8", "HS-748", "ATR-72"];
     const buttonEastOrWest = ["West", "East"];
     const [callDxp] = useState(null);
     const integerWindDirection = parseInt(windDirection, 10);
@@ -176,14 +176,19 @@ const SecondPageCrosswindCalculator = () => {
             </Card>
 
             <div className="space-y-2 w-full sm:w-auto">
+                {aircraftType === "ATR-72" && CrosswindComponentNoNegOneDigit > 35 && (
+                    <div className="bg-red-600 rounded-md p-2 text-white text-center">
+                        Over Max Crosswind
+                    </div>
+                )}
                 {aircraftType === "DHC-8" && CrosswindComponentNoNegOneDigit > 36 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Crosswind
                     </div>
                 )}
-                {aircraftType === "DHC-8" && HeadwindTailwindComp < -10 && HeadwindTailwindComp > -21 && (
+                {(aircraftType === "DHC-8" || aircraftType === "ATR-72") && HeadwindTailwindComp < -10 && HeadwindTailwindComp > -21 && (
                     <div className="bg-orange-400 rounded-md p-2 text-white text-center">
-                        Over Max Tailwind for the DHC-8 106 and DHC-8 300
+                        Over Max Tailwind for the DHC-8 106, DHC-8 300, and ATR-72
                     </div>
                 )}
                 {aircraftType === "DHC-8" && HeadwindTailwindComp < -20 && (
@@ -206,7 +211,15 @@ const SecondPageCrosswindCalculator = () => {
                         Over Max Speed on the Ground
                     </div>
                 )}
+
+                {aircraftType === "ATR-72" && integerWindSpeed > 40 && (
+                    <div className="bg-red-600 rounded-md p-2 text-white text-center">
+                        Over Max Speed on the Ground for ATR-72
+                    </div>
+                )}
+
             </div>
+
         </div>
     );
 };
