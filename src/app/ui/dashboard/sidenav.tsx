@@ -50,19 +50,20 @@ export default function SideNav({
 
 
   return (
-    <div className="flex flex-col px-1 py-1 md:px-1 overflow-y-auto" style={{ lineHeight: '1.0' }}> {/* Reduced line spacing */}
-      <div>
 
+    <div className="flex flex-col px-1 py-1 md:px-1  " style={{ lineHeight: '1.0' }}> {/* Reduced line spacing */}
+
+      <div>
         {showLogo && (
-          <Link
-            className="mb-1 flex  items-end justify-start rounded-md bg-blue-600  md:h-32"
-            href="/"
+          <div
+            className="mb-1 flex items-end justify-start rounded-md bg-blue-600 md:h-32"
           >
             <div className="w-24 text-white md:w-32">
               <AcmeLogo />
             </div>
-          </Link>
+          </div>
         )}
+
         <div className="flex grow flex-row justify-between space-x-1 md:flex-col md:space-x-0 md:space-y-1">
           {showWeatherAndRcam && <NavLinks />}
 
@@ -70,7 +71,7 @@ export default function SideNav({
 
 
         {/* Display saved routings */}
-        <div className="flex-1 overflow-y-auto max-h-screen"> {/* Added overflow-y-auto and max-height constraint */}
+        <div className="flex-1  max-h-screen"> {/* Added overflow-y-auto and max-height constraint */}
           {[...savedRoutings].reverse().map((routing, reverseIndex) => {
             const originalIndex = savedRoutings.length - 1 - reverseIndex; // Calculate the original index
 
@@ -148,10 +149,8 @@ export default function SideNav({
             );
           })}
         </div>
-
-
-
       </div>
+
     </div>
   );
 }

@@ -695,8 +695,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   }, [weatherData]);
 
   const categorizedNotams = weatherData
-  ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
-  : [[], [], [], [], []]; // Default to an array of empty arrays if no data
+    ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
+    : [[], [], [], [], []]; // Default to an array of empty arrays if no data
 
 
 
@@ -708,7 +708,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     const upperCaseSearchTerm = event.target.value.toUpperCase(); // Convert the input to uppercase
     setSearchTerm(upperCaseSearchTerm);
   };
-  
+
 
   const renderNotamCard = () => {
     switch (selectedNotamType) {
@@ -806,23 +806,23 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         return null;
     }
   };
-  
-  
+
+
   // Function for NOTAMs with Q-Line that have an "A"
   const renderNotamsAandAE = (notams, title, searchTerm) => {
     if (!Array.isArray(notams)) {
       console.error('Expected an array but received:', notams);
       return <p>No Applicable NOTAMs</p>; // Or handle the error appropriately
     }
-  
+
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-  
+
     return (
       <div>
         <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
@@ -833,16 +833,16 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
-  
+
             return (
               <div key={index} className="mb-4">
                 {lines.map((line, lineIndex) => {
@@ -876,7 +876,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       </div>
     );
   };
-  
+
 
   return (
     <div className="flex overflow-auto">
@@ -889,9 +889,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
           onModify={handleModify}
         />
 
-        <div className='flex-1    '>
+        <div className='flex-1'>
 
-          <div className="flex  ">
+          <div className="flex">
 
             <input
               type="text"
@@ -907,20 +907,26 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-          <div className="flex-1 bg-gray-300 flex flex-col justify-center items-center"> {/* Added flex-col to stack items vertically */}
-            {selectedForm === 'Routing Search' && (
-              <div className="flex justify-center items-center   ">
-                <SideNav
-                  savedRoutings={filteredRoutings} // Pass filtered routings based on search
-                  onDeleteRouting={handleDeleteRouting}
-                  showWeatherAndRcam={false}
-                  showLogo={false}
-                  showPrinterIcon={false}
-                  airportCategories={airportCategories}
-                />
-              </div>
-            )}
+          <div className="flex-1 bg-gray-300 flex flex-col justify-center items-center  "
+
+          > {/* Ensure full height with h-full */}
+            <div
+              className="flex-1 "
+              style={{ maxHeight: '95vh', overflowY: 'auto', paddingBottom: '50px' }} // Add padding for better spacing and scrolling
+            >
+              {/* Increased padding at the bottom */}
+              <SideNav
+                savedRoutings={filteredRoutings} // Pass filtered routings based on search
+                onDeleteRouting={handleDeleteRouting}
+                showWeatherAndRcam={false}
+                showLogo={false}
+                showPrinterIcon={false}
+                airportCategories={airportCategories}
+              />
+            </div>
           </div>
+
+
 
         </div>
 
