@@ -1,6 +1,6 @@
 // src/app/page.tsx
 
-import Login from './lib/component/Login';
+import Login from './login/page';
 
 export default function HomePage() {
   return (

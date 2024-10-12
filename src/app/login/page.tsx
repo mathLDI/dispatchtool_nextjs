@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../../firebaseConfig';  // Adjusted import path
-import Image from 'next/image';  // Import Next.js Image component
-import logo from '../../assets/logo.png';  // Adjust the path to your logo
-import { useRouter } from 'next/navigation';  // Using Next.js 13 navigation for app directory
+import { auth } from '../../firebaseConfig';
+import Image from 'next/image'; // Import Next.js Image component
+import { useRouter } from 'next/navigation'; // Using Next.js 13 navigation for app directory
+
+const logo = '/logo.png'; // Correct path for public assets
+
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);  // State to hold error message (string or null)
-  const router = useRouter();  // Initialize router for navigation
+  const [error, setError] = useState<string | null>(null); // State to hold error message (string or null)
+  const router = useRouter(); // Initialize router for navigation
 
   // Handle sign-in using Firebase Authentication
   const handleSignIn = async () => {
     try {
-      console.log('Email:', email);
-      console.log('Password:', password);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log("User signed in:", user);
@@ -31,7 +32,7 @@ const Login = () => {
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();  // Prevent the form from being submitted via traditional HTTP request
+    e.preventDefault(); // Prevent the form from being submitted via traditional HTTP request
     handleSignIn();
   };
 
@@ -44,6 +45,7 @@ const Login = () => {
           alt="Your Company Logo"
           width={200}  // Adjust width
           height={200}  // Adjust height
+          priority // Mark as priority if it's above the fold for better performance
         />
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign in to your account
