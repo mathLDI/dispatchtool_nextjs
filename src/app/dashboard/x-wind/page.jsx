@@ -186,11 +186,22 @@ const SecondPageCrosswindCalculator = () => {
                         Over Max Crosswind
                     </div>
                 )}
-                {(aircraftType === "DHC-8" || aircraftType === "ATR-72") && HeadwindTailwindComp < -10 && HeadwindTailwindComp > -21 && (
+
+                {aircraftType === "DHC-8" && HeadwindTailwindComp < -10 && HeadwindTailwindComp > -21 && (
                     <div className="bg-orange-400 rounded-md p-2 text-white text-center">
-                        Over Max Tailwind for the DHC-8 106, DHC-8 300, and ATR-72
+                        Over Max Tailwind for the DHC-8 106, DHC-8 300
                     </div>
                 )}
+
+
+                {aircraftType === "ATR-72" && HeadwindTailwindComp < -15 && (
+                    <div className="bg-orange-400 rounded-md p-2 text-white text-center">
+                        Over Max Tailwind for the ATR-72
+                    </div>
+                )}
+
+
+
                 {aircraftType === "DHC-8" && HeadwindTailwindComp < -20 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Tailwind
