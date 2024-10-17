@@ -195,7 +195,7 @@ const SecondPageCrosswindCalculator = () => {
 
 
                 {aircraftType === "ATR-72" && HeadwindTailwindComp < -15 && (
-                    <div className="bg-orange-400 rounded-md p-2 text-white text-center">
+                    <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Tailwind for the ATR-72
                     </div>
                 )}
