@@ -8,8 +8,12 @@ import { CustomButton } from '../../lib/component/Button';
 import { useRccContext } from '../RccCalculatorContext';
 import { CrosswindComponent } from '../../lib/component/functions/crosswindComponent.js';
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
+import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
+
 
 const SecondPageCrosswindCalculator = () => {
+    useAuth(); // Ensure only authenticated users can access this component
+
     const {
         aircraftType, setAircraftType,
         runwayHeading, setRunwayHeading,

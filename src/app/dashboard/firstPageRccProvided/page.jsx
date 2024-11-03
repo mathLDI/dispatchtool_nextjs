@@ -7,8 +7,12 @@ import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
 import { contaminent } from '../../lib/component/functions/runwayType';
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
+import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
+
 
 const FirstPageRccProvided = (props) => {
+    useAuth(); // Ensure only authenticated users can access this component
+
     const { } = props;
 
     const {
@@ -20,6 +24,8 @@ const FirstPageRccProvided = (props) => {
         runwayLength, setRunwayLength
     } = useRccContext();
 
+    
+
     const rwyccChoices = [6, 5, 4, 3, 2, 1, 0];
     const buttonAircraftType = ["DHC-8", "HS-748","ATR-72"];
     const [callDxp] = useState(null);
@@ -27,6 +33,8 @@ const FirstPageRccProvided = (props) => {
     const integerRunwayLength = parseInt(runwayLength, 10);
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
     const [isExpanded, setIsExpanded] = useState(false);
+
+
 
 
     const resetButtonHandler = () => {
@@ -77,8 +85,7 @@ const FirstPageRccProvided = (props) => {
 
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
-
-
+  
 
 
     return (
