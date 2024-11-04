@@ -3,37 +3,41 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../../firebaseConfig';
-import Image from 'next/image'; // Import Next.js Image component
-import { useRouter } from 'next/navigation'; // Using Next.js 13 navigation for app directory
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { setCookie } from 'cookies-next';
 
-const logo = '/logo.png'; // Correct path for public assets
-
-
+const logo = '/logo.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null); // State to hold error message (string or null)
-  const router = useRouter(); // Initialize router for navigation
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Handle sign-in using Firebase Authentication
   const handleSignIn = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log("User signed in:", user);
-      
-      // Redirect to /dashboard/weather after successful sign-in
-      router.push('/dashboard/weather');
+
+      const token = await user.getIdToken();
+      setCookie("authToken", token, {
+        path: "/",
+        httpOnly: false,
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      router.push("/dashboard/weather");
     } catch (error: any) {
-      console.error("Sign-in error:", error);
+      console.error("Login error:", error);
       setError(`Login failed: ${error.message}`);
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent the form from being submitted via traditional HTTP request
-    handleSignIn();
+    e.preventDefault();
+    handleSignIn(); // Call handleSignIn with state variables
   };
 
   return (
@@ -41,11 +45,11 @@ const Login = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
           className="mx-auto"
-          src={logo}  // Use the local logo here
+          src={logo}
           alt="Your Company Logo"
-          width={200}  // Adjust width
-          height={200}  // Adjust height
-          priority // Mark as priority if it's above the fold for better performance
+          width={200}
+          height={200}
+          priority
         />
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign in to your account

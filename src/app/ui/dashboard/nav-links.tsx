@@ -1,10 +1,11 @@
 'use client';
 
-import { DocumentIcon, CloudIcon, LogoutIcon } from '@heroicons/react/outline'; // Import icons
-import { useRouter } from 'next/navigation';  // Next.js router for redirect
-import { signOut } from 'firebase/auth';      // Firebase signOut
-import { auth } from '../../../firebaseConfig';  // Firebase configuration
-import { usePathname } from 'next/navigation';
+import { DocumentIcon, CloudIcon, LogoutIcon } from '@heroicons/react/outline';
+import { useRouter, usePathname } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../../firebaseConfig';
+import { deleteCookie } from 'cookies-next';
+
 import clsx from 'clsx';
 
 const links = [
@@ -22,21 +23,21 @@ const links = [
 
 export default function NavLinks() {
   const pathname = usePathname();
-  const router = useRouter();  // Initialize Next.js router for navigation
+  const router = useRouter();
 
   // Handle logout action
   const handleLogout = async () => {
     try {
       await signOut(auth);  // Sign out from Firebase
-      router.push('/login');  // Redirect to the Login page
+      deleteCookie('authToken', { path: '/' });  // Delete the authToken cookie
+      router.push('/login');  // Redirect to the login page
     } catch (error) {
-      console.error('Error logging out:', error);  // Handle any errors during sign out
+      console.error('Error logging out:', error);
     }
   };
 
   return (
-    <div className='flex flex-col h-full justify-between'> {/* This ensures content is spaced between */}
-      {/* Navigation links */}
+    <div className='flex flex-col h-full justify-between'>
       <div className=''>
         {links.map((link) => {
           const LinkIcon = link.icon;
@@ -58,13 +59,12 @@ export default function NavLinks() {
         })}
       </div>
 
-      {/* Logout Button */}
-      <div className="flex w-full"> {/* Remove extra margin */}
+      <div className="flex w-full">
         <button
           onClick={handleLogout}
           className="flex w-full h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:justify-start md:p-2 md:px-3"
         >
-          <LogoutIcon className="w-6" />  {/* Use consistent styling for icon */}
+          <LogoutIcon className="w-6" />
           <p className="hidden md:block">Logout</p>
         </button>
       </div>

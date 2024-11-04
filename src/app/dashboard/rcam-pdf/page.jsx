@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import useAuth from '../../../hooks/useAuth'; // Adjusted path for useAuth
+
+
 
 const RcamPdfPage = () => {
+  useAuth(); // Ensures only authenticated users can access
+
   const iframeRef = useRef(null);
 
   useEffect(() => {

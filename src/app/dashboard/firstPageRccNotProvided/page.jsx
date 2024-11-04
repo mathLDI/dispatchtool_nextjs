@@ -7,10 +7,14 @@ import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
 import { contaminent } from '../../lib/component/functions/runwayType';
 import { RccToUse } from '../../lib/component/functions/finalRcc';
+import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
+
 
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 
 const FirstPageRccNotProvided = (props) => {
+    useAuth(); // Ensure only authenticated users can access this component
+
     const { } = props;
 
     const { aircraftType, setAircraftType } = useRccContext("");
@@ -32,6 +36,9 @@ const FirstPageRccNotProvided = (props) => {
     const [callDxp] = useState(null);
     const [resetListBox, setResetListBox] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+
+
+
 
 
     const resetButtonHandler = () => {
@@ -108,7 +115,7 @@ console.log("rcctouse from notprovided::", rcc);
         runwayConditionDescriptionPaved4
     ];
 
-
+  
 
 
 

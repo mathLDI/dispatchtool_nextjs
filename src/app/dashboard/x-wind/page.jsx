@@ -8,8 +8,12 @@ import { CustomButton } from '../../lib/component/Button';
 import { useRccContext } from '../RccCalculatorContext';
 import { CrosswindComponent } from '../../lib/component/functions/crosswindComponent.js';
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
+import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
+
 
 const SecondPageCrosswindCalculator = () => {
+    useAuth(); // Ensure only authenticated users can access this component
+
     const {
         aircraftType, setAircraftType,
         runwayHeading, setRunwayHeading,
@@ -200,8 +204,6 @@ const SecondPageCrosswindCalculator = () => {
                     </div>
                 )}
 
-
-
                 {aircraftType === "DHC-8" && HeadwindTailwindComp < -20 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Tailwind
@@ -226,6 +228,12 @@ const SecondPageCrosswindCalculator = () => {
                 {aircraftType === "ATR-72" && integerWindSpeed > 40 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Speed on the Ground for ATR-72
+                    </div>
+                )}
+
+                {aircraftType === "ATR-72" && integerWindSpeed > 35 && (
+                    <div className="bg-orange-400 rounded-md p-2 text-white text-center">
+                        Over Max Cargo Door Wind Speed Operation for ATR-72
                     </div>
                 )}
 
