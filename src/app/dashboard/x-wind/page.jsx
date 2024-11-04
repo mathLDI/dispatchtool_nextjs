@@ -204,8 +204,6 @@ const SecondPageCrosswindCalculator = () => {
                     </div>
                 )}
 
-
-
                 {aircraftType === "DHC-8" && HeadwindTailwindComp < -20 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Tailwind
@@ -230,6 +228,12 @@ const SecondPageCrosswindCalculator = () => {
                 {aircraftType === "ATR-72" && integerWindSpeed > 40 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Speed on the Ground for ATR-72
+                    </div>
+                )}
+
+                {aircraftType === "ATR-72" && integerWindSpeed > 35 && (
+                    <div className="bg-orange-400 rounded-md p-2 text-white text-center">
+                        Over Max Cargo Door Wind Speed Operation for ATR-72
                     </div>
                 )}
 
