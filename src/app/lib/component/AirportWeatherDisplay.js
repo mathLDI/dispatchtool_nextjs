@@ -90,11 +90,14 @@ export default function AirportWeatherDisplay({
           {selectedButton === 'METAR/TAF' && selectedForm === 'Routing Search' && (
             <>
               {/*******  Conditional METAR rendering for Routing Search - Individual airport *******/}
-              <div className="flex ">
-                <Card title="METAR" status={null} className="h-full">
-                  <MetarDisplay weatherData={weatherData} />
-                </Card>
-              </div>
+             <div className="flex">
+      <Card title="METAR" status={null} className="h-full">
+        {/* Use either weatherData or allWeatherData based on selectedAirport */}
+        <MetarDisplay 
+          weatherData={selectedAirport ? allWeatherData[selectedAirport.code] : weatherData} 
+        />
+      </Card>
+    </div>
 
 
 

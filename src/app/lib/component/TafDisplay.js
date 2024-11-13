@@ -1,8 +1,18 @@
 // src/app/lib/component/TafDisplay.js
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
 const TafDisplay = ({ weatherData }) => {
+  const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
+
+  // Handle weather data updates
+  useEffect(() => {
+    if (weatherDataUpdated) {
+      setWeatherDataUpdated(false);
+    }
+  }, [weatherDataUpdated, setWeatherDataUpdated]);
+
   if (!weatherData || weatherData.data.length === 0) {
     return <p>No TAF data available</p>;
   }
@@ -58,7 +68,7 @@ function formatTAF(tafText) {
     if (visibilityMatch) {
       visibility = visibilityMatch[0].includes('/')
         ? parseFloat(visibilityMatch[0].split('/')[0]) /
-        parseFloat(visibilityMatch[0].split('/')[1])
+          parseFloat(visibilityMatch[0].split('/')[1])
         : parseFloat(visibilityMatch[0].replace('SM', ''));
     }
 
@@ -78,8 +88,8 @@ function formatTAF(tafText) {
       ceiling !== Infinity || visibility !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
-          ? currentColor
-          : firstLineColor;
+        ? currentColor
+        : firstLineColor;
 
     return (
       <p key={index} className={`${lineColor} mb-1.5`}>
