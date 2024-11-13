@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-export default function NewChoiceListbox({ choices, callback, value, reset, resetCallback }) {
+export default function NewChoiceListBox({ choices, callback, value, reset, resetCallback }) {
   const [selected, setSelected] = useState(value || choices[0]); // Initialize with passed value or first choice
 
   // Update the selected value when the parent passes a new value through props
@@ -41,7 +41,7 @@ export default function NewChoiceListbox({ choices, callback, value, reset, rese
   );
 }
 
-NewChoiceListbox.propTypes = {
+NewChoiceListBox.propTypes = {
   choices: PropTypes.array.isRequired,
   callback: PropTypes.func.isRequired,
   value: PropTypes.any,      // Optional initial value
