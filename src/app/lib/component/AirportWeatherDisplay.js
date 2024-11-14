@@ -249,7 +249,7 @@ export default function AirportWeatherDisplay({
                   onClick={toggleCraneFilter}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  CRANE
+                  CRANE & TOWER
                 </button>
               </div>
 

@@ -29,6 +29,9 @@ const TafDisplay = ({ weatherData }) => {
 function formatTAF(tafText) {
   if (!tafText) return '';
 
+   // Replace all occurrences of "−" with "-"
+   tafText = tafText.replace(/−/g, '-');
+
   const switchTerms = ['BECMG', 'TEMPO', 'PROB30', 'PROB40', 'FM'];
   const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
 
