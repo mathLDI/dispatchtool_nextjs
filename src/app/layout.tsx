@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { StrictMode } from 'react';
 import "./globals.css";
 import { RccProvider } from './dashboard/RccCalculatorContext';
 
@@ -17,11 +18,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <RccProvider>
-          {children}
-        </RccProvider>
-      </body>
+      <StrictMode>
+        <body className={inter.className}>
+          <RccProvider>
+            {children}
+          </RccProvider>
+        </body>
+      </StrictMode>
     </html>
   );
 }

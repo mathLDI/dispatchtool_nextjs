@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import SecondPageCrosswindCalculator from '../../dashboard/x-wind/page';
 import FirstPageRccNotProvided from '../../dashboard/firstPageRccNotProvided/page';
@@ -21,24 +21,28 @@ interface ModalContentProps {
 
 const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType }) => {
   const [dragging, setDragging] = useState(false);
+  const nodeRef = useRef(null); // Add this line
 
   // Disable drag only for 'Quick Search' in the middle, but enable for the extremity (like the header)
   const isDraggable = contentType !== 'Quick Search';
 
   return (
     <>
-      <Draggable handle=".drag-handle" cancel=".non-draggable">
+      <Draggable 
+        handle=".drag-handle" 
+        cancel=".non-draggable"
+        nodeRef={nodeRef} // Add this line
+      >
         <div
+          ref={nodeRef} // Add this line
           className="flex flex-col fixed z-50 rounded-lg shadow-lg bg-white p-4"
           style={{ top: '20%', left: '30%', transform: 'translate(-50%, -50%)' }}
-          >
-          {/* Draggable area (extremity, like a header) */}
+        >
+          {/* Rest of the component remains the same */}
           <div className="drag-handle cursor-move mb-2 bg-gray-200 p-2 rounded-t-lg">
-            {/* Optional header for dragging */}
             <span>Drag Area</span>
           </div>
 
-          {/* Content section, make this non-draggable */}
           <div className="non-draggable">
             {contentType === 'x-wind' && <SecondPageCrosswindCalculator />}
             {contentType === 'rcc-not-provided' && <FirstPageRccNotProvided />}
@@ -46,7 +50,6 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
             {contentType === 'Quick Search' && <QuickSearch />}
           </div>
 
-          {/* Footer with the close button */}
           <div className="flex justify-center mt-4 non-draggable">
             <button onClick={onClose} className="px-4 py-2 text-black rounded bg-gray-200">
               Close

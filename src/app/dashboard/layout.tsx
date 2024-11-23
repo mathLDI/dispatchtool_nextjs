@@ -26,6 +26,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   } = useRccContext();
 
+  // Add modal container ref
+  const modalContainerRef = useRef<HTMLDivElement>(null);
+
+  // Update portal renders to use ref
+  const renderModal = (isOpen: boolean, content: React.ReactNode) => {
+    if (!isOpen || !modalContainerRef.current) return null;
+    return createPortal(content, modalContainerRef.current);
+  };
+
+
   const [isXWindModalOpen, setIsXWindModalOpen] = useState(false);
   const [isRccNotProvidedModalOpen, setIsRccNotProvidedModalOpen] = useState(false);
   const [isRccProvidedModalOpen, setIsRccProvidedModalOpen] = useState(false);
@@ -214,29 +224,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
 
-      {/* Portal for modals */}
-      {isXWindModalOpen && createPortal(
-        <GlobalModalContent onClose={() => setIsXWindModalOpen(false)} contentType="x-wind" />,
-        document.body
+      {/* Add modal container div */}
+      <div ref={modalContainerRef} className="modal-container">
+      {/* Render modals using renderModal helper */}
+      {renderModal(
+        isXWindModalOpen,
+        <GlobalModalContent 
+          onClose={() => setIsXWindModalOpen(false)} 
+          contentType="x-wind" 
+        />
       )}
-
-      {isRccNotProvidedModalOpen && createPortal(
-        <GlobalModalContent onClose={() => setIsRccNotProvidedModalOpen(false)} contentType="rcc-not-provided" />,
-        document.body
+      {renderModal(
+        isRccNotProvidedModalOpen,
+        <GlobalModalContent 
+          onClose={() => setIsRccNotProvidedModalOpen(false)} 
+          contentType="rcc-not-provided" 
+        />
       )}
-
-      {isRccProvidedModalOpen && createPortal(
-        <GlobalModalContent onClose={() => setIsRccProvidedModalOpen(false)} contentType="rcc-provided" />,
-        document.body
+      {renderModal(
+        isRccProvidedModalOpen,
+        <GlobalModalContent 
+          onClose={() => setIsRccProvidedModalOpen(false)} 
+          contentType="rcc-provided" 
+        />
       )}
-
-      {isQuickSearchModalOpen && createPortal(
-        <GlobalModalContent onClose={() => setIsQuickSearchModalOpen(false)} contentType='Quick Search' />,
-        document.body
+      {renderModal(
+        isQuickSearchModalOpen,
+        <GlobalModalContent 
+          onClose={() => setIsQuickSearchModalOpen(false)} 
+          contentType="Quick Search" 
+        />
       )}
-
-      {/* Changed Airport Modal */}
-      {changedAirports.length > 0 && hasShownWarning && createPortal(
+      {renderModal(
+        changedAirports.length > 0 && hasShownWarning,
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg space-y-4">
             <h2 className="text-lg font-bold mb-4">Airport Category Changes</h2>
@@ -255,9 +275,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               Close
             </button>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
+    </div>
 
       <Analytics />
     </div>

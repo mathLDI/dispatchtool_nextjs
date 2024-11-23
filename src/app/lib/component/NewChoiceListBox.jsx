@@ -1,50 +1,73 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-export default function NewChoiceListBox({ choices, callback, value, reset, resetCallback }) {
-  const [selected, setSelected] = useState(value || choices[0]); // Initialize with passed value or first choice
-
-  // Update the selected value when the parent passes a new value through props
-  useEffect(() => {
-    setSelected(value);
-  }, [value]);
-
-  // Handle reset functionality
-  useEffect(() => {
-    if (reset) {
-      setSelected(choices[0]); // Reset to the first choice
-      resetCallback(); // Call the reset callback to notify the parent
-    }
-  }, [reset, resetCallback, choices]);
+const NewChoiceListBox = ({ value, choices, callback, reset, resetCallback, placeholder, allowManualInput }) => {
+  const [selected, setSelected] = useState(value || '');
+  const listId = `choices-${Math.random().toString(36).substr(2, 9)}`;
 
   const handleChange = (e) => {
-    const newValue = e.target.value;
-    setSelected(newValue); // Update local selected state.
-    callback(newValue);    // Call the callback to update parent component's state
+    const newValue = allowManualInput ? e.target.value.toUpperCase() : e.target.value;
+    setSelected(newValue);
+    callback(newValue);
+  };
+
+  const inputStyles = {
+    WebkitCalendarPickerIndicator: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    appearance: 'none',
+    background: 'white',
+    paddingRight: '8px' // Prevent text from being hidden by the dropdown arrow
   };
 
   return (
-    <div className="relativeorange
-    ">
-      <select
-        value={selected}
-        onChange={handleChange}
-        className="p-2 border border-gray-300 rounded-md w-full"
-      >
-        {choices.map((choice, idx) => (
-          <option key={idx} value={choice}>
-            {choice}
-          </option>
-        ))}
-      </select>
+    <div className="relative">
+      {allowManualInput ? (
+        <>
+          <input
+            type="text"
+            list={listId}
+            value={selected}
+            onChange={handleChange}
+            onFocus={(e) => e.target.value = selected}
+            onBlur={(e) => e.target.value = selected}
+            placeholder={placeholder || "SELECT OR TYPE..."}
+            className="p-2 border border-gray-300 rounded-md w-full uppercase [&::-webkit-calendar-picker-indicator]:hidden"
+            autoComplete="new-password" // Prevent browser autocomplete
+            style={inputStyles}
+          />
+          <datalist id={listId} className="hidden">
+            {choices.map((choice, idx) => (
+              <option key={idx} value={choice.toUpperCase()}>
+                {choice.toUpperCase()}
+              </option>
+            ))}
+          </datalist>
+        </>
+      ) : (
+        <select
+          value={selected}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md w-full"
+        >
+          {choices.map((choice, idx) => (
+            <option key={idx} value={choice}>
+              {choice}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
-}
-
+};
 NewChoiceListBox.propTypes = {
   choices: PropTypes.array.isRequired,
   callback: PropTypes.func.isRequired,
-  value: PropTypes.any,      // Optional initial value
-  reset: PropTypes.bool,     // Optional reset flag
-  resetCallback: PropTypes.func,  // Optional reset callback
+  value: PropTypes.any,
+  reset: PropTypes.bool,
+  resetCallback: PropTypes.func,
+  placeholder: PropTypes.string,
+  allowManualInput: PropTypes.bool,
 };
+
+export default NewChoiceListBox;
