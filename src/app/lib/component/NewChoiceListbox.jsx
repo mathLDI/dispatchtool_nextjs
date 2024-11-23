@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-const NewChoiceListBox = ({ value, choices, callback, reset, resetCallback, placeholder, allowManualInput }) => {
+const NewChoiceListbox = ({ value, choices, callback, reset, resetCallback, placeholder, allowManualInput }) => {
   const [selected, setSelected] = useState(value || '');
   const listId = `choices-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -60,7 +60,7 @@ const NewChoiceListBox = ({ value, choices, callback, reset, resetCallback, plac
     </div>
   );
 };
-NewChoiceListBox.propTypes = {
+NewChoiceListbox.propTypes = {
   choices: PropTypes.array.isRequired,
   callback: PropTypes.func.isRequired,
   value: PropTypes.any,
@@ -70,4 +70,4 @@ NewChoiceListBox.propTypes = {
   allowManualInput: PropTypes.bool,
 };
 
-export default NewChoiceListBox;
+export default NewChoiceListbox;
