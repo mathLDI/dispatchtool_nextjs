@@ -68,7 +68,7 @@ const SecondPageCrosswindCalculator = () => {
 
 
     //console.log('HeadwindTailwindComp:', HeadwindTailwindComp);
-    console.log("CrosswindComp:", CrosswindComp);
+    //console.log("CrosswindComp:", CrosswindComp);
 
     const HeadwindTailwindComponentNoNegOneDigit = parseFloat(Math.abs(HeadwindTailwindComp).toFixed(0));
 
