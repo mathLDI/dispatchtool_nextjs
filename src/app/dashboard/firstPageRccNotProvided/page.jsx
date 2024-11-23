@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import NewChoiceListBox from '../../lib/component/NewChoiceListBox'; // Use the correct casing
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
@@ -128,7 +128,7 @@ const FirstPageRccNotProvided = (props) => {
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Aircraft type:</div>
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -139,7 +139,7 @@ const FirstPageRccNotProvided = (props) => {
 
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Runway type:</div>
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={dropDownPavedOrGravel}
                                 choices={["GRAVEL", "PAVED"]}
                                 callback={setDropDownPavedOrGravel}
@@ -158,7 +158,7 @@ const FirstPageRccNotProvided = (props) => {
                                 <div>Contaminant 1:</div>
 
                                 <div className="flex-grow  " style={{ minWidth: '300px' }}>
-                                    <NewChoiceListBox
+                                    <NewChoiceListbox
                                         value={runwayConditionDescriptionPaved2}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionPaved2}
@@ -169,7 +169,7 @@ const FirstPageRccNotProvided = (props) => {
 
                                 <div>% Coverage 1:</div>
                                 <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                    <NewChoiceListBox
+                                    <NewChoiceListbox
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage2(Number(value))}
@@ -193,7 +193,7 @@ const FirstPageRccNotProvided = (props) => {
                                     <div>Contaminant 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '300px' }}>
 
-                                        <NewChoiceListBox
+                                        <NewChoiceListbox
                                             value={runwayConditionDescriptionPaved4}
                                             choices={contaminantChoicesExclude100}
                                             callback={setRunwayConditionDescriptionPaved4}
@@ -205,7 +205,7 @@ const FirstPageRccNotProvided = (props) => {
 
                                     <div>% Coverage 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                        <NewChoiceListBox
+                                        <NewChoiceListbox
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage4(Number(value))}
@@ -221,7 +221,7 @@ const FirstPageRccNotProvided = (props) => {
                                 <div>Contaminant 1:</div>
 
                                 <div className="flex-grow" style={{ minWidth: '300px' }}>
-                                    <NewChoiceListBox
+                                    <NewChoiceListbox
                                         value={runwayConditionDescriptionGravel1}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionGravel1}
@@ -234,7 +234,7 @@ const FirstPageRccNotProvided = (props) => {
                                 <div>% Coverage 1:</div>
 
                                 <div className="flex-grow " style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                    <NewChoiceListBox
+                                    <NewChoiceListbox
                                         value={contaminationCoverage1}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage1(Number(value))}
@@ -254,7 +254,7 @@ const FirstPageRccNotProvided = (props) => {
                                     <div className="style={{ minWidth: '100px' , maxWidth: '100px' }}">Contaminant 2:</div>
 
                                     <div className="flex-grow " style={{ minWidth: '300px' }}>
-                                        <NewChoiceListBox
+                                        <NewChoiceListbox
                                             value={runwayConditionDescriptionGravel3}
                                             choices={contaminantChoices}
                                             callback={setRunwayConditionDescriptionGravel3}
@@ -267,7 +267,7 @@ const FirstPageRccNotProvided = (props) => {
                                     <div className="">% Coverage 2:</div>
 
                                     <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
-                                        <NewChoiceListBox
+                                        <NewChoiceListbox
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage3(Number(value))}

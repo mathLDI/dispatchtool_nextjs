@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import NewChoiceListBox from '../../lib/component/NewChoiceListBox'; // Use the correct casing
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
@@ -98,7 +98,7 @@ const FirstPageRccProvided = (props) => {
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Aircraft type:</div>
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -109,21 +109,21 @@ const FirstPageRccProvided = (props) => {
 
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>RWYCC: </div>
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={rwycc1}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc1(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
                             />
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={rwycc2}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc2(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
                             />
-                            <NewChoiceListBox
+                            <NewChoiceListbox
                                 value={rwycc3}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc3(Number(value))}  // Ensure the value is a number

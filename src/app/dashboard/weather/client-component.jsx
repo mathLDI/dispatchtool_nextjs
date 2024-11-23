@@ -9,7 +9,7 @@ import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
-import NewChoiceListBox from '../../lib/component/NewChoiceListBox'; // Updated import
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
 import { SearchIcon } from '@heroicons/react/outline';
 import AirportDotCategory from '../../lib/component/AirportDotCategory'; // Updated import
 
