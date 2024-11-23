@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
+import NewChoiceListBox from '../../lib/component/NewChoiceListBox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import { useRccContext } from '../RccCalculatorContext';
