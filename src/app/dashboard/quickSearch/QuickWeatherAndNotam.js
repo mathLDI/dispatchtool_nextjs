@@ -39,7 +39,7 @@ export function calculateAirportCategories(allWeatherData) {
 
   // Calculate categories using transformed airport values and weather data
   const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
-  
+
   return categories;
 }
 
@@ -80,6 +80,10 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
 ////METAR///
 
 export function parseMETAR(metarString) {
+
+  // Replace all occurrences of "−" with "-"
+  metarString = metarString.replace(/−/g, '-');
+
   const components = metarString.split(' ');
   let wind = '';
   let visibility = '';
@@ -219,8 +223,8 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   return notams
     .filter((notam) => {
       const notamText = JSON.parse(notam.text).raw;
-      if (isCraneFilterActive && notamText.includes('CRANE')) {
-        return false; // Exclude NOTAMs that mention "CRANE"
+      if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+        return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
       }
       return notamText.toLowerCase().includes(normalizedSearchTerm);
     })

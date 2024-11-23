@@ -1,10 +1,21 @@
 // src/app/lib/component/MetarDisplay.js
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { parseMETAR } from './functions/weatherAndNotam';
+import { useRccContext } from '../../dashboard/RccCalculatorContext';
+
 
 const MetarDisplay = ({ weatherData }) => {
-  // Memoize the METAR content to prevent unnecessary re-renders
+  const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
+
+  // Handle weather data updates
+  useEffect(() => {
+    if (weatherDataUpdated) {
+      setWeatherDataUpdated(false);
+    }
+  }, [weatherDataUpdated, setWeatherDataUpdated]);
+
+  // Existing memoization logic
   const metarContent = useMemo(() => {
     if (!weatherData || weatherData.data.length === 0) {
       return <p>No METAR data available</p>;
@@ -22,7 +33,6 @@ const MetarDisplay = ({ weatherData }) => {
         const parsedMetar = parseMETAR(metar.text);
         const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
 
-        // Render formatted METAR text using JSX without dangerouslySetInnerHTML
         return (
           <div key={index} className="mb-1.5">
             <p className={color}>{formatMetarTextJSX(metarString, ceiling, visibilityValue, category)}</p>
@@ -33,6 +43,9 @@ const MetarDisplay = ({ weatherData }) => {
 
   return <div>{metarContent}</div>;
 };
+
+export default MetarDisplay;
+
 
 // Convert formatted METAR text to JSX elements for better control
 function formatMetarTextJSX(metarText, ceiling, visibility, category) {
@@ -94,4 +107,3 @@ function formatMetarTextJSX(metarText, ceiling, visibility, category) {
   });
 }
 
-export default MetarDisplay;

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+'use client';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 // Define the shape of the context state
 interface Airport {
@@ -15,14 +16,18 @@ interface FlightDetails {
   icaoAirportALTN: string[]; // New ICAO alternate airports list
 }
 
-
-
 interface Routing {
   flightNumber: string;
   departure: string;
   destination: string;
   alternate1: string;
   alternate2: string;
+}
+
+interface AirportCategory {
+  category: 'VFR' | 'MVFR' | 'IFR' | 'LIFR' | 'Unknown';
+  color: string;
+  time?: string; // Add time property to store the time of the change
 }
 
 interface RccContextType {
@@ -80,25 +85,18 @@ interface RccContextType {
   setEastOrWestVar: (option: string) => void;
   airportValues: Airport[];
   setAirportValues: (values: Airport[]) => void;
-  weatherData: any;
-  setWeatherData: (data: any) => void;
   addAirportValue: (newAirport: Airport) => void;
   removeAirportValue: (airportCode: string) => void;
   selectedAirport: Airport | null;
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
-
   selectedNotamTypeQuick: string;
   setSelectedNotamTypeQuick: (type: string) => void;
-
-
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-
   searchTermQuick: string;
   setSearchTermQuick: (term: string) => void;
-
   gfaType: string;
   setGfaType: (type: string) => void;
   gfaData: any;
@@ -107,14 +105,12 @@ interface RccContextType {
   setSelectedTimestamp: (timestamp: number) => void;
   allWeatherData: any;
   setAllWeatherData: (data: any) => void;
-  airportCategories: Record<string, { category: string; color: string }>;
-  setAirportCategories: (categories: Record<string, { category: string; color: string }>) => void;
+  airportCategories: Record<string, AirportCategory>;
+  setAirportCategories: (categories: Record<string, AirportCategory>) => void;
   isCraneFilterActive: boolean;
   setIsCraneFilterActive: (active: boolean) => void;
-
   isCraneFilterActiveQuick: boolean;
   setIsCraneFilterActiveQuick: (active: boolean) => void;
-
   flightDetails: FlightDetails;
   setFlightDetails: (details: FlightDetails) => void;
   savedRoutings: Routing[];
@@ -127,6 +123,14 @@ interface RccContextType {
   setSearchAirport: (value: string) => void;
   quickWeatherData: any;
   setQuickWeatherData: (data: any) => void;
+  lastUpdated: number;
+  setLastUpdated: (timestamp: number) => void;
+  changedAirports: string[];
+  setChangedAirports: (airports: string[]) => void;
+  weatherData: any;
+  setWeatherData: React.Dispatch<React.SetStateAction<any>>;
+  weatherDataUpdated: boolean;
+  setWeatherDataUpdated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Create the context with a default value
@@ -143,6 +147,8 @@ export const useRccContext = () => {
 
 // RccProvider component to wrap around parts of the app that need access to this context
 export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [lastUpdated, setLastUpdated] = useState(Date.now());
+
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -178,8 +184,14 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [searchRouting, setSearchRouting] = useState(''); // New search state for filtering routings
   const [searchAirport, setSearchAirport] = useState('');
   const [quickWeatherData, setQuickWeatherData] = useState<any>(null); // Initialize the quickWeatherData state
+  const [changedAirports, setChangedAirports] = useState<string[]>([]);
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [weatherDataUpdated, setWeatherDataUpdated] = useState(false);
+  useEffect(() => {
+    setIsClient(true); // Ensures client-only logic
+  }, []);
 
-
+  
   const [airportValues, setAirportValues] = useState<Airport[]>(() => {
     if (typeof window !== 'undefined') {
       const storedAirportValues = localStorage.getItem('airportValues');
@@ -195,26 +207,20 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [airportValues, isClient]);
 
-  const [weatherData, setWeatherData] = useState<any>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
-
   const [selectedNotamTypeQuick, setSelectedNotamTypeQuick] = useState('AERODROME');
-
   const [searchTerm, setSearchTerm] = useState('');
-
-
   const [searchTermQuick, setSearchTermQuick] = useState('');
-
   const [gfaType, setGfaType] = useState('CLDWX');
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   const [allWeatherData, setAllWeatherData] = useState<any>({});
-  const [airportCategories, setAirportCategories] = useState<Record<string, { category: string; color: string }>>({});
+  const [airportCategories, setAirportCategories] = useState<Record<string, AirportCategory>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(true);
-
   const [isCraneFilterActiveQuick, setIsCraneFilterActiveQuick] = useState(true);
   const [selectedForm, setSelectedForm] = useState<string>('Routing Search');
+  
 
   // Initialize flightDetails from localStorage (client-side check)
   const [flightDetails, setFlightDetails] = useState<FlightDetails>(() => {
@@ -236,7 +242,6 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       icaoAirportALTN: [], // Initialize as empty array for alternate airports
     };
   });
-  
 
   // Save flightDetails to localStorage (client-side check)
   useEffect(() => {
@@ -299,18 +304,13 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       magneticVar, setMagneticVar,
       eastOrWestVar, setEastOrWestVar,
       airportValues, setAirportValues,
-      weatherData, setWeatherData,
       addAirportValue,
       removeAirportValue,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
-
       selectedNotamTypeQuick, setSelectedNotamTypeQuick,
-
       searchTerm, setSearchTerm,
       searchTermQuick, setSearchTermQuick,
-
-
       gfaType, setGfaType,
       gfaData, setGfaData,
       selectedTimestamp, setSelectedTimestamp,
@@ -321,12 +321,17 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       flightDetails, setFlightDetails,
       savedRoutings, setSavedRoutings,
       selectedForm, setSelectedForm,
-      searchRouting, setSearchRouting, 
-      searchAirport, setSearchAirport, 
-      quickWeatherData, 
-      setQuickWeatherData, 
-
-
+      searchRouting, setSearchRouting,
+      searchAirport, setSearchAirport,
+      quickWeatherData, setQuickWeatherData,
+      lastUpdated,
+      setLastUpdated,
+      changedAirports,
+      setChangedAirports,
+      weatherData,
+      setWeatherData,
+      weatherDataUpdated,
+      setWeatherDataUpdated,
     }}>
       {children}
     </RccContext.Provider>

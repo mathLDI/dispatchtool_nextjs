@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import NewChoiceListbox from '../../lib/component/NewChoiceListbox';
+import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Use the correct casing
 import Card from '../../lib/component/Card';
 import { CustomButton } from '../../lib/component/Button';
 import PropTypes from "prop-types";
@@ -129,7 +129,7 @@ console.log("rcctouse from notprovided::", rcc);
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Aircraft type:</div>
-                            <NewChoiceListbox
+                            <NewChoiceListBox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -140,7 +140,7 @@ console.log("rcctouse from notprovided::", rcc);
 
                         <div className="flex flex-row justify-between items-center p-2">
                             <div>Runway type:</div>
-                            <NewChoiceListbox
+                            <NewChoiceListBox
                                 value={dropDownPavedOrGravel}
                                 choices={["GRAVEL", "PAVED"]}
                                 callback={setDropDownPavedOrGravel}
@@ -159,7 +159,7 @@ console.log("rcctouse from notprovided::", rcc);
                                 <div>Contaminant 1:</div>
 
                                 <div className="flex-grow  " style={{ minWidth: '300px' }}>
-                                    <NewChoiceListbox
+                                    <NewChoiceListBox
                                         value={runwayConditionDescriptionPaved2}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionPaved2}
@@ -170,7 +170,7 @@ console.log("rcctouse from notprovided::", rcc);
 
                                 <div>% Coverage 1:</div>
                                 <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                    <NewChoiceListbox
+                                    <NewChoiceListBox
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage2(Number(value))}
@@ -194,7 +194,7 @@ console.log("rcctouse from notprovided::", rcc);
                                     <div>Contaminant 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '300px' }}>
 
-                                        <NewChoiceListbox
+                                        <NewChoiceListBox
                                             value={runwayConditionDescriptionPaved4}
                                             choices={contaminantChoicesExclude100}
                                             callback={setRunwayConditionDescriptionPaved4}
@@ -206,7 +206,7 @@ console.log("rcctouse from notprovided::", rcc);
 
                                     <div>% Coverage 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                        <NewChoiceListbox
+                                        <NewChoiceListBox
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage4(Number(value))}
@@ -222,7 +222,7 @@ console.log("rcctouse from notprovided::", rcc);
                                 <div>Contaminant 1:</div>
 
                                 <div className="flex-grow" style={{ minWidth: '300px' }}>
-                                    <NewChoiceListbox
+                                    <NewChoiceListBox
                                         value={runwayConditionDescriptionGravel1}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionGravel1}
@@ -235,7 +235,7 @@ console.log("rcctouse from notprovided::", rcc);
                                 <div>% Coverage 1:</div>
 
                                 <div className="flex-grow " style={{ minWidth: '100px' , maxWidth: '100px' }}>
-                                    <NewChoiceListbox
+                                    <NewChoiceListBox
                                         value={contaminationCoverage1}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage1(Number(value))}
@@ -255,7 +255,7 @@ console.log("rcctouse from notprovided::", rcc);
                                     <div className="style={{ minWidth: '100px' , maxWidth: '100px' }}">Contaminant 2:</div>
 
                                     <div className="flex-grow " style={{ minWidth: '300px' }}>
-                                        <NewChoiceListbox
+                                        <NewChoiceListBox
                                             value={runwayConditionDescriptionGravel3}
                                             choices={contaminantChoices}
                                             callback={setRunwayConditionDescriptionGravel3}
@@ -268,7 +268,7 @@ console.log("rcctouse from notprovided::", rcc);
                                     <div className="">% Coverage 2:</div>
 
                                     <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
-                                        <NewChoiceListbox
+                                        <NewChoiceListBox
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage3(Number(value))}

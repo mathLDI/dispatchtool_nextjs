@@ -9,7 +9,7 @@ import AirportWeatherDisplay from '../../lib/component/AirportWeatherDisplay';
 import TafDisplay from '../../lib/component/TafDisplay';
 import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
-import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
+import NewChoiceListBox from '../../lib/component/NewChoiceListBox'; // Updated import
 import { SearchIcon } from '@heroicons/react/outline';
 import AirportDotCategory from '../../lib/component/AirportDotCategory'; // Updated import
 
@@ -25,8 +25,6 @@ import {
   extractTextBeforeFR,
   highlightNotamTermsJSX,
 } from '../../lib/component/functions/weatherAndNotam';
-
-
 
 const RoutingWXXForm = ({ onSave }) => {
   const { flightDetails, setFlightDetails } = useRccContext();
@@ -56,7 +54,6 @@ const RoutingWXXForm = ({ onSave }) => {
     }));
   };
 
-
   const handleIcaoAltnChange = (e) => {
     const newIcaoAltn = e.target.value.toUpperCase(); // Convert input to uppercase and split by space
 
@@ -67,8 +64,6 @@ const RoutingWXXForm = ({ onSave }) => {
     }));
 
   };
-
-
 
   const updateSavedRouting = (newIcaoAltn) => {
 
@@ -82,8 +77,6 @@ const RoutingWXXForm = ({ onSave }) => {
       )
     );
   };
-
-
 
   const handleSave = () => {
     const icaoAirports = flightDetails.icaoAirports || []; // Default to empty array if undefined
@@ -101,10 +94,6 @@ const RoutingWXXForm = ({ onSave }) => {
       }
     }
   };
-
-
-
-
 
   const handleClear = () => {
     // Clear all fields including icaoAirports
@@ -129,7 +118,6 @@ const RoutingWXXForm = ({ onSave }) => {
     }
   };
 
-
   return (
     <div className="flex items-center flex-wrap">
 
@@ -150,8 +138,6 @@ const RoutingWXXForm = ({ onSave }) => {
             style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
           />
         </div>
-
-
 
         {/**testing a list of airports********************************* */}
 
@@ -186,9 +172,6 @@ const RoutingWXXForm = ({ onSave }) => {
             {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
           </form>
         </div>
-
-
-
 
         <div className="flex items-center pt-1 ">
           <button
@@ -245,28 +228,19 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   } = useRccContext();
 
-
-  const handleFormChange = (newForm) => {
+  {/**  const handleFormChange = (newForm) => {
     setSelectedForm(newForm);               // Update the selectedForm state
-  };
+  }; */}
 
   const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef(null);
-  const resizerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  const allWeatherDataRef = useRef(allWeatherData);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingRouting, setPendingRouting] = useState(null);
-
-  ///add the state below to context///////
-  //////////////////////////////////////
-  //////////////////////////////////////
-
   const [utcTime, setUtcTime] = useState('');
   const [localTime, setLocalTime] = useState('');
   const [lastWeatherRefreshTime, setLastWeatherRefreshTime] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [formattedRefreshTime, setFormattedRefreshTime] = useState('');
 
   // Filtering logic for the routing search
   const searchTerms = searchRouting.split(/\s+/).map(term => term.toUpperCase()); // Split by spaces and convert each term to uppercase
@@ -285,8 +259,20 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
   // Function to format the weather refresh time into local time (24-hour format)
   const formatRefreshTime = (date) => {
+    if (!(date instanceof Date)) {
+      return '';
+    }
     return date.toLocaleTimeString([], { hour12: false }); // 24-hour format
   };
+
+  // Update the last weather refresh time and its formatted version when weatherData is updated
+  useEffect(() => {
+    if (weatherData) {
+      const now = new Date();
+      setLastWeatherRefreshTime(now);
+      setFormattedRefreshTime(formatRefreshTime(now));
+    }
+  }, [weatherData]);
 
   // Update the UTC and local time every second
   useEffect(() => {
@@ -298,7 +284,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     return () => clearInterval(interval);
   }, []);
 
-
   // Update the last weather refresh time when weatherData is updated
   useEffect(() => {
     if (weatherData) {
@@ -306,8 +291,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       setLastWeatherRefreshTime(formatRefreshTime(now)); // Store local time of the refresh
     }
   }, [weatherData]);
-
-  /////////////////////////////////////////////////////
 
   const filteredRoutings = savedRoutings.filter((routing) => {
     // Check if all search terms are found in any of the routing fields
@@ -321,10 +304,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       (Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.some(icao => icao?.toUpperCase().includes(term))) // Check for icaoAirportALTN
     );
   });
-
-
-
-
 
   const handleDeleteRouting = (index) => {
     const updatedRoutings = savedRoutings.filter((_, i) => i !== index);
@@ -346,84 +325,61 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     });
   };
 
-
   const handleAirportClick = useCallback(async (airportCode) => {
     try {
       const data = await fetchWeather(airportCode);
       setWeatherData(data);
       setSelectedAirport({ code: airportCode });
+      // Add this to update allWeatherData
+      setAllWeatherData(prev => ({
+        ...prev,
+        [airportCode]: data
+      }));
     } catch (error) {
       console.error(`Failed to fetch weather data for ${airportCode}:`, error);
     }
-  }, [fetchWeather, setWeatherData, setSelectedAirport]);
+  }, [fetchWeather, setWeatherData, setSelectedAirport, setAllWeatherData]);
 
-
-
-
-  const updateLocalStorage = useCallback((key, data) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-  }, []);
-
-
-
-  const fetchAndUpdateWeatherData = useCallback(async (airportCode) => {
-    try {
-      const data = await fetchWeather(airportCode);
-      let existingData = {};
-
-      if (typeof window !== 'undefined') {
-        existingData = JSON.parse(localStorage.getItem('weatherData')) || {};
-      }
-
-      // Only update if the data is new or different
-      if (!existingData[airportCode] || JSON.stringify(existingData[airportCode]) !== JSON.stringify(data)) {
-        existingData[airportCode] = data;
-        updateLocalStorage('weatherData', existingData);
-        setWeatherData(data);
-      }
-    } catch (error) {
-      console.error(`Failed to fetch weather data for ${airportCode}:`, error);
-    }
-  }, [fetchWeather, setWeatherData, updateLocalStorage]);
-
-
-
-
+  // Fetch weather data based on the selected form
   useEffect(() => {
     const fetchAllWeatherData = async () => {
       const airportsToFetch = savedRoutings.flatMap((routing) => [
         routing.departure,
         routing.destination,
-        ...(routing.icaoAirports || []),  // Always include ICAO Airports from saved routings
-        ...(routing.icaoAirportALTN || []),  // Include ICAO alternate airports from saved routings
-      ]).filter(Boolean);  // Remove falsy values
+        ...(routing.icaoAirports || []),
+        ...(routing.icaoAirportALTN || []),
+      ]).filter(Boolean);
 
-      for (const airportCode of airportsToFetch) {
+      const uniqueAirports = [...new Set(airportsToFetch)];
+
+      const newWeatherData = {};
+      for (const airportCode of uniqueAirports) {
         try {
           const data = await fetchWeather(airportCode);
-
-          setAllWeatherData((prevData) => ({
-            ...prevData,
-            [airportCode]: data,  // Add fetched data to the allWeatherData object
-          }));
+          newWeatherData[airportCode] = data;
         } catch (error) {
           console.error(`Failed to fetch weather data for ${airportCode}:`, error);
         }
       }
+
+      setAllWeatherData((prevData) => ({
+        ...prevData,
+        ...newWeatherData,
+      }));
+
+      const now = new Date();
+      setLastWeatherRefreshTime(now);
+      setFormattedRefreshTime(formatRefreshTime(now));
     };
-    // Fetch initial data and every 2 minutes
+
     fetchAllWeatherData();
-    const intervalId = setInterval(fetchAllWeatherData, 120000);
+    const intervalId = setInterval(fetchAllWeatherData, 120000); // Fetch every 2 minutes
+
     return () => clearInterval(intervalId);
+  }, [savedRoutings, fetchWeather, setAllWeatherData]);
 
-  }, [savedRoutings, fetchWeather, setAllWeatherData]);  // Fetch when savedRoutings change
-
-
-
-
-
+  // Display formatted time - use this where you need to show the refresh time
+  const displayRefreshTime = lastWeatherRefreshTime ? formatRefreshTime(lastWeatherRefreshTime) : '';
   const airportsToShow = [
     flightDetails.departure && { code: flightDetails.departure },
     flightDetails.destination && { code: flightDetails.destination },
@@ -441,12 +397,8 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   }, [flightDetails.icaoAirports, handleAirportClick]);
 
 
-
-
-
-
   // Fetch weather data based on the selected form
-  useEffect(() => {
+  {/**  useEffect(() => {
     const fetchWeatherDataForRouting = async () => {
       const data = { ...allWeatherDataRef.current };
 
@@ -478,10 +430,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       fetchWeatherDataForRouting();
     }
   }, [fetchWeather, flightDetails, savedRoutings, setAllWeatherData]);
-
-
-
-
+ */}
 
   {/**Function below control how the addition of airport is control. The new code now include the routing.icaoAirports as
     persistent airports in the list  */}
@@ -520,7 +469,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       }));
     }
   }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories, flightDetails.icaoAirportALTN]);
-
 
 
   const handleSaveRouting = (newRouting) => {
@@ -607,10 +555,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
   };
 
 
-
-
-
-
   const handleConfirm = () => {
     if (pendingRouting) {
       const updatedRoutings = [...savedRoutings, pendingRouting];
@@ -689,26 +633,25 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     }
   }, [selectedAirport, gfaType, fetchGFA, setGfaData]);
 
-  useEffect(() => {
+  {/**  useEffect(() => {
     if (weatherData) {
     }
-  }, [weatherData]);
+  }, [weatherData]); */}
+
 
   const categorizedNotams = weatherData
     ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))
     : [[], [], [], [], []]; // Default to an array of empty arrays if no data
 
 
-
-  const handleNotamTypeChange = (newNotamType) => {
+  {/**  const handleNotamTypeChange = (newNotamType) => {
     setSelectedNotamType(newNotamType);
-  };
+  }; */}
 
   const handleSearchChange = (event) => {
     const upperCaseSearchTerm = event.target.value.toUpperCase(); // Convert the input to uppercase
     setSearchTerm(upperCaseSearchTerm);
   };
-
 
   const renderNotamCard = () => {
     switch (selectedNotamType) {
@@ -806,7 +749,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         return null;
     }
   };
-
 
   // Function for NOTAMs with Q-Line that have an "A"
   const renderNotamsAandAE = (notams, title, searchTerm) => {
@@ -946,7 +888,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
               </div>
 
               <div className='ml-auto'>
-                Last Weather Refresh: {lastWeatherRefreshTime ? lastWeatherRefreshTime : 'N/A'}
+                Last Weather Refresh: {formattedRefreshTime || 'N/A'}
               </div>
             </div>
 

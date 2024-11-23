@@ -90,11 +90,14 @@ export default function AirportWeatherDisplay({
           {selectedButton === 'METAR/TAF' && selectedForm === 'Routing Search' && (
             <>
               {/*******  Conditional METAR rendering for Routing Search - Individual airport *******/}
-              <div className="flex ">
-                <Card title="METAR" status={null} className="h-full">
-                  <MetarDisplay weatherData={weatherData} />
-                </Card>
-              </div>
+             <div className="flex">
+      <Card title="METAR" status={null} className="h-full">
+        {/* Use either weatherData or allWeatherData based on selectedAirport */}
+        <MetarDisplay 
+          weatherData={selectedAirport ? allWeatherData[selectedAirport.code] : weatherData} 
+        />
+      </Card>
+    </div>
 
 
 
@@ -246,7 +249,7 @@ export default function AirportWeatherDisplay({
                   onClick={toggleCraneFilter}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
                 >
-                  CRANE
+                  CRANE & TOWER
                 </button>
               </div>
 

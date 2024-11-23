@@ -80,12 +80,14 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
 ////METAR///
 
 export function parseMETAR(metarString) {
+  // Replace all occurrences of "−" with "-"
+  metarString = metarString.replace(/−/g, '-');
+
   const components = metarString.split(' ');
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
   let visibilityValue = Infinity;
-
   for (const component of components) {
     if (component.match(/^\d{3}\d{2}KT$/) || component.match(/^\d{3}V\d{3}$/)) {
       wind = component;
@@ -219,13 +221,13 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
-    .filter((notam) => {
-      const notamText = JSON.parse(notam.text).raw;
-      if (isCraneFilterActive && notamText.includes('CRANE')) {
-        return false; // Exclude NOTAMs that mention "CRANE"
-      }
-      return notamText.toLowerCase().includes(normalizedSearchTerm);
-    })
+  .filter((notam) => {
+    const notamText = JSON.parse(notam.text).raw;
+    if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+      return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
+    }
+    return notamText.toLowerCase().includes(normalizedSearchTerm);
+  })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText

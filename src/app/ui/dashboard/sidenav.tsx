@@ -25,8 +25,8 @@ export default function SideNav({
   showWeatherAndRcam = true,
   showLogo = true,
   onDeleteRouting,
-  airportCategories,
 }: SideNavProps) {
+  const { airportCategories } = useRccContext(); // Get from context instead 7.11.2024
   const { setFlightDetails } = useRccContext();
   const [selectedRouting, setSelectedRouting] = useState<Routing | null>(null);
 
