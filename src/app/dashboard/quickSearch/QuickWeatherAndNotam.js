@@ -39,7 +39,7 @@ export function calculateAirportCategories(allWeatherData) {
 
   // Calculate categories using transformed airport values and weather data
   const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
-
+  
   return categories;
 }
 
@@ -74,13 +74,87 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   return airportCategories;
 }
 
+export function parseVisibility(metarString) {
+  const components = metarString.split(' ');
+  let visibilityValue = Infinity;
 
 
+   // Add new mixed number check at the start
+   const mixedMatch = metarString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
+   if (mixedMatch) {
+     const whole = parseInt(mixedMatch[1]);
+     const num = parseInt(mixedMatch[2]);
+     const denom = parseInt(mixedMatch[3]);
+     return whole + (num / denom);
+   }
+ 
+   function parseFraction(fractionStr) {
+     const fractionMatch = fractionStr.match(/(\d+\/\d+)SM$/);
+     if (!fractionMatch) return null;
+     
+     const cleanStr = fractionMatch[1];
+     const [numerator, denominator] = cleanStr.split('/').map(Number);
+     
+     // If it's just a fraction (like 1/2), add 1 to make it mixed (1 1/2)
+     if (fractionStr.match(/^\d+\/\d+SM$/)) {
+       return numerator / denominator; // Remove the +1 to fix the mixed number issue
+     }
+     
+     return numerator / denominator;
+   }
+ 
 
-////METAR///
+  for (let i = 0; i < components.length; i++) {
+    const component = components[i];
+    const nextComponent = components[i + 1];
+
+
+    if (component.includes('SM')) {
+      const parts = component.split(' ');
+      // Check for mixed number in single component (e.g. "2 1/4SM")
+      if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
+        const wholeNumber = parseInt(parts[0]);
+        const fraction = parseFraction(parts[1]);
+        if (fraction !== null) {
+          visibilityValue = wholeNumber + fraction;
+          break;
+        }
+      }
+      // Check for pure fraction (now converts to mixed)
+      else if (parts[parts.length - 1].includes('/')) {
+        const fraction = parseFraction(parts[parts.length - 1]);
+        if (fraction !== null) {
+          visibilityValue = fraction;  // Will now include the added 1 for lone fractions
+          break;
+        }
+      }
+      // Check for whole number
+      else {
+        const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
+        if (wholeMatch) {
+          visibilityValue = parseInt(wholeMatch[1]);
+          break;
+        }
+      }
+    }
+    // Check for split mixed number across components
+    else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
+      const wholeNumber = parseInt(component);
+      const fraction = parseFraction(nextComponent);
+      if (fraction !== null) {
+        visibilityValue = wholeNumber + fraction;
+        i++;
+        break;
+      }
+    }
+  }
+
+  return visibilityValue;
+}
+
+
 
 export function parseMETAR(metarString) {
-
   // Replace all occurrences of "−" with "-"
   metarString = metarString.replace(/−/g, '-');
 
@@ -88,14 +162,15 @@ export function parseMETAR(metarString) {
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
-  let visibilityValue = Infinity;
+  
+  // Use new visibility parser
+  const visibilityValue = parseVisibility(metarString);
+ 
 
+  // Handle ceiling
   for (const component of components) {
     if (component.match(/^\d{3}\d{2}KT$/) || component.match(/^\d{3}V\d{3}$/)) {
       wind = component;
-    } else if (component.match(/^\d+SM$/)) {
-      visibilityValue = parseFloat(component.replace('SM', '').replace('/', '.'));
-      visibility = component;
     } else if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
       const ceilingValue = parseInt(component.slice(-3)) * 100;
       if (
@@ -116,6 +191,7 @@ export function parseMETAR(metarString) {
 }
 
 export function getFlightCategory(ceiling, visibility) {
+
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
   } else if (ceiling < 1000 || visibility < 3) {
@@ -128,7 +204,6 @@ export function getFlightCategory(ceiling, visibility) {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
-
 export function formatLocalDate(date) {
   const options = {
     weekday: 'short',
@@ -207,6 +282,7 @@ export function categorizeNotams(notams) {
   };
 }
 
+
 export function extractTextBeforeFR(text) {
   const frIndex = text.indexOf('FR:');
   return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
@@ -221,13 +297,13 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
-    .filter((notam) => {
-      const notamText = JSON.parse(notam.text).raw;
-      if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
-        return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
-      }
-      return notamText.toLowerCase().includes(normalizedSearchTerm);
-    })
+  .filter((notam) => {
+    const notamText = JSON.parse(notam.text).raw;
+    if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+      return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
+    }
+    return notamText.toLowerCase().includes(normalizedSearchTerm);
+  })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText
@@ -247,8 +323,10 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
 
 
 export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActive) {
+  // Filter NOTAMs based on the search term and crane filter
   const filteredNotams = filterAndHighlightNotams(notams, searchTerm, isCraneFilterActive);
 
+  // Return the count of filtered NOTAMs that match the specified type
   return filteredNotams.filter((notam) => {
     const displayText = extractTextBeforeFR(JSON.parse(notam.text).raw);
     const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
@@ -258,7 +336,8 @@ export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActiv
 }
 
 
-function parseMETARForCeilingAndVisibility(metarString) {
+
+export function parseMETARForCeilingAndVisibility(metarString) {
   const components = metarString.split(' ');
   let ceiling = Infinity;
   let visibilityValue = Infinity;

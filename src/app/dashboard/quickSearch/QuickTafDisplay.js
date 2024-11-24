@@ -1,6 +1,7 @@
-// src/app/lib/component/TafDisplay.js
+// src/app/dashboard/quickSearch/QuickTafDisplay.js
 
 import React from 'react';
+import { parseMETARForCeilingAndVisibility, getFlightCategory } from '../../lib/component/functions/weatherAndNotam';
 
 const QuickTafDisplay = ({ quickWeatherData }) => {
   if (!quickWeatherData || quickWeatherData.data.length === 0) {
@@ -43,36 +44,27 @@ function formatTAF(tafText) {
   let firstLineCategory = 'Unknown';
   let firstLineColor = 'text-gray-500';
   return processedLines.map((line, index) => {
-    let ceiling = Infinity;
-    let visibility = Infinity;
-    const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(
-      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM)\b/
-    );
-    if (ceilingMatch) {
-      ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
-    }
-    if (visibilityMatch) {
-      visibility = visibilityMatch[0].includes('/')
-        ? parseFloat(visibilityMatch[0].split('/')[0]) /
-          parseFloat(visibilityMatch[0].split('/')[1])
-        : parseFloat(visibilityMatch[0].replace('SM', ''));
-    }
-    const { category, color } = getFlightCategory(ceiling, visibility);
+    // Use METAR parsing logic for consistent handling
+    const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(line);
+    const { category, color } = getFlightCategory(ceiling, visibilityValue);
+
     if (index === 0) {
       firstLineCategory = category;
       firstLineColor = color;
     }
+
     if (line.startsWith('FM')) {
       currentCategory = category;
       currentColor = color;
     }
+
     const lineColor =
-      ceiling !== Infinity || visibility !== Infinity
+      ceiling !== Infinity || visibilityValue !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
         ? currentColor
         : firstLineColor;
+
     return (
       <p key={index} className={`${lineColor} mb-1.5`}>
         {line}
@@ -81,18 +73,6 @@ function formatTAF(tafText) {
   });
 }
 
-function getFlightCategory(ceiling, visibility) {
-  if (ceiling < 500 || visibility < 1) {
-    return { category: 'LIFR', color: 'text-custom-lifr' };
-  } else if (ceiling < 1000 || visibility < 3) {
-    return { category: 'IFR', color: 'text-custom-ifr' };
-  } else if (ceiling <= 3000 || visibility <= 5) {
-    return { category: 'MVFR', color: 'text-custom-mvfr' };
-  } else if (ceiling > 3000 && visibility > 5) {
-    return { category: 'VFR', color: 'text-custom-vfr' };
-  } else {
-    return { category: 'Unknown', color: 'text-gray-500' };
-  }
-}
+
 
 export default QuickTafDisplay;

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
+import { parseVisibility, parseMETARForCeilingAndVisibility } from './functions/weatherAndNotam';
 
 const TafDisplay = ({ weatherData }) => {
   const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
@@ -26,11 +27,12 @@ const TafDisplay = ({ weatherData }) => {
   return <div>{formatTAF(tafText)}</div>;
 };
 
+
 function formatTAF(tafText) {
   if (!tafText) return '';
 
-   // Replace all occurrences of "−" with "-"
-   tafText = tafText.replace(/−/g, '-');
+  // Replace all occurrences of "−" with "-"
+  tafText = tafText.replace(/−/g, '-');
 
   const switchTerms = ['BECMG', 'TEMPO', 'PROB30', 'PROB40', 'FM'];
   const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
@@ -57,25 +59,9 @@ function formatTAF(tafText) {
   let firstLineColor = 'text-gray-500';
 
   return processedLines.map((line, index) => {
-    let ceiling = Infinity;
-    let visibility = Infinity;
-
-    const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(
-      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM)\b/
-    );
-
-    if (ceilingMatch) {
-      ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
-    }
-    if (visibilityMatch) {
-      visibility = visibilityMatch[0].includes('/')
-        ? parseFloat(visibilityMatch[0].split('/')[0]) /
-          parseFloat(visibilityMatch[0].split('/')[1])
-        : parseFloat(visibilityMatch[0].replace('SM', ''));
-    }
-
-    const { category, color } = getFlightCategory(ceiling, visibility);
+    // Use METAR parsing logic for consistent handling
+    const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(line);
+    const { category, color } = getFlightCategory(ceiling, visibilityValue);
 
     if (index === 0) {
       firstLineCategory = category;
@@ -88,7 +74,7 @@ function formatTAF(tafText) {
     }
 
     const lineColor =
-      ceiling !== Infinity || visibility !== Infinity
+      ceiling !== Infinity || visibilityValue !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
         ? currentColor
@@ -101,6 +87,7 @@ function formatTAF(tafText) {
     );
   });
 }
+
 
 function getFlightCategory(ceiling, visibility) {
   if (ceiling < 500 || visibility < 1) {
