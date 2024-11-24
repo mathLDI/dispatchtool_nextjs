@@ -74,10 +74,98 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   return airportCategories;
 }
 
+function parseVisibility(metarString) {
+  const components = metarString.split(' ');
+  let visibilityValue = Infinity;
 
+  console.log('Starting visibility parse for:', metarString);
 
+   // Add new mixed number check at the start
+   const mixedMatch = metarString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
+   if (mixedMatch) {
+     const whole = parseInt(mixedMatch[1]);
+     const num = parseInt(mixedMatch[2]);
+     const denom = parseInt(mixedMatch[3]);
+     return whole + (num / denom);
+   }
+ 
+   function parseFraction(fractionStr) {
+     const fractionMatch = fractionStr.match(/(\d+\/\d+)SM$/);
+     if (!fractionMatch) return null;
+     
+     const cleanStr = fractionMatch[1];
+     const [numerator, denominator] = cleanStr.split('/').map(Number);
+     console.log('Parsing fraction:', { cleanStr, numerator, denominator });
+     
+     // If it's just a fraction (like 1/2), add 1 to make it mixed (1 1/2)
+     if (fractionStr.match(/^\d+\/\d+SM$/)) {
+       console.log('Converting lone fraction to mixed number:', `1 ${cleanStr}`);
+       return numerator / denominator; // Remove the +1 to fix the mixed number issue
+     }
+     
+     return numerator / denominator;
+   }
+ 
 
-////METAR///
+  for (let i = 0; i < components.length; i++) {
+    const component = components[i];
+    const nextComponent = components[i + 1];
+
+    console.log(`Checking component ${i}:`, { component, nextComponent });
+
+    if (component.includes('SM')) {
+      const parts = component.split(' ');
+      // Check for mixed number in single component (e.g. "2 1/4SM")
+      if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
+        const wholeNumber = parseInt(parts[0]);
+        const fraction = parseFraction(parts[1]);
+        if (fraction !== null) {
+          visibilityValue = wholeNumber + fraction;
+          console.log('Found mixed number:', { wholeNumber, fraction, total: visibilityValue });
+          break;
+        }
+      }
+      // Check for pure fraction (now converts to mixed)
+      else if (parts[parts.length - 1].includes('/')) {
+        const fraction = parseFraction(parts[parts.length - 1]);
+        if (fraction !== null) {
+          visibilityValue = fraction;  // Will now include the added 1 for lone fractions
+          console.log('Found and converted fraction:', visibilityValue);
+          break;
+        }
+      }
+      // Check for whole number
+      else {
+        const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
+        if (wholeMatch) {
+          visibilityValue = parseInt(wholeMatch[1]);
+          console.log('Found whole number:', visibilityValue);
+          break;
+        }
+      }
+    }
+    // Check for split mixed number across components
+    else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
+      const wholeNumber = parseInt(component);
+      const fraction = parseFraction(nextComponent);
+      if (fraction !== null) {
+        visibilityValue = wholeNumber + fraction;
+        console.log('Found split mixed number:', { wholeNumber, fraction, total: visibilityValue });
+        i++;
+        break;
+      }
+    }
+  }
+
+  console.log('Final visibility value:', visibilityValue);
+  return visibilityValue;
+}
+// Test the function
+const testMetar = "METAR CYYQ 241400Z 33018KT 1 1/2SM -SN BLSN";
+console.log('Testing with:', testMetar);
+const result = parseVisibility(testMetar);
+console.log('Result:', result);
+
 
 export function parseMETAR(metarString) {
   // Replace all occurrences of "−" with "-"
@@ -87,13 +175,16 @@ export function parseMETAR(metarString) {
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
-  let visibilityValue = Infinity;
+  
+  // Use new visibility parser
+  const visibilityValue = parseVisibility(metarString);
+  console.log('METAR from parseMetar:', metarString);
+  console.log('Vis from parseMetar:', visibilityValue);
+
+  // Handle ceiling
   for (const component of components) {
     if (component.match(/^\d{3}\d{2}KT$/) || component.match(/^\d{3}V\d{3}$/)) {
       wind = component;
-    } else if (component.match(/^\d+SM$/)) {
-      visibilityValue = parseFloat(component.replace('SM', '').replace('/', '.'));
-      visibility = component;
     } else if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
       const ceilingValue = parseInt(component.slice(-3)) * 100;
       if (
@@ -114,19 +205,25 @@ export function parseMETAR(metarString) {
 }
 
 export function getFlightCategory(ceiling, visibility) {
+  console.log('getFlightCategory inputs:', { ceiling, visibility });
+
   if (ceiling < 500 || visibility < 1) {
+    console.log('Returning LIFR - ceiling < 500 or visibility < 1');
     return { category: 'LIFR', color: 'text-custom-lifr' };
   } else if (ceiling < 1000 || visibility < 3) {
+    console.log('Returning IFR - ceiling < 1000 or visibility < 3');
     return { category: 'IFR', color: 'text-custom-ifr' };
   } else if (ceiling <= 3000 || visibility <= 5) {
+    console.log('Returning MVFR - ceiling <= 3000 or visibility <= 5');
     return { category: 'MVFR', color: 'text-custom-mvfr' };
   } else if (ceiling > 3000 && visibility > 5) {
+    console.log('Returning VFR - ceiling > 3000 and visibility > 5');
     return { category: 'VFR', color: 'text-custom-vfr' };
   } else {
+    console.log('Returning Unknown - no conditions met');
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
-
 export function formatLocalDate(date) {
   const options = {
     weekday: 'short',
