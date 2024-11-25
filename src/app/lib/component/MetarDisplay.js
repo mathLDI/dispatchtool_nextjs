@@ -49,7 +49,7 @@ export default MetarDisplay;
 
 // Convert formatted METAR text to JSX elements for better control
 function formatMetarTextJSX(metarText, ceiling, visibility, category) {
-  const ceilingRegex = /\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/;
+  const ceilingRegex = /\b(VV|OVC|BKN)\d{3}\b/;  
   const visibilityRegex = /\b(\d+\s?\d?\/?\d*SM|\d+\/\d+SM)\b/;
 
   const termsToHighlight = [

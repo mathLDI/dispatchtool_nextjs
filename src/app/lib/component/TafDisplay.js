@@ -80,6 +80,11 @@ function formatTAF(tafText) {
         ? currentColor
         : firstLineColor;
 
+    // Only override to VFR if NSW present AND no ceiling/visibility values
+    if (line.includes('NSW') && ceiling === Infinity && visibilityValue === Infinity) {
+      lineColor = 'text-custom-vfr';
+    }
+
     return (
       <p key={index} className={`${lineColor} mb-1.5`}>
         {line}
