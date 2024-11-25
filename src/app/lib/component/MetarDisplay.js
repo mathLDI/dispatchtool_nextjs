@@ -1,21 +1,25 @@
 // src/app/lib/component/MetarDisplay.js
 
+// src/app/lib/component/MetarDisplay.js
+
 import React, { useMemo, useEffect } from 'react';
 import { parseMETAR } from './functions/weatherAndNotam';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 
+// Helper function to remove variable winds component
+function removeVariableWinds(metarString) {
+  return metarString.replace(/\s\d{3}V\d{3}\b/, '');
+}
 
 const MetarDisplay = ({ weatherData }) => {
   const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
 
-  // Handle weather data updates
   useEffect(() => {
     if (weatherDataUpdated) {
       setWeatherDataUpdated(false);
     }
   }, [weatherDataUpdated, setWeatherDataUpdated]);
 
-  // Existing memoization logic
   const metarContent = useMemo(() => {
     if (!weatherData || weatherData.data.length === 0) {
       return <p>No METAR data available</p>;
@@ -28,14 +32,22 @@ const MetarDisplay = ({ weatherData }) => {
         const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
         return timeB.localeCompare(timeA);
       })
-      .slice(0, 4) // Limit to the last 4 METARs
+      .slice(0, 4)
       .map((metar, index) => {
-        const parsedMetar = parseMETAR(metar.text);
-        const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
+        // Store original for display
+        const originalMetar = metar.text;
+        // Clean for calculations
+        const cleanedMetar = removeVariableWinds(originalMetar);
+        
+       // console.log('Original:', originalMetar);
+       // console.log('Cleaned:', cleanedMetar);
+
+        const parsedMetar = parseMETAR(cleanedMetar);
+        const { ceiling, visibilityValue, category, color } = parsedMetar;
 
         return (
           <div key={index} className="mb-1.5">
-            <p className={color}>{formatMetarTextJSX(metarString, ceiling, visibilityValue, category)}</p>
+            <p className={color}>{formatMetarTextJSX(originalMetar, ceiling, visibilityValue, category)}</p>
           </div>
         );
       });
@@ -43,6 +55,8 @@ const MetarDisplay = ({ weatherData }) => {
 
   return <div>{metarContent}</div>;
 };
+
+// Rest of the code remains unchanged...
 
 export default MetarDisplay;
 

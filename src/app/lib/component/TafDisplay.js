@@ -2,7 +2,6 @@
 
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
-import { parseVisibility, parseMETARForCeilingAndVisibility } from './functions/weatherAndNotam';
 
 const TafDisplay = ({ weatherData }) => {
   const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
@@ -26,7 +25,6 @@ const TafDisplay = ({ weatherData }) => {
 
   return <div>{formatTAF(tafText)}</div>;
 };
-
 
 function formatTAF(tafText) {
   if (!tafText) return '';
@@ -59,9 +57,36 @@ function formatTAF(tafText) {
   let firstLineColor = 'text-gray-500';
 
   return processedLines.map((line, index) => {
-    // Use METAR parsing logic for consistent handling
-    const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(line);
-    const { category, color } = getFlightCategory(ceiling, visibilityValue);
+    let ceiling = Infinity;
+    let visibility = Infinity;
+
+    const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
+    const visibilityMatch = line.match(
+      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM|\d+ \d+\/\d+SM)\b/
+    );
+
+    if (ceilingMatch) {
+      ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
+    }
+    if (visibilityMatch) {
+      // Handle mixed numbers like "1 1/2"
+      const visText = visibilityMatch[0].replace('SM', '');
+      if (visText.includes(' ')) {
+        // Mixed number format (e.g., "1 1/2")
+        const [whole, fraction] = visText.split(' ');
+        const [num, den] = fraction.split('/');
+        visibility = parseInt(whole) + parseFloat(num) / parseFloat(den);
+      } else if (visText.includes('/')) {
+        // Simple fraction format (e.g., "1/2")
+        const [num, den] = visText.split('/');
+        visibility = parseFloat(num) / parseFloat(den);
+      } else {
+        // Whole number format (e.g., "5")
+        visibility = parseFloat(visText);
+      }
+    }
+
+    const { category, color } = getFlightCategory(ceiling, visibility);
 
     if (index === 0) {
       firstLineCategory = category;
@@ -74,25 +99,24 @@ function formatTAF(tafText) {
     }
 
     let lineColor =
-    ceiling !== Infinity || visibilityValue !== Infinity
-      ? color
-      : currentColor !== 'text-gray-500'
-      ? currentColor
-      : firstLineColor;
-  
-  // Only override to VFR if NSW present AND no ceiling/visibility values
-  if (line.includes('NSW') && ceiling === Infinity && visibilityValue === Infinity) {
-    lineColor = 'text-custom-vfr';
-  }
-  
-  return (
-    <p key={index} className={`${lineColor} mb-1.5`}>
-      {line}
-    </p>
-  );
+      ceiling !== Infinity || visibility !== Infinity
+        ? color
+        : currentColor !== 'text-gray-500'
+        ? currentColor
+        : firstLineColor;
+    
+    // Only override to VFR if NSW present AND no ceiling/visibility values
+    if (line.includes('NSW') && ceiling === Infinity && visibility === Infinity) {
+      lineColor = 'text-custom-vfr';
+    }
+
+    return (
+      <p key={index} className={`${lineColor} mb-1.5`}>
+        {line}
+      </p>
+    );
   });
 }
-
 
 function getFlightCategory(ceiling, visibility) {
   if (ceiling < 500 || visibility < 1) {
