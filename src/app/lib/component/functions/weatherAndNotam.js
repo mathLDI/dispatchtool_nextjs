@@ -56,7 +56,6 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
     if (latestMetar) {
       // Use parseVisibility directly for visibility
       const visibilityValue = parseVisibility(latestMetar.text);
-     // console.log(`Parsed visibility for ${airport.code}:`, visibilityValue);
 
       // Keep existing ceiling parsing
       let ceiling = Infinity;
@@ -75,7 +74,7 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
         }
       });
 
-      const { category, color } = getFlightCategory(ceiling, visibilityValue);
+      const { category, color } = getFlightCategory(ceiling, visibilityValue, latestMetar.text);
       
       airportCategories[airport.code] = {
         category,
@@ -204,14 +203,18 @@ export function parseMETAR(metarString) {
     }
   }
 
-  const { category, color } = getFlightCategory(ceiling, visibilityValue);
+  const { category, color } = getFlightCategory(ceiling, visibilityValue, metarString);
 
   return { metarString, ceiling, visibilityValue, category, color };
 }
 
 
 
-export function getFlightCategory(ceiling, visibility) {
+export function getFlightCategory(ceiling, visibility, metarString = '') {
+  // Check for LWIS at start of METAR
+  if (metarString && metarString.trim().startsWith('LWIS')) {
+    return { category: 'LWIS', color: 'text-gray-500' };
+  }
 
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
@@ -225,6 +228,7 @@ export function getFlightCategory(ceiling, visibility) {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
+
 export function formatLocalDate(date) {
   const options = {
     weekday: 'short',
