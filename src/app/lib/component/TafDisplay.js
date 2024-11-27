@@ -2,6 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
+import { parseVisibility } from './functions/weatherAndNotam';
+
 
 const TafDisplay = ({ weatherData }) => {
   const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
@@ -26,10 +28,11 @@ const TafDisplay = ({ weatherData }) => {
   return <div>{formatTAF(tafText)}</div>;
 };
 
-function formatTAF(tafText) {
+
+export function formatTAF(tafText) {
   if (!tafText) return '';
 
-  // Replace all occurrences of "−" with "-"
+  // Replace all occurrences of "−" with "-" 
   tafText = tafText.replace(/−/g, '-');
 
   const switchTerms = ['BECMG', 'TEMPO', 'PROB30', 'PROB40', 'FM'];
@@ -58,33 +61,15 @@ function formatTAF(tafText) {
 
   return processedLines.map((line, index) => {
     let ceiling = Infinity;
-    let visibility = Infinity;
-
+    
+    // Parse ceiling
     const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(
-      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM|\d+ \d+\/\d+SM)\b/
-    );
-
     if (ceilingMatch) {
       ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
     }
-    if (visibilityMatch) {
-      // Handle mixed numbers like "1 1/2"
-      const visText = visibilityMatch[0].replace('SM', '');
-      if (visText.includes(' ')) {
-        // Mixed number format (e.g., "1 1/2")
-        const [whole, fraction] = visText.split(' ');
-        const [num, den] = fraction.split('/');
-        visibility = parseInt(whole) + parseFloat(num) / parseFloat(den);
-      } else if (visText.includes('/')) {
-        // Simple fraction format (e.g., "1/2")
-        const [num, den] = visText.split('/');
-        visibility = parseFloat(num) / parseFloat(den);
-      } else {
-        // Whole number format (e.g., "5")
-        visibility = parseFloat(visText);
-      }
-    }
+
+    // Use parseVisibility for consistent visibility parsing
+    const visibility = parseVisibility(line);
 
     const { category, color } = getFlightCategory(ceiling, visibility);
 
@@ -117,6 +102,7 @@ function formatTAF(tafText) {
     );
   });
 }
+
 
 function getFlightCategory(ceiling, visibility) {
   if (ceiling < 500 || visibility < 1) {
