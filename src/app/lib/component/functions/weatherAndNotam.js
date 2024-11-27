@@ -2,7 +2,7 @@
 
 
 // Transform allWeatherData into the format of airportValues with correct property order
-// transformAllWeatherDataToAirportValues & calculateAirportCategories & allAirportsFlightCategory
+// transformAllWeatherDataToAirportValues & calculateAirportCategories & 
 //all work together to find the correct category.  
 //
 export function transformAllWeatherDataToAirportValues(allWeatherData) {
@@ -44,26 +44,43 @@ export function calculateAirportCategories(allWeatherData) {
 }
 
 // Calculate the flight categories for each airport
+// Update allAirportsFlightCategory function
 export function allAirportsFlightCategory(airportValues, weatherData) {
   const airportCategories = {};
 
   airportValues.forEach((airport) => {
-    // Find the latest METAR or SPECI report for the airport
-    const latestMetar = weatherData[airport.code]?.data?.find((item) => item.type === 'metar' || item.type === 'speci');
+    const latestMetar = weatherData[airport.code]?.data?.find(
+      (item) => item.type === 'metar' || item.type === 'speci'
+    );
 
     if (latestMetar) {
-      // Parse ceiling and visibility from the METAR report
-      const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(latestMetar.text);
+      // Use parseVisibility directly for visibility
+      const visibilityValue = parseVisibility(latestMetar.text);
 
-      // Determine the flight category and color
-      const { category, color } = getFlightCategory(ceiling, visibilityValue);
+      // Keep existing ceiling parsing
+      let ceiling = Infinity;
+      const components = latestMetar.text.split(' ');
+      
+      components.forEach((component) => {
+        if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
+          const ceilingValue = parseInt(component.slice(-3)) * 100;
+          if (component.startsWith('BKN') || 
+              component.startsWith('OVC') || 
+              component.startsWith('VV')) {
+            if (ceilingValue < ceiling) {
+              ceiling = ceilingValue;
+            }
+          }
+        }
+      });
 
+      const { category, color } = getFlightCategory(ceiling, visibilityValue, latestMetar.text);
+      
       airportCategories[airport.code] = {
         category,
         color,
       };
     } else {
-      // Default to 'Unknown' if there's no METAR data
       airportCategories[airport.code] = {
         category: 'Unknown',
         color: 'text-gray-500',
@@ -74,10 +91,86 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   return airportCategories;
 }
 
+export function parseVisibility(metarString) {
+ // console.log('Parsing visibility from:', metarString);
+  const components = metarString.split(' ');
+  let visibilityValue = Infinity;
 
+  // Add new mixed number check at the start
+  const mixedMatch = metarString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
+  if (mixedMatch) {
+    const whole = parseInt(mixedMatch[1]);
+    const num = parseInt(mixedMatch[2]);
+    const denom = parseInt(mixedMatch[3]);
+    const result = whole + (num / denom);
+    //console.log('Mixed number match:', { whole, num, denom, result });
+    return result;
+  }
 
+  function parseFraction(fractionStr) {
+    //console.log('Parsing fraction:', fractionStr);
+    const fractionMatch = fractionStr.match(/(\d+\/\d+)SM$/);
+    if (!fractionMatch) {
+     // console.log('No fraction match found');
+      return null;
+    }
+    
+    const cleanStr = fractionMatch[1];
+    const [numerator, denominator] = cleanStr.split('/').map(Number);
+    const result = numerator / denominator;
+   // console.log('Fraction result:', { numerator, denominator, result });
+    return result;
+  }
 
-////METAR///
+  for (let i = 0; i < components.length; i++) {
+    const component = components[i];
+    const nextComponent = components[i + 1];
+    //console.log('Processing component:', component, 'Next:', nextComponent);
+
+    if (component.includes('SM')) {
+      const parts = component.split(' ');
+      if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
+        //console.log('Found mixed number in single component');
+        const wholeNumber = parseInt(parts[0]);
+        const fraction = parseFraction(parts[1]);
+        if (fraction !== null) {
+          visibilityValue = wholeNumber + fraction;
+          break;
+        }
+      }
+      else if (parts[parts.length - 1].includes('/')) {
+        //console.log('Found pure fraction');
+        const fraction = parseFraction(parts[parts.length - 1]);
+        if (fraction !== null) {
+          visibilityValue = fraction;
+          break;
+        }
+      }
+      else {
+        const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
+        if (wholeMatch) {
+          //console.log('Found whole number');
+          visibilityValue = parseInt(wholeMatch[1]);
+          break;
+        }
+      }
+    }
+    else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
+      //console.log('Found split mixed number');
+      const wholeNumber = parseInt(component);
+      const fraction = parseFraction(nextComponent);
+      if (fraction !== null) {
+        visibilityValue = wholeNumber + fraction;
+        i++;
+        break;
+      }
+    }
+  }
+
+ // console.log('Final visibility value:', visibilityValue);
+  return visibilityValue;
+}
+
 
 export function parseMETAR(metarString) {
   // Replace all occurrences of "−" with "-"
@@ -87,13 +180,15 @@ export function parseMETAR(metarString) {
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
-  let visibilityValue = Infinity;
+  
+  // Use new visibility parser
+  const visibilityValue = parseVisibility(metarString);
+ 
+
+  // Handle ceiling
   for (const component of components) {
     if (component.match(/^\d{3}\d{2}KT$/) || component.match(/^\d{3}V\d{3}$/)) {
       wind = component;
-    } else if (component.match(/^\d+SM$/)) {
-      visibilityValue = parseFloat(component.replace('SM', '').replace('/', '.'));
-      visibility = component;
     } else if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
       const ceilingValue = parseInt(component.slice(-3)) * 100;
       if (
@@ -108,12 +203,19 @@ export function parseMETAR(metarString) {
     }
   }
 
-  const { category, color } = getFlightCategory(ceiling, visibilityValue);
+  const { category, color } = getFlightCategory(ceiling, visibilityValue, metarString);
 
   return { metarString, ceiling, visibilityValue, category, color };
 }
 
-export function getFlightCategory(ceiling, visibility) {
+
+
+export function getFlightCategory(ceiling, visibility, metarString = '') {
+  // Check for LWIS at start of METAR
+  if (metarString && metarString.trim().startsWith('LWIS')) {
+    return { category: 'LWIS', color: 'text-gray-500' };
+  }
+
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
   } else if (ceiling < 1000 || visibility < 3) {
@@ -261,7 +363,7 @@ export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActiv
 
 
 
-function parseMETARForCeilingAndVisibility(metarString) {
+export function parseMETARForCeilingAndVisibility(metarString) {
   const components = metarString.split(' ');
   let ceiling = Infinity;
   let visibilityValue = Infinity;

@@ -37,6 +37,21 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
 
   return (
     <div className="flex flex-col h-full">
+     
+     <div className="flex justify-center mb-1 space-x-2">
+        {getLastFrames(frameLists).map((frame, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedTimestamp(index)}
+            className={`px-4 py-2 rounded ${selectedTimestamp === index
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 text-black hover:bg-gray-300'
+              }`}
+          >
+            {formatValidityTime(frame)}
+          </button>
+        ))}
+      </div>
       <div className="flex justify-center items-center flex-grow" style={{ position: 'relative', width: '100%', height: '100%' }}>
         <div style={{
           position: 'relative',
@@ -55,21 +70,6 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
             style={{ objectFit: 'contain' }}  // Ensure the image fits within the container without distortion
           />
         </div>
-      </div>
-
-      <div className="flex justify-center mt-2 space-x-4">
-        {getLastFrames(frameLists).map((frame, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedTimestamp(index)}
-            className={`px-4 py-2 rounded ${selectedTimestamp === index
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
-          >
-            {formatValidityTime(frame)}
-          </button>
-        ))}
       </div>
     </div>
   );

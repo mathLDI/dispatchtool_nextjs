@@ -2,6 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
+import { parseVisibility } from './functions/weatherAndNotam';
+
 
 const TafDisplay = ({ weatherData }) => {
   const { weatherDataUpdated, setWeatherDataUpdated } = useRccContext();
@@ -26,11 +28,12 @@ const TafDisplay = ({ weatherData }) => {
   return <div>{formatTAF(tafText)}</div>;
 };
 
+
 function formatTAF(tafText) {
   if (!tafText) return '';
 
-   // Replace all occurrences of "−" with "-"
-   tafText = tafText.replace(/−/g, '-');
+  // Replace all occurrences of "−" with "-" 
+  tafText = tafText.replace(/−/g, '-');
 
   const switchTerms = ['BECMG', 'TEMPO', 'PROB30', 'PROB40', 'FM'];
   const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
@@ -58,22 +61,15 @@ function formatTAF(tafText) {
 
   return processedLines.map((line, index) => {
     let ceiling = Infinity;
-    let visibility = Infinity;
-
+    
+    // Parse ceiling
     const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(
-      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM)\b/
-    );
-
     if (ceilingMatch) {
       ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
     }
-    if (visibilityMatch) {
-      visibility = visibilityMatch[0].includes('/')
-        ? parseFloat(visibilityMatch[0].split('/')[0]) /
-          parseFloat(visibilityMatch[0].split('/')[1])
-        : parseFloat(visibilityMatch[0].replace('SM', ''));
-    }
+
+    // Use parseVisibility for consistent visibility parsing
+    const visibility = parseVisibility(line);
 
     const { category, color } = getFlightCategory(ceiling, visibility);
 
@@ -87,12 +83,17 @@ function formatTAF(tafText) {
       currentColor = color;
     }
 
-    const lineColor =
+    let lineColor =
       ceiling !== Infinity || visibility !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
         ? currentColor
         : firstLineColor;
+    
+    // Only override to VFR if NSW present AND no ceiling/visibility values
+    if (line.includes('NSW') && ceiling === Infinity && visibility === Infinity) {
+      lineColor = 'text-custom-vfr';
+    }
 
     return (
       <p key={index} className={`${lineColor} mb-1.5`}>
@@ -101,6 +102,7 @@ function formatTAF(tafText) {
     );
   });
 }
+
 
 function getFlightCategory(ceiling, visibility) {
   if (ceiling < 500 || visibility < 1) {

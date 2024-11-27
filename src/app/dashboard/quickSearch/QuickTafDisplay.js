@@ -1,6 +1,7 @@
-// src/app/lib/component/TafDisplay.js
-
 import React from 'react';
+import { parseVisibility } from '../../lib/component/functions/weatherAndNotam';
+
+
 
 const QuickTafDisplay = ({ quickWeatherData }) => {
   if (!quickWeatherData || quickWeatherData.data.length === 0) {
@@ -19,13 +20,13 @@ const QuickTafDisplay = ({ quickWeatherData }) => {
 function formatTAF(tafText) {
   if (!tafText) return '';
 
-  // Replace all occurrences of "−" with "-"
   tafText = tafText.replace(/−/g, '-');
 
   const switchTerms = ['BECMG', 'TEMPO', 'PROB30', 'PROB40', 'FM'];
   const regex = new RegExp(`\\b(${switchTerms.join('|')})\\b`, 'g');
   const formattedText = tafText.replace(regex, '\n$1');
   const lines = formattedText.split('\n');
+
   const processedLines = [];
   lines.forEach((line) => {
     const trimmedLine = line.trim();
@@ -38,41 +39,43 @@ function formatTAF(tafText) {
       processedLines.push(trimmedLine);
     }
   });
+
   let currentCategory = 'Unknown';
   let currentColor = 'text-gray-500';
   let firstLineCategory = 'Unknown';
   let firstLineColor = 'text-gray-500';
+
   return processedLines.map((line, index) => {
     let ceiling = Infinity;
-    let visibility = Infinity;
     const ceilingMatch = line.match(/\b(OVC|BKN|VV)\d{3}\b/);
-    const visibilityMatch = line.match(
-      /\b(\d+\/?\d*SM|\d+\/\d+SM|\d*\/?\d+SM)\b/
-    );
     if (ceilingMatch) {
       ceiling = parseInt(ceilingMatch[0].slice(-3)) * 100;
     }
-    if (visibilityMatch) {
-      visibility = visibilityMatch[0].includes('/')
-        ? parseFloat(visibilityMatch[0].split('/')[0]) /
-          parseFloat(visibilityMatch[0].split('/')[1])
-        : parseFloat(visibilityMatch[0].replace('SM', ''));
-    }
+
+    const visibility = parseVisibility(line);
     const { category, color } = getFlightCategory(ceiling, visibility);
+
     if (index === 0) {
       firstLineCategory = category;
       firstLineColor = color;
     }
+
     if (line.startsWith('FM')) {
       currentCategory = category;
       currentColor = color;
     }
-    const lineColor =
+
+    let lineColor =
       ceiling !== Infinity || visibility !== Infinity
         ? color
         : currentColor !== 'text-gray-500'
         ? currentColor
         : firstLineColor;
+
+    if (line.includes('NSW') && ceiling === Infinity && visibility === Infinity) {
+      lineColor = 'text-custom-vfr';
+    }
+
     return (
       <p key={index} className={`${lineColor} mb-1.5`}>
         {line}

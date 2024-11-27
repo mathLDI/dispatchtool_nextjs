@@ -1,7 +1,10 @@
-// src/app/lib/component/MetarDisplay.js
-
 import React from 'react';
 import { parseMETAR } from './QuickWeatherAndNotam';
+
+// Helper function to remove variable winds component
+function removeVariableWinds(metarString) {
+  return metarString.replace(/\s\d{3}V\d{3}\b/, '');
+}
 
 const QuickMetarDisplay = ({ quickWeatherData }) => {
   if (!quickWeatherData || quickWeatherData.data.length === 0) {
@@ -17,79 +20,53 @@ const QuickMetarDisplay = ({ quickWeatherData }) => {
           const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
           return timeB.localeCompare(timeA);
         })
-        .slice(0, 4)  // Limit to the last 4 METARs
+        .slice(0, 4)
         .map((metar, index) => {
-          const parsedMetar = parseMETAR(metar.text);
-          const { metarString, ceiling, visibilityValue, category, color } = parsedMetar;
-  
-          const formattedText = formatMetarText(metarString, ceiling, visibilityValue, category);
-  
+          const originalMetar = metar.text;
+          const cleanedMetar = removeVariableWinds(originalMetar);
+          const parsedMetar = parseMETAR(cleanedMetar);
+          const { ceiling, visibilityValue, category, color } = parsedMetar;
+
           return (
             <div key={index} className="mb-1.5">
-              <p className={color} dangerouslySetInnerHTML={{ __html: formattedText }}></p>
+              <p className={color}>{formatMetarTextJSX(originalMetar, ceiling, visibilityValue, category)}</p>
             </div>
           );
         })}
     </div>
   );
-  
 };
 
-function formatMetarText(metarText, ceiling, visibility, category) {
-  const ceilingRegex = /\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/;
+function formatMetarTextJSX(metarText, ceiling, visibility, category) {
+  const ceilingRegex = /\b(VV|OVC|BKN)\d{3}\b/;
   const visibilityRegex = /\b(\d+\s?\d?\/?\d*SM|\d+\/\d+SM)\b/;
 
   const termsToHighlight = [
-    '\\+SHRA',
-    '\\-SHRA',
-    '\\SHRA',
-    '\\+TSRA',
-    '\\TSRA',
-    '\\-TSRA',
-    '\\VCTS',
-    '\\+RA',
-    'RA',
-    'TS',
-    '\\+TS',
-    '\\-TS',
-    '\\+BLSN',
-    'BLSN',
-    'SN',
-    '\\+SN',
-    'LLWS',
-    'CB',
-    'SQ',
-    'FC',
-    'BL',
-    'SH',
-    '\\+SH',
-    '\\-SH',
-    'GR',
-    '\\+FZ',
-    'FZ',
+    '\\+SHRA', '\\-SHRA', '\\SHRA', '\\+TSRA', '\\TSRA', '\\-TSRA',
+    '\\VCTS', '\\+RA', 'RA', 'TS', '\\+TS', '\\-TS', '\\+BLSN',
+    'BLSN', 'SN', '\\+SN', 'LLWS', 'CB', 'SQ', 'FC', 'BL', 'SH',
+    '\\+SH', '\\-SH', 'GR', '\\+FZ', 'FZ',
   ];
   const termsRegex = new RegExp(`(${termsToHighlight.join('|')})`, 'g');
 
   const ceilingMatch = metarText.match(ceilingRegex);
   const visibilityMatch = metarText.match(visibilityRegex);
 
-  if (category === 'LIFR' || category === 'IFR') {
-    if (ceiling < 1000 && ceilingMatch) {
-      metarText = metarText.replace(
-        ceilingMatch[0],
-        `<strong>${ceilingMatch[0]}</strong>`
-      );
-    } else if (visibility < 3 && visibilityMatch) {
-      metarText = metarText.replace(
-        visibilityMatch[0],
-        `<strong>${visibilityMatch[0]}</strong>`
-      );
+  return metarText.split(' ').map((part, index) => {
+    if (category === 'LIFR' || category === 'IFR') {
+      if (ceiling < 1000 && ceilingMatch && part.includes(ceilingMatch[0])) {
+        return <strong key={index}>{part} </strong>;
+      } else if (visibility < 3 && visibilityMatch && part.includes(visibilityMatch[0])) {
+        return <strong key={index}>{part} </strong>;
+      }
     }
-  }
 
-  metarText = metarText.replace(termsRegex, '<strong>$1</strong>');
+    if (termsRegex.test(part)) {
+      return <strong key={index}>{part} </strong>;
+    }
 
-  return metarText;
+    return <span key={index}>{part} </span>;
+  });
 }
 
 export default QuickMetarDisplay;
