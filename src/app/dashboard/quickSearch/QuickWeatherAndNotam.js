@@ -39,7 +39,7 @@ export function calculateAirportCategories(allWeatherData) {
 
   // Calculate categories using transformed airport values and weather data
   const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
-  
+
   return categories;
 }
 
@@ -48,22 +48,39 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   const airportCategories = {};
 
   airportValues.forEach((airport) => {
-    // Find the latest METAR or SPECI report for the airport
-    const latestMetar = weatherData[airport.code]?.data?.find((item) => item.type === 'metar' || item.type === 'speci');
+    const latestMetar = weatherData[airport.code]?.data?.find(
+      (item) => item.type === 'metar' || item.type === 'speci'
+    );
 
     if (latestMetar) {
-      // Parse ceiling and visibility from the METAR report
-      const { ceiling, visibilityValue } = parseMETARForCeilingAndVisibility(latestMetar.text);
+      // Use parseVisibility directly for visibility
+      const visibilityValue = parseVisibility(latestMetar.text);
+     // console.log(`Parsed visibility for ${airport.code}:`, visibilityValue);
 
-      // Determine the flight category and color
+      // Keep existing ceiling parsing
+      let ceiling = Infinity;
+      const components = latestMetar.text.split(' ');
+      
+      components.forEach((component) => {
+        if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
+          const ceilingValue = parseInt(component.slice(-3)) * 100;
+          if (component.startsWith('BKN') || 
+              component.startsWith('OVC') || 
+              component.startsWith('VV')) {
+            if (ceilingValue < ceiling) {
+              ceiling = ceilingValue;
+            }
+          }
+        }
+      });
+
       const { category, color } = getFlightCategory(ceiling, visibilityValue);
-
+      
       airportCategories[airport.code] = {
         category,
         color,
       };
     } else {
-      // Default to 'Unknown' if there's no METAR data
       airportCategories[airport.code] = {
         category: 'Unknown',
         color: 'text-gray-500',
@@ -74,85 +91,91 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   return airportCategories;
 }
 
+
+// Add this function before parseMETAR
 export function parseVisibility(metarString) {
-  const components = metarString.split(' ');
-  let visibilityValue = Infinity;
-
-
+  // console.log('Parsing visibility from:', metarString);
+   const components = metarString.split(' ');
+   let visibilityValue = Infinity;
+ 
    // Add new mixed number check at the start
    const mixedMatch = metarString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
    if (mixedMatch) {
      const whole = parseInt(mixedMatch[1]);
      const num = parseInt(mixedMatch[2]);
      const denom = parseInt(mixedMatch[3]);
-     return whole + (num / denom);
+     const result = whole + (num / denom);
+     //console.log('Mixed number match:', { whole, num, denom, result });
+     return result;
    }
  
    function parseFraction(fractionStr) {
+     //console.log('Parsing fraction:', fractionStr);
      const fractionMatch = fractionStr.match(/(\d+\/\d+)SM$/);
-     if (!fractionMatch) return null;
+     if (!fractionMatch) {
+      // console.log('No fraction match found');
+       return null;
+     }
      
      const cleanStr = fractionMatch[1];
      const [numerator, denominator] = cleanStr.split('/').map(Number);
-     
-     // If it's just a fraction (like 1/2), add 1 to make it mixed (1 1/2)
-     if (fractionStr.match(/^\d+\/\d+SM$/)) {
-       return numerator / denominator; // Remove the +1 to fix the mixed number issue
-     }
-     
-     return numerator / denominator;
+     const result = numerator / denominator;
+    // console.log('Fraction result:', { numerator, denominator, result });
+     return result;
    }
  
+   for (let i = 0; i < components.length; i++) {
+     const component = components[i];
+     const nextComponent = components[i + 1];
+     //console.log('Processing component:', component, 'Next:', nextComponent);
+ 
+     if (component.includes('SM')) {
+       const parts = component.split(' ');
+       if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
+         //console.log('Found mixed number in single component');
+         const wholeNumber = parseInt(parts[0]);
+         const fraction = parseFraction(parts[1]);
+         if (fraction !== null) {
+           visibilityValue = wholeNumber + fraction;
+           break;
+         }
+       }
+       else if (parts[parts.length - 1].includes('/')) {
+         //console.log('Found pure fraction');
+         const fraction = parseFraction(parts[parts.length - 1]);
+         if (fraction !== null) {
+           visibilityValue = fraction;
+           break;
+         }
+       }
+       else {
+         const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
+         if (wholeMatch) {
+           //console.log('Found whole number');
+           visibilityValue = parseInt(wholeMatch[1]);
+           break;
+         }
+       }
+     }
+     else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
+       //console.log('Found split mixed number');
+       const wholeNumber = parseInt(component);
+       const fraction = parseFraction(nextComponent);
+       if (fraction !== null) {
+         visibilityValue = wholeNumber + fraction;
+         i++;
+         break;
+       }
+     }
+   }
+ 
+  // console.log('Final visibility value:', visibilityValue);
+   return visibilityValue;
+ }
 
-  for (let i = 0; i < components.length; i++) {
-    const component = components[i];
-    const nextComponent = components[i + 1];
+// Rest of existing code remains the same...
 
-
-    if (component.includes('SM')) {
-      const parts = component.split(' ');
-      // Check for mixed number in single component (e.g. "2 1/4SM")
-      if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
-        const wholeNumber = parseInt(parts[0]);
-        const fraction = parseFraction(parts[1]);
-        if (fraction !== null) {
-          visibilityValue = wholeNumber + fraction;
-          break;
-        }
-      }
-      // Check for pure fraction (now converts to mixed)
-      else if (parts[parts.length - 1].includes('/')) {
-        const fraction = parseFraction(parts[parts.length - 1]);
-        if (fraction !== null) {
-          visibilityValue = fraction;  // Will now include the added 1 for lone fractions
-          break;
-        }
-      }
-      // Check for whole number
-      else {
-        const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
-        if (wholeMatch) {
-          visibilityValue = parseInt(wholeMatch[1]);
-          break;
-        }
-      }
-    }
-    // Check for split mixed number across components
-    else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
-      const wholeNumber = parseInt(component);
-      const fraction = parseFraction(nextComponent);
-      if (fraction !== null) {
-        visibilityValue = wholeNumber + fraction;
-        i++;
-        break;
-      }
-    }
-  }
-
-  return visibilityValue;
-}
-
-
+////METAR///
 
 export function parseMETAR(metarString) {
   // Replace all occurrences of "−" with "-"
@@ -191,7 +214,6 @@ export function parseMETAR(metarString) {
 }
 
 export function getFlightCategory(ceiling, visibility) {
-
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
   } else if (ceiling < 1000 || visibility < 3) {
@@ -204,6 +226,9 @@ export function getFlightCategory(ceiling, visibility) {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }
+
+
+
 export function formatLocalDate(date) {
   const options = {
     weekday: 'short',
@@ -282,7 +307,6 @@ export function categorizeNotams(notams) {
   };
 }
 
-
 export function extractTextBeforeFR(text) {
   const frIndex = text.indexOf('FR:');
   return frIndex !== -1 ? text.substring(0, frIndex).trim() : text.trim();
@@ -297,13 +321,13 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
-  .filter((notam) => {
-    const notamText = JSON.parse(notam.text).raw;
-    if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
-      return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
-    }
-    return notamText.toLowerCase().includes(normalizedSearchTerm);
-  })
+    .filter((notam) => {
+      const notamText = JSON.parse(notam.text).raw;
+      if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+        return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
+      }
+      return notamText.toLowerCase().includes(normalizedSearchTerm);
+    })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText
@@ -334,30 +358,6 @@ export function countFilteredNotams(notams, type, searchTerm, isCraneFilterActiv
     return qLineMatch[2].startsWith(type);
   }).length;
 }
-
-
-
-export function parseMETARForCeilingAndVisibility(metarString) {
-  const components = metarString.split(' ');
-  let ceiling = Infinity;
-  let visibilityValue = Infinity;
-
-  components.forEach((component) => {
-    if (component.match(/^\d+SM$/)) {
-      visibilityValue = parseFloat(component.replace('SM', '').replace('/', '.'));
-    } else if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
-      const ceilingValue = parseInt(component.slice(-3)) * 100;
-      if (component.startsWith('BKN') || component.startsWith('OVC') || component.startsWith('VV')) {
-        if (ceilingValue < ceiling) {
-          ceiling = ceilingValue;
-        }
-      }
-    }
-  });
-
-  return { ceiling, visibilityValue };
-}
-
 
 export const renderNotamsW = (notams, title) => {
   const notamsToRender = notams.filter(notam => {

@@ -21,8 +21,7 @@ import {
 
 export default function ClientComponent({ fetchQuickWeather }) {
   const {
-    selectedAirport,
-    setSelectedAirport,
+ 
     selectedNotamTypeQuick,
     setSelectedNotamTypeQuick,
     searchTermQuick,
@@ -559,7 +558,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               renderNotamCardQuick={renderNotamCardQuick}
               selectedForm={selectedForm}
               flightDetails={flightDetails}
-              selectedAirport={selectedAirport}
+          
 
             />
           </div>

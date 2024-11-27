@@ -29,7 +29,7 @@ const TafDisplay = ({ weatherData }) => {
 };
 
 
-export function formatTAF(tafText) {
+function formatTAF(tafText) {
   if (!tafText) return '';
 
   // Replace all occurrences of "−" with "-" 
