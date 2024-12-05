@@ -38,6 +38,9 @@ const QuickMetarDisplay = ({ quickWeatherData }) => {
 };
 
 function formatMetarTextJSX(metarText, ceiling, visibility, category) {
+  
+  metarText = metarText.replace(/−/g, '-');
+
   const ceilingRegex = /\b(VV|OVC|BKN)\d{3}\b/;
   const visibilityRegex = /\b(\d+\s?\d?\/?\d*SM|\d+\/\d+SM)\b/;
 
