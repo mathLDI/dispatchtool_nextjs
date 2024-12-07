@@ -46,9 +46,9 @@ export default function NavLinks() {
               key={link.name}
               href={link.href}
               className={clsx(
-                'flex h-[48px] mt-2 grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+                'flex h-[48px] mt-2 grow items-center justify-center gap-2 rounded-md bg-gray-50 dark:bg-gray-700 p-3 text-sm font-medium text-gray-600 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
-                  'bg-sky-100 text-blue-600': pathname === link.href,
+                  'bg-sky-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400': pathname === link.href,
                 },
               )}
             >
@@ -60,14 +60,14 @@ export default function NavLinks() {
       </div>
 
       <div className="flex w-full">
-        <button
-          onClick={handleLogout}
-          className="flex w-full h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:justify-start md:p-2 md:px-3"
-        >
-          <LogoutIcon className="w-6" />
-          <p className="hidden md:block">Logout</p>
-        </button>
-      </div>
+  <button
+    onClick={handleLogout}
+    className="flex w-full h-[48px] items-center justify-center gap-2 rounded-md bg-gray-50 dark:bg-gray-700 p-3 text-sm font-medium text-gray-600 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600 md:justify-start md:p-2 md:px-3"
+  >
+    <LogoutIcon className="w-6 text-gray-600 dark:text-gray-400" />
+    <p className="hidden md:block">Logout</p>
+  </button>
+</div>
     </div>
   );
 }

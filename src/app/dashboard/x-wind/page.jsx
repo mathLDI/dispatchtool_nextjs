@@ -359,7 +359,11 @@ const SecondPageCrosswindCalculator = () => {
     const WindBubble = ({ value, onClick, isGust, selected }) => (
         <button
             onClick={onClick}
-            className={`flex justify-center items-center px-3 py-1 rounded-full text-sm shadow-sm ${selected ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
+            className={`flex justify-center items-center px-3 py-1 rounded-full text-sm shadow-sm text-black dark:text-white
+                ${selected
+                    ? 'bg-sky-100 dark:bg-sky-900 text-blue-600'
+                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-sky-100 dark:hover:bg-sky-900 hover:text-blue-600'
+                }`}
         >
             {isGust ? `G${value}` : value}
         </button>
@@ -393,8 +397,8 @@ const SecondPageCrosswindCalculator = () => {
                     <div className="flex flex-col">
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>
-                                Airport:<span style={{ fontStyle: 'italic', color: 'gray',marginRight: '2px'  }}>(Optional)</span>
+                            <div className="dark:text-white">
+                                Airport:<span style={{ fontStyle: 'italic', color: 'gray', marginRight: '2px' }}>(Optional)</span>
                             </div>
 
                             <NewChoiceListbox
@@ -405,12 +409,13 @@ const SecondPageCrosswindCalculator = () => {
                                 resetCallback={resetListbox2Handler}
                                 placeholder="Select airport"
                                 allowManualInput={true}
-                                key={`airport-${resetKey}`} // Add unique key
+                                key={`airport-${resetKey}`}
+                                className="dark:bg-gray-800 dark:text-white" // Add dark mode styling
                             />
                         </div>
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>Aircraft type: </div>
+                            <div className="dark:text-white">Aircraft type: </div>
                             <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
@@ -421,11 +426,11 @@ const SecondPageCrosswindCalculator = () => {
                         </div>
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>Runway Heading:</div>
+                            <div className="dark:text-white">Runway Heading:</div>
                             <div className="flex flex-col space-y-1">
                                 <div className="flex space-x-2">
                                     <input
-                                        className="bg-white border rounded p-1 w-24"
+                                        className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
                                         type="number"
                                         max={360}
                                         min={0}
@@ -439,7 +444,7 @@ const SecondPageCrosswindCalculator = () => {
                                     />
                                     {airport && ( // Only show select when airport is selected
                                         <select
-                                            className="bg-white border rounded p-1"
+                                            className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
                                             value={selectedRunway}
                                             onChange={(e) => {
                                                 setSelectedRunway(e.target.value);
@@ -479,7 +484,7 @@ const SecondPageCrosswindCalculator = () => {
                         </div>
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>Magnetic Variation:</div>
+                            <div className="dark:text-white">Magnetic Variation:</div>
                             <div className="flex flex-col">
                                 <div className="flex items-center space-x-2">
                                     <NewChoiceListbox
@@ -491,7 +496,7 @@ const SecondPageCrosswindCalculator = () => {
                                         key={`eastWest-${eastOrWestVar}`}
                                     />
                                     <input
-                                        className="bg-white border rounded p-1 w-16"
+                                        className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-16"
                                         type="number"
                                         max={20}
                                         min={0}
@@ -520,10 +525,10 @@ const SecondPageCrosswindCalculator = () => {
 
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>Wind Direction:</div>
+                            <div className="dark:text-white">Wind Direction:</div>
                             <div className="flex items-center space-x-2">
                                 <input
-                                    className="bg-white border rounded p-1 w-24"
+                                    className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
                                     type="number"
                                     max={360}
                                     min={0}
@@ -545,10 +550,10 @@ const SecondPageCrosswindCalculator = () => {
                         </div>
 
                         <div className="flex justify-between items-center mb-2">
-                            <div>Wind Speed:</div>
+                            <div className="dark:text-white">Wind Speed:</div>
                             <div className="flex items-center space-x-2">
                                 <input
-                                    className="bg-white border rounded p-1 w-24"
+                                    className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
                                     type="number"
                                     max={200}
                                     min={0}
@@ -588,14 +593,14 @@ const SecondPageCrosswindCalculator = () => {
             <Card cardTitle={"Results Crosswind"} status={callDxp} className="w-full sm:w-auto">
                 <div className="space-y-2">
                     <div className="flex justify-between">
-                        <div>{HeadwindTailwindComp < 0 ? 'Tailwind:' : 'Headwind:'}</div>
-                        <div>{HeadwindTailwindComponentNoNegOneDigit} kts</div>
+                        <div className="dark:text-white">{HeadwindTailwindComp < 0 ? 'Tailwind:' : 'Headwind:'}</div>
+                        <div className="dark:text-white">{HeadwindTailwindComponentNoNegOneDigit} kts</div>
                     </div>
                     <div className="flex justify-between">
-                        <div>
+                        <div className="dark:text-white">
                             {CrosswindComp === 0 ? 'No Crosswind:' : (CrosswindComp < 0 ? 'Left Crosswind:' : 'Right Crosswind:')}
                         </div>
-                        <div>{CrosswindComponentNoNegOneDigit} kts</div>
+                        <div className="dark:text-white">{CrosswindComponentNoNegOneDigit} kts</div>
                     </div>
                 </div>
             </Card>

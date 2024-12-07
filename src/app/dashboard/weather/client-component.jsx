@@ -767,7 +767,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
     return (
       <div>
-        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>        
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -800,12 +800,12 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
                     </p>
                   );
                 })}
-                <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-                <p className="text-blue-800">Effective (Local): {localTime}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                    <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {index !== notamsToRender.length - 1 && (
@@ -849,8 +849,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
 
 
-          <div className="flex-1 bg-gray-300 flex flex-col justify-center items-center  "
-
+          <div className="flex-1 bg-gray-300 dark:bg-gray-700 flex flex-col justify-center items-center"
           > {/* Ensure full height with h-full */}
             <div
               className="flex-1 "

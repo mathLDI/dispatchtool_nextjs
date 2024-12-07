@@ -112,21 +112,22 @@ export default function QuickAirportWeatherDisplay({
       >
 
         {/* Conditionally render METAR/TAF display */}
-        {QuickselectedButton === 'METAR/TAF' && (
-          <>
-            <div className="flex">
-              <Card title="METAR" status={null} className="h-full">
-                <QuickMetarDisplay quickWeatherData={quickWeatherData} />
-              </Card>
-            </div>
+   {/* Conditionally render METAR/TAF display */}
+{QuickselectedButton === 'METAR/TAF' && (
+  <>
+    <div className="flex dark:text-white">
+      <Card title="METAR" status={null} className="h-full">
+        <QuickMetarDisplay quickWeatherData={quickWeatherData} />
+      </Card>
+    </div>
 
-            <div className="flex">
-              <Card title="TAF" status={null} className="h-full">
-                <QuickTafDisplay quickWeatherData={quickWeatherData} />
-              </Card>
-            </div>
-          </>
-        )}
+    <div className="flex dark:text-white">
+      <Card title="TAF" status={null} className="h-full">
+        <QuickTafDisplay quickWeatherData={quickWeatherData} />
+      </Card>
+    </div>
+  </>
+)}
 
 
         {QuickselectedButton === 'GFA' && (

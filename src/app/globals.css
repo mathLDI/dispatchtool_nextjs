@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode transitions */
+.dark {
+  color-scheme: dark;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-start-rgb: 229, 231, 235; /* Tailwind gray-200 */
+  --background-end-rgb: 243, 244, 246; /* Tailwind gray-100 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,7 +25,6 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
-
 body {
   font-family: 'Helvetica', sans-serif;
   color: rgb(var(--foreground-rgb));
