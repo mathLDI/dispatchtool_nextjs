@@ -39,7 +39,7 @@ export function calculateAirportCategories(allWeatherData) {
 
   // Calculate categories using transformed airport values and weather data
   const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
-  
+
   return categories;
 }
 
@@ -60,13 +60,13 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
       // Keep existing ceiling parsing
       let ceiling = Infinity;
       const components = latestMetar.text.split(' ');
-      
+
       components.forEach((component) => {
         if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
           const ceilingValue = parseInt(component.slice(-3)) * 100;
-          if (component.startsWith('BKN') || 
-              component.startsWith('OVC') || 
-              component.startsWith('VV')) {
+          if (component.startsWith('BKN') ||
+            component.startsWith('OVC') ||
+            component.startsWith('VV')) {
             if (ceilingValue < ceiling) {
               ceiling = ceilingValue;
             }
@@ -75,7 +75,7 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
       });
 
       const { category, color } = getFlightCategory(ceiling, visibilityValue, latestMetar.text);
-      
+
       airportCategories[airport.code] = {
         category,
         color,
@@ -94,7 +94,7 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
 export function parseVisibility(metarString) {
   // First clean the input by removing time and probability patterns
   const cleanedString = metarString.replace(/\b\d{4}\b|\bPROB\d+\b/g, '').trim();
-  
+
   const components = cleanedString.split(' ');
   let visibilityValue = Infinity;
 
@@ -113,7 +113,7 @@ export function parseVisibility(metarString) {
     if (!fractionMatch) {
       return null;
     }
-    
+
     const cleanStr = fractionMatch[1];
     const [numerator, denominator] = cleanStr.split('/').map(Number);
     const result = numerator / denominator;
@@ -172,10 +172,10 @@ export function parseMETAR(metarString) {
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
-  
+
   // Use new visibility parser
   const visibilityValue = parseVisibility(metarString);
- 
+
 
   // Handle ceiling
   for (const component of components) {
@@ -315,13 +315,13 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
-  .filter((notam) => {
-    const notamText = JSON.parse(notam.text).raw;
-    if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
-      return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
-    }
-    return notamText.toLowerCase().includes(normalizedSearchTerm);
-  })
+    .filter((notam) => {
+      const notamText = JSON.parse(notam.text).raw;
+      if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+        return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
+      }
+      return notamText.toLowerCase().includes(normalizedSearchTerm);
+    })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText
@@ -388,7 +388,7 @@ export const renderNotamsW = (notams, title, searchTerm) => {
 
   return (
     <div>
-<h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>      {notamsToRender.length === 0 ? (
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>      {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
         notamsToRender.map((notam, index) => {
@@ -420,14 +420,14 @@ export const renderNotamsW = (notams, title, searchTerm) => {
                   </p>
                 );
               })}
-<p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
-<p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
-{expirationDate && (
-  <>
-    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
-    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
-  </>
-)}
+              <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
+              {expirationDate && (
+                <>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                </>
+              )}
               {index !== notamsToRender.length - 1 && (
                 <hr className="my-2 border-gray-300" />
               )}
@@ -451,7 +451,8 @@ export const renderNotamsE = (notams, title, searchTerm) => {
 
   return (
     <div>
-<h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>      {notamsToRender.length === 0 ? (
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>
+      {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
         notamsToRender.map((notam, index) => {
@@ -485,14 +486,14 @@ export const renderNotamsE = (notams, title, searchTerm) => {
                   </p>
                 );
               })}
-      <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
-<p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
-{expirationDate && (
-  <>
-    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
-    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
-  </>
-)}
+              <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
+              {expirationDate && (
+                <>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                </>
+              )}
               {index !== notamsToRender.length - 1 && (
                 <hr className="my-2 border-gray-300" />
               )}
