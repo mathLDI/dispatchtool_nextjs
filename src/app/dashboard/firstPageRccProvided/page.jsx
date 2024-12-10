@@ -97,8 +97,8 @@ const FirstPageRccProvided = (props) => {
                 <Card cardTitle={"RWYCC Provided"} status={null} className=" w-full sm:w-auto">
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div>Aircraft type:</div>
-                            <NewChoiceListbox
+                        <div className="dark:text-white">Aircraft type:</div>
+                        <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -108,7 +108,7 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div>RWYCC: </div>
+                            <div  className="dark:text-white">RWYCC: </div>
                             <NewChoiceListbox
                                 value={rwycc1}
                                 choices={rwyccChoices}
@@ -134,7 +134,7 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2 ">
-                            <div>Corrected TLR Landing Distance:</div>
+                            <div  className="dark:text-white pr-2">Corrected TLR Landing Distance:</div>
                             <input
                                 className="flex dark:bg-black"
                                 type="number"
@@ -153,7 +153,7 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div>Landing Runway Length:</div>
+                            <div  className="dark:text-white">Landing Runway Length:</div>
                             <input
                                 className="flex dark:bg-black"
                                 type="number"
@@ -182,7 +182,7 @@ const FirstPageRccProvided = (props) => {
                     <Card cardTitle={"Results Takeoff"} status={callDxp} className="w-full sm:w-auto">
                         <div>
                             <div className="flex flex-row justify-between p-2">
-                                <div>RCC code:</div>
+                                <div  className="dark:text-white">RCC code:</div>
                                 {CorrectedLandingRwyccToUse === "Corrected distance is longer than runway length!" || CorrectedLandingRwyccToUse === "Enter Distances" ? "" :
                                     <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
                                         {lowestRcc}
@@ -191,7 +191,7 @@ const FirstPageRccProvided = (props) => {
                             </div>
 
                             <div className="flex flex-row justify-between p-2">
-                                <div>Max crosswind:</div>
+                                <div  className="dark:text-white">Max crosswind:</div>
                                 <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
                                     {selectedRccToMaxXwindLandingTakeoff}
                                 </div>
@@ -204,14 +204,14 @@ const FirstPageRccProvided = (props) => {
                     <Card cardTitle={"Results Landing"} status={callDxp} className="w-full sm:w-auto">
                         <div>
                             <div className="flex flex-row justify-between p-2">
-                                <div>RCC code:</div>
+                                <div  className="dark:text-white">RCC code:</div>
                                 <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
                                     {CorrectedLandingRwyccToUse}
                                 </div>
                             </div>
 
                             <div className="flex flex-row justify-between p-2">
-                                <div>Max crosswind:</div>
+                                <div  className="dark:text-white">Max crosswind:</div>
                                 <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
                                     {selectedRccToMaxXwindLanding}
                                 </div>
@@ -237,16 +237,17 @@ const FirstPageRccProvided = (props) => {
 
             <div className="flex-1" name="depth_info">
 
-                <div className="text-center">
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 underline">
+          
+            <div className="text-center">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 dark:text-blue-400 underline">
                         {isExpanded ? "Hide Depth Info" : "Show Depth Info"}
                     </button>
                     {isExpanded && (
                         <div className="mt-2">
-                            <div>1/8&quot; / 0.13in / 3mm</div>
-                            <div>COMPACTED SNOW ON A GRAVEL RWY =</div>
-                            <div>COMPACTED SNOW/GRAVEL MIX = </div>
-                            <div>NOT A CONTAMINANT </div>
+                            <div className="dark:text-white">1/8&quot; / 0.13in / 3mm</div>
+                            <div className="dark:text-white">COMPACTED SNOW ON A GRAVEL RWY =</div>
+                            <div className="dark:text-white">COMPACTED SNOW/GRAVEL MIX = </div>
+                            <div className="dark:text-white">NOT A CONTAMINANT </div>
                         </div>
                     )}
                 </div>

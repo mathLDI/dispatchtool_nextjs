@@ -63,8 +63,10 @@ export default function SideNav({
             <div
               key={originalIndex}
               className={clsx(
-                'bg-gray-100 rounded-md mb-1 flex justify-between items-center cursor-pointer hover:bg-sky-100 hover:text-blue-600',
-                { 'bg-sky-100 text-blue-600': selectedRouting === routing }
+                'rounded-md mb-1 flex justify-between items-center cursor-pointer',
+                selectedRouting === routing
+                  ? 'bg-sky-100 text-black dark:bg-sky-900 dark:text-white'
+                  : 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600 dark:hover:text-white'
               )}
               onClick={() => handleRoutingClick(routing)}
             >

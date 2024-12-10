@@ -131,6 +131,8 @@ interface RccContextType {
   setWeatherData: React.Dispatch<React.SetStateAction<any>>;
   weatherDataUpdated: boolean;
   setWeatherDataUpdated: React.Dispatch<React.SetStateAction<boolean>>;
+  darkMode: boolean;
+  setDarkMode: (mode: boolean) => void;
 }
 
 // Create the context with a default value
@@ -154,6 +156,27 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     setIsClient(true); // Ensures client-only logic
   }, []);
+
+// Add this near the top of RccProvider component, with other state declarations
+const [darkMode, setDarkMode] = useState(() => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('darkMode') === 'true';
+  }
+  return false;
+});
+
+// Move and update the darkMode effect to include darkMode in dependencies
+useEffect(() => {
+  if (isClient) {
+    localStorage.setItem('darkMode', darkMode.toString());
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+}, [isClient, darkMode]); // Added darkMode to dependencies
+  
 
   const [aircraftType, setAircraftType] = useState("DHC-8");
   const [contaminationCoverage1, setContaminationCoverage1] = useState(" ");
@@ -332,6 +355,8 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setWeatherData,
       weatherDataUpdated,
       setWeatherDataUpdated,
+      darkMode,
+      setDarkMode,
     }}>
       {children}
     </RccContext.Provider>

@@ -21,7 +21,7 @@ import {
 
 export default function ClientComponent({ fetchQuickWeather }) {
   const {
- 
+
     selectedNotamTypeQuick,
     setSelectedNotamTypeQuick,
     searchTermQuick,
@@ -177,7 +177,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
     const upperCaseSearchTermQuick = event.target.value.toUpperCase(); // Convert to uppercase
     setSearchTermQuick(upperCaseSearchTermQuick);
   };
-  
+
 
 
 
@@ -278,7 +278,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
         return null;
     }
   };
-  
+
 
 
   //////////////////////////////////////
@@ -290,18 +290,18 @@ export default function ClientComponent({ fetchQuickWeather }) {
       console.error('Expected an array but received:', notams);
       return <p>No Applicable NOTAMs</p>; // Or handle the error appropriately
     }
-  
+
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('A');
     });
-  
+
     return (
       <div>
-        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -309,16 +309,16 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
-  
+
             return (
               <div key={index} className="mb-4">
                 {lines.map((line, lineIndex) => {
@@ -334,12 +334,12 @@ export default function ClientComponent({ fetchQuickWeather }) {
                     </p>
                   );
                 })}
-                <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-                <p className="text-blue-800">Effective (Local): {localTime}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                    <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {index !== notamsToRender.length - 1 && (
@@ -352,20 +352,20 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
+
 
   const renderNotamsW = (notams, title, searchTerm) => {
     const notamsToRender = notams.filter((notam) => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('W');
     });
-  
+
     return (
       <div>
-        <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -373,16 +373,16 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
-  
+
             return (
               <div key={index} className="mb-4">
                 {lines.map((line, lineIndex) => {
@@ -398,12 +398,12 @@ export default function ClientComponent({ fetchQuickWeather }) {
                     </p>
                   );
                 })}
-                <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-                <p className="text-blue-800">Effective (Local): {localTime}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                    <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {index !== notamsToRender.length - 1 && (
@@ -416,20 +416,20 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
-  
+
+
   const renderNotamsE = (notams, title, searchTerm) => {
     const notamsToRender = notams.filter(notam => {
       const notamText = JSON.parse(notam.text);
       const displayText = extractTextBeforeFR(notamText.raw);
-  
+
       const qLineMatch = displayText.match(/Q\)([^\/]*\/){4}([^\/]*)\//);
       return qLineMatch && qLineMatch[2].startsWith('E');
     });
-  
+
     return (
       <div>
-        <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
+        <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
         {notamsToRender.length === 0 ? (
           <p>No Applicable NOTAMs</p>
         ) : (
@@ -437,7 +437,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const notamText = JSON.parse(notam.text);
             const displayText = extractTextBeforeFR(notam.highlightedText || notamText.raw);
             const localTime = formatLocalDate(notam.startDate);
-  
+
             const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
             const expirationDate = expirationMatch
               ? parseNotamDate(expirationMatch[1])
@@ -445,10 +445,10 @@ export default function ClientComponent({ fetchQuickWeather }) {
             const localExpirationDate = expirationDate
               ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
               : null;
-  
+
             const lines = displayText.split('\n');
             let inBold = false;
-  
+
             return (
               <div key={index} className="mb-4">
                 {lines.map((line, lineIndex) => {
@@ -464,12 +464,12 @@ export default function ClientComponent({ fetchQuickWeather }) {
                     </p>
                   );
                 })}
-                <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-                <p className="text-blue-800">Effective (Local): {localTime}</p>
+             <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+                <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
                 {expirationDate && (
                   <>
-                    <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                    <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                    <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                   </>
                 )}
                 {index !== notamsToRender.length - 1 && (
@@ -482,7 +482,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
       </div>
     );
   };
-  
+
 
   return (
     <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.0' }}>
@@ -558,7 +558,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               renderNotamCardQuick={renderNotamCardQuick}
               selectedForm={selectedForm}
               flightDetails={flightDetails}
-          
+
 
             />
           </div>

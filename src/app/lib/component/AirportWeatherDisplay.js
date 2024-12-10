@@ -49,27 +49,43 @@ export default function AirportWeatherDisplay({
     <div className="flex flex-col  ">
 
 
-      <div className="flex items-center dark:bg-gray-700 justify-start p-2 space-x-2 rounded-md shadow-lg">
+      <div className="flex items-center dark:bg-gray-900 justify-start p-2 space-x-2 rounded-md shadow-lg">
         <button
-          className={`flex justify-center items-center p-2 rounded-md shadow-sm ${selectedButton === 'METAR/TAF' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
+          className={`flex justify-center items-center p-2 rounded-md shadow-sm 
+    ${selectedButton === 'METAR/TAF'
+              ? 'bg-sky-100 text-black dark:text-black'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-sky-100 hover:text-blue-600'
+            }`}
           onClick={() => setSelectedButton('METAR/TAF')}>
           METAR/TAF
         </button>
 
         <button
-          className={`flex justify-center items-center p-2 rounded-md shadow-sm ${selectedButton === 'NOTAMS' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
+          className={`flex justify-center items-center p-2 rounded-md shadow-sm 
+    ${selectedButton === 'NOTAMS'
+              ? 'bg-sky-100 text-black dark:text-black'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-sky-100 hover:text-blue-600'
+            }`}
           onClick={() => setSelectedButton('NOTAMS')}>
           NOTAMS
         </button>
 
         <button
-          className={`flex justify-center items-center p-2 rounded-md shadow-sm ${selectedButton === 'ALL METAR' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
+          className={`flex justify-center items-center p-2 rounded-md shadow-sm 
+    ${selectedButton === 'ALL METAR'
+              ? 'bg-sky-100 text-black dark:text-black'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-sky-100 hover:text-blue-600'
+            }`}
           onClick={() => setSelectedButton('ALL METAR')}>
           ALL METAR
         </button>
 
         <button
-          className={`flex justify-center items-center p-2 rounded-md shadow-sm ${selectedButton === 'GFA' ? 'bg-sky-100 text-blue-600' : 'bg-gray-100 hover:bg-sky-100 hover:text-blue-600'}`}
+          className={`flex justify-center items-center p-2 rounded-md shadow-sm 
+    ${selectedButton === 'GFA'
+              ? 'bg-sky-100 text-black dark:text-black'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-sky-100 hover:text-blue-600'
+            }`}
           onClick={() => setSelectedButton('GFA')}>
           GFA
         </button>
@@ -90,14 +106,14 @@ export default function AirportWeatherDisplay({
           {selectedButton === 'METAR/TAF' && selectedForm === 'Routing Search' && (
             <>
               {/*******  Conditional METAR rendering for Routing Search - Individual airport *******/}
-             <div className="flex">
-      <Card title="METAR" status={null} className="h-full">
-        {/* Use either weatherData or allWeatherData based on selectedAirport */}
-        <MetarDisplay 
-          weatherData={selectedAirport ? allWeatherData[selectedAirport.code] : weatherData} 
-        />
-      </Card>
-    </div>
+              <div className="flex">
+                <Card title="METAR" status={null} className="h-full">
+                  {/* Use either weatherData or allWeatherData based on selectedAirport */}
+                  <MetarDisplay
+                    weatherData={selectedAirport ? allWeatherData[selectedAirport.code] : weatherData}
+                  />
+                </Card>
+              </div>
 
 
 
@@ -226,33 +242,44 @@ export default function AirportWeatherDisplay({
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleNotamTypeChange('AERODROME')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME'
+                      ? 'bg-sky-100 dark:bg-white text-black'
+                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    } cursor-pointer`}
                 >
                   AERODROME | {countFilteredNotams(categorizedNotams.flat(), 'A', searchTerm, isCraneFilterActive)}
                 </button>
 
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE'
+                      ? 'bg-sky-100 dark:bg-white text-black'
+                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    } cursor-pointer`}
                 >
                   ENROUTE | {countFilteredNotams(categorizedNotams.flat(), 'E', searchTerm, isCraneFilterActive)}
                 </button>
 
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING' ? 'bg-sky-100 text-blue-600' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING'
+                      ? 'bg-sky-100 dark:bg-white text-black'
+                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    } cursor-pointer`}
                 >
                   WARNING | {countFilteredNotams(categorizedNotams.flat(), 'W', searchTerm, isCraneFilterActive)}
                 </button>
 
                 <button
                   onClick={toggleCraneFilter}
-                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive ? 'bg-sky-100 text-blue-600 line-through' : 'text-black hover:bg-sky-100 hover:text-blue-600'} cursor-pointer`}
+                  className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive
+                      ? 'bg-sky-100 dark:bg-white text-black line-through'
+                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    } cursor-pointer`}
                 >
                   CRANE & TOWER
                 </button>
               </div>
-
 
               <input
                 type="text"

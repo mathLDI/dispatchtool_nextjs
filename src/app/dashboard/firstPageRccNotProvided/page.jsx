@@ -30,7 +30,7 @@ const FirstPageRccNotProvided = (props) => {
 
     const allGravelRunwayConditionDescription = [runwayConditionDescriptionGravel1, runwayConditionDescriptionGravel3];
     const allPavedRunwayConditionDescription = [runwayConditionDescriptionPaved2, runwayConditionDescriptionPaved4];
-    const buttonAircraftType = ["DHC-8", "HS-748","ATR-72"];
+    const buttonAircraftType = ["DHC-8", "HS-748", "ATR-72"];
     const contaminationCoverage2List = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
     const contaminationCoverage3List = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
     const [callDxp] = useState(null);
@@ -92,7 +92,7 @@ console.log("rcctouse from notprovided::", rcc);
     const performanceCheck =
         rcc.totalPercentage > 25 &&
         rcc.result <= 3 &&
-        
+
         (contam.some(item => item.callDxp && item.description === runwayConditionDescriptionPaved2) ||
             contam.some(item => item.callDxp && item.description === runwayConditionDescriptionGravel1) ||
             contam.some(item => item.callDxp && item.description === runwayConditionDescriptionPaved4) ||
@@ -115,7 +115,7 @@ console.log("rcctouse from notprovided::", rcc);
         runwayConditionDescriptionPaved4
     ];
 
-  
+
 
 
 
@@ -128,7 +128,7 @@ console.log("rcctouse from notprovided::", rcc);
                 <Card cardTitle={"RWYCC Not Provided"} status={null} className="w-full sm:w-auto">
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div>Aircraft type:</div>
+                            <div className="dark:text-white">Aircraft type:</div>
                             <NewChoiceListbox
                                 value={aircraftType}
                                 choices={buttonAircraftType}
@@ -139,7 +139,7 @@ console.log("rcctouse from notprovided::", rcc);
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div>Runway type:</div>
+                            <div className="dark:text-white">Runway type:</div>
                             <NewChoiceListbox
                                 value={dropDownPavedOrGravel}
                                 choices={["GRAVEL", "PAVED"]}
@@ -156,7 +156,7 @@ console.log("rcctouse from notprovided::", rcc);
                             <div className="flex flex-row justify-between items-center p-2">
 
 
-                                <div>Contaminant 1:</div>
+                                <div className="dark:text-white">Contaminant 1:</div>
 
                                 <div className="flex-grow  " style={{ minWidth: '300px' }}>
                                     <NewChoiceListbox
@@ -168,8 +168,8 @@ console.log("rcctouse from notprovided::", rcc);
                                     />
                                 </div>
 
-                                <div>% Coverage 1:</div>
-                                <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                <div className="dark:text-white">% Coverage 1:</div>
+                                <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}>
                                     <NewChoiceListbox
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
@@ -191,7 +191,7 @@ console.log("rcctouse from notprovided::", rcc);
                             runwayConditionDescriptionPaved2 !== 'Water on top of 100% Compacted Snow'
                             && rcc.topPercentageSelect !== 0 && (contaminationCoverage2 !== 0 && contaminationCoverage2 !== 100) && (
                                 <div className="flex flex-row justify-between items-center p-2">
-                                    <div>Contaminant 2:</div>
+                                    <div className="dark:text-white">Contaminant 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '300px' }}>
 
                                         <NewChoiceListbox
@@ -204,8 +204,8 @@ console.log("rcctouse from notprovided::", rcc);
                                         />
                                     </div>
 
-                                    <div>% Coverage 2:</div>
-                                    <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                    <div className="dark:text-white">% Coverage 2:</div>
+                                    <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}>
                                         <NewChoiceListbox
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
@@ -219,7 +219,7 @@ console.log("rcctouse from notprovided::", rcc);
 
                         {dropDownPavedOrGravel === "GRAVEL" && (
                             <div className="flex flex-row justify-between items-center p-2">
-                                <div>Contaminant 1:</div>
+                                <div className="dark:text-white">Contaminant 1:</div>
 
                                 <div className="flex-grow" style={{ minWidth: '300px' }}>
                                     <NewChoiceListbox
@@ -232,9 +232,9 @@ console.log("rcctouse from notprovided::", rcc);
                                     />
                                 </div>
 
-                                <div>% Coverage 1:</div>
+                                <div className="dark:text-white">% Coverage 1:</div>
 
-                                <div className="flex-grow " style={{ minWidth: '100px' , maxWidth: '100px' }}>
+                                <div className="flex-grow " style={{ minWidth: '100px', maxWidth: '100px' }}>
                                     <NewChoiceListbox
                                         value={contaminationCoverage1}
                                         choices={contaminationCoverage2List}
@@ -265,9 +265,9 @@ console.log("rcctouse from notprovided::", rcc);
                                         />
                                     </div>
 
-                                    <div className="">% Coverage 2:</div>
+                                    <div className="dark:text-white">% Coverage 2:</div>
 
-                                    <div className="flex-grow" style={{ minWidth: '100px' , maxWidth: '100px' }}    >
+                                    <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}    >
                                         <NewChoiceListbox
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
@@ -290,8 +290,8 @@ console.log("rcctouse from notprovided::", rcc);
                 <Card cardTitle={"Results"} status={callDxp} className="w-full sm:w-auto">
                     <div>
                         <div className="flex flex-wrap justify-between p-2">
-                            <div className="w-full md:w-1/2 lg:w-1/3">RCC code:</div>
-                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                        <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">RCC code:</div>                            
+                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
                                 {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
                                     <div className="flex text-white dark:text-gray-900">
                                         {rcc.result}
@@ -303,8 +303,8 @@ console.log("rcctouse from notprovided::", rcc);
                         </div>
 
                         <div className="flex flex-wrap justify-between p-2">
-                            <div className="w-full md:w-1/2 lg:w-1/3">Max crosswind:</div>
-                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                        <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">Max crosswind:</div>                            
+                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
                                 {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
                                     <div className="text-white dark:text-gray-900">
                                         {selectedRccToMaxXwind} kts
@@ -482,15 +482,15 @@ console.log("rcctouse from notprovided::", rcc);
             <div className="flex-1" name="rccnotprovided_depth">
 
                 <div className="text-center">
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 underline">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 dark:text-blue-400 underline">
                         {isExpanded ? "Hide Depth Info" : "Show Depth Info"}
                     </button>
                     {isExpanded && (
                         <div className="mt-2">
-                            <div>1/8&quot; / 0.13in / 3mm</div>
-                            <div>COMPACTED SNOW ON A GRAVEL RWY =</div>
-                            <div>COMPACTED SNOW/GRAVEL MIX = </div>
-                            <div>NOT A CONTAMINANT </div>
+                            <div className="dark:text-white">1/8&quot; / 0.13in / 3mm</div>
+                            <div className="dark:text-white">COMPACTED SNOW ON A GRAVEL RWY =</div>
+                            <div className="dark:text-white">COMPACTED SNOW/GRAVEL MIX = </div>
+                            <div className="dark:text-white">NOT A CONTAMINANT </div>
                         </div>
                     )}
                 </div>

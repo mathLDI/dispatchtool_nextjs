@@ -371,7 +371,7 @@ export const renderNotamsW = (notams, title) => {
 
   return (
     <div>
-      <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
+     <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
       {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
@@ -408,12 +408,12 @@ export const renderNotamsW = (notams, title) => {
                   dangerouslySetInnerHTML={{ __html: line }}
                 ></p>
               ))}
-              <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-              <p className="text-blue-800">Effective (Local): {localTime}</p>
+            <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
               {expirationDate && (
                 <>
-                  <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                  <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                 </>
               )}
               {index !== notamsToRender.length - 1 && (
@@ -438,7 +438,7 @@ export const renderNotamsE = (notams, title) => {
 
   return (
     <div>
-      <h2 className=" font-bold bg-gray-100 p-2 rounded">{title}</h2>
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
       {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
@@ -507,7 +507,7 @@ export const highlightNotamTermsJSX = (text, searchTerm) => {
   return parts.map((part, index) => {
     if (searchTerm && searchTermRegex && searchTermRegex.test(part)) {
       return (
-        <span key={index} style={{ backgroundColor: 'yellow' }}>
+        <span key={index} style={{ backgroundColor: 'yellow', color: 'black' }}>
           {part}
         </span>
       );

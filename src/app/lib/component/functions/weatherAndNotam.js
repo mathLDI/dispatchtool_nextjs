@@ -39,7 +39,7 @@ export function calculateAirportCategories(allWeatherData) {
 
   // Calculate categories using transformed airport values and weather data
   const categories = allAirportsFlightCategory(transformedAirportValues, allWeatherData);
-  
+
   return categories;
 }
 
@@ -60,13 +60,13 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
       // Keep existing ceiling parsing
       let ceiling = Infinity;
       const components = latestMetar.text.split(' ');
-      
+
       components.forEach((component) => {
         if (component.match(/\b(VV|OVC|BKN|FEW|SCT)\d{3}\b/)) {
           const ceilingValue = parseInt(component.slice(-3)) * 100;
-          if (component.startsWith('BKN') || 
-              component.startsWith('OVC') || 
-              component.startsWith('VV')) {
+          if (component.startsWith('BKN') ||
+            component.startsWith('OVC') ||
+            component.startsWith('VV')) {
             if (ceilingValue < ceiling) {
               ceiling = ceilingValue;
             }
@@ -75,7 +75,7 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
       });
 
       const { category, color } = getFlightCategory(ceiling, visibilityValue, latestMetar.text);
-      
+
       airportCategories[airport.code] = {
         category,
         color,
@@ -92,45 +92,41 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
 }
 
 export function parseVisibility(metarString) {
- // console.log('Parsing visibility from:', metarString);
-  const components = metarString.split(' ');
+  // First clean the input by removing time and probability patterns
+  const cleanedString = metarString.replace(/\b\d{4}\b|\bPROB\d+\b/g, '').trim();
+
+  const components = cleanedString.split(' ');
   let visibilityValue = Infinity;
 
   // Add new mixed number check at the start
-  const mixedMatch = metarString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
+  const mixedMatch = cleanedString.match(/(\d+)\s+(\d+)\/(\d+)SM/);
   if (mixedMatch) {
     const whole = parseInt(mixedMatch[1]);
     const num = parseInt(mixedMatch[2]);
     const denom = parseInt(mixedMatch[3]);
     const result = whole + (num / denom);
-    //console.log('Mixed number match:', { whole, num, denom, result });
     return result;
   }
 
   function parseFraction(fractionStr) {
-    //console.log('Parsing fraction:', fractionStr);
     const fractionMatch = fractionStr.match(/(\d+\/\d+)SM$/);
     if (!fractionMatch) {
-     // console.log('No fraction match found');
       return null;
     }
-    
+
     const cleanStr = fractionMatch[1];
     const [numerator, denominator] = cleanStr.split('/').map(Number);
     const result = numerator / denominator;
-   // console.log('Fraction result:', { numerator, denominator, result });
     return result;
   }
 
   for (let i = 0; i < components.length; i++) {
     const component = components[i];
     const nextComponent = components[i + 1];
-    //console.log('Processing component:', component, 'Next:', nextComponent);
 
     if (component.includes('SM')) {
       const parts = component.split(' ');
       if (parts.length > 1 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+\/\d+SM$/)) {
-        //console.log('Found mixed number in single component');
         const wholeNumber = parseInt(parts[0]);
         const fraction = parseFraction(parts[1]);
         if (fraction !== null) {
@@ -139,7 +135,6 @@ export function parseVisibility(metarString) {
         }
       }
       else if (parts[parts.length - 1].includes('/')) {
-        //console.log('Found pure fraction');
         const fraction = parseFraction(parts[parts.length - 1]);
         if (fraction !== null) {
           visibilityValue = fraction;
@@ -149,14 +144,12 @@ export function parseVisibility(metarString) {
       else {
         const wholeMatch = parts[parts.length - 1].match(/^(\d+)SM$/);
         if (wholeMatch) {
-          //console.log('Found whole number');
           visibilityValue = parseInt(wholeMatch[1]);
           break;
         }
       }
     }
     else if (component.match(/^\d+$/) && nextComponent?.match(/^\d+\/\d+SM$/)) {
-      //console.log('Found split mixed number');
       const wholeNumber = parseInt(component);
       const fraction = parseFraction(nextComponent);
       if (fraction !== null) {
@@ -167,7 +160,6 @@ export function parseVisibility(metarString) {
     }
   }
 
- // console.log('Final visibility value:', visibilityValue);
   return visibilityValue;
 }
 
@@ -180,10 +172,10 @@ export function parseMETAR(metarString) {
   let wind = '';
   let visibility = '';
   let ceiling = Infinity;
-  
+
   // Use new visibility parser
   const visibilityValue = parseVisibility(metarString);
- 
+
 
   // Handle ceiling
   for (const component of components) {
@@ -323,13 +315,13 @@ export function filterAndHighlightNotams(notams, searchTerm = '', isCraneFilterA
   const normalizedSearchTerm = String(searchTerm).toLowerCase();
 
   return notams
-  .filter((notam) => {
-    const notamText = JSON.parse(notam.text).raw;
-    if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
-      return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
-    }
-    return notamText.toLowerCase().includes(normalizedSearchTerm);
-  })
+    .filter((notam) => {
+      const notamText = JSON.parse(notam.text).raw;
+      if (isCraneFilterActive && (notamText.includes('CRANE') || notamText.includes('TOWER'))) {
+        return false; // Exclude NOTAMs that mention "CRANE" or "TOWER"
+      }
+      return notamText.toLowerCase().includes(normalizedSearchTerm);
+    })
     .map((notam) => {
       const notamText = JSON.parse(notam.text).raw;
       let highlightedText = notamText
@@ -396,8 +388,7 @@ export const renderNotamsW = (notams, title, searchTerm) => {
 
   return (
     <div>
-      <h2 className="text-lg font-bold bg-gray-100 p-2 rounded">{title}</h2>
-      {notamsToRender.length === 0 ? (
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>      {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
         notamsToRender.map((notam, index) => {
@@ -429,12 +420,12 @@ export const renderNotamsW = (notams, title, searchTerm) => {
                   </p>
                 );
               })}
-              <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-              <p className="text-blue-800">Effective (Local): {localTime}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
               {expirationDate && (
                 <>
-                  <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                  <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                 </>
               )}
               {index !== notamsToRender.length - 1 && (
@@ -460,7 +451,7 @@ export const renderNotamsE = (notams, title, searchTerm) => {
 
   return (
     <div>
-      <h2 className="font-bold bg-gray-100 p-2 rounded">{title}</h2>
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
       {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
@@ -495,12 +486,12 @@ export const renderNotamsE = (notams, title, searchTerm) => {
                   </p>
                 );
               })}
-              <p className="text-blue-800">Effective (UTC): {notam.startDate.toUTCString()}</p>
-              <p className="text-blue-800">Effective (Local): {localTime}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (UTC): {notam.startDate.toUTCString()}</p>
+              <p className="text-blue-800 dark:text-blue-400">Effective (Local): {localTime}</p>
               {expirationDate && (
                 <>
-                  <p className="text-blue-800">Expires (UTC): {expirationDate.toUTCString()}</p>
-                  <p className="text-blue-800">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (UTC): {expirationDate.toUTCString()}</p>
+                  <p className="text-blue-800 dark:text-blue-400">Expires (Local): {formatLocalDate(localExpirationDate)}</p>
                 </>
               )}
               {index !== notamsToRender.length - 1 && (
@@ -527,7 +518,7 @@ export const highlightNotamTermsJSX = (text, searchTerm) => {
   return parts.map((part, index) => {
     if (searchTerm && searchTermRegex && searchTermRegex.test(part)) {
       return (
-        <span key={index} style={{ backgroundColor: 'yellow' }}>
+        <span key={index} style={{ backgroundColor: 'yellow', color: 'black' }}>
           {part}
         </span>
       );
