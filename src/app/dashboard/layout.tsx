@@ -19,8 +19,7 @@ interface AirportCategory {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { airportCategories, changedAirports, setChangedAirports } = useRccContext();
-  const [darkMode, setDarkMode] = useState(false);
+  const { airportCategories, changedAirports, setChangedAirports, darkMode, setDarkMode } = useRccContext();
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
@@ -30,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (isDark) {
       document.documentElement.classList.add('dark');
     }
-  }, []);
+  }, [setDarkMode]);
 
   // Toggle dark mode
   const toggleDarkMode = () => {
