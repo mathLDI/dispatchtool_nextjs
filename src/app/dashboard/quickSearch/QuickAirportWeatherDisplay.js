@@ -116,7 +116,7 @@ export default function QuickAirportWeatherDisplay({
 
       <div
         className=""
-        style={{ maxHeight: '75vh', overflowY: 'auto', paddingBottom: '150px' }} // Add padding for better spacing
+        style={{ maxHeight: '75vh', overflowY: 'auto', paddingBottom: '0px' }} // Add padding for better spacing
       >
 
         {/* Conditionally render METAR/TAF display */}

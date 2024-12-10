@@ -10,6 +10,7 @@ import { CrosswindComponent } from '../../lib/component/functions/crosswindCompo
 import { HeadwindTailwindComponent } from '../../lib/component/functions/headwindTailwindComponent.js';
 import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
 import { ChevronDoubleLeftIcon } from '@heroicons/react/solid';
+import ManualInputListbox from '../../lib/component/ManualInputListbox'; // Use the correct casing
 
 
 const SecondPageCrosswindCalculator = () => {
@@ -397,20 +398,41 @@ const SecondPageCrosswindCalculator = () => {
                     <div className="flex flex-col">
 
                         <div className="flex justify-between items-center mb-2">
-                            <div className="dark:text-white">
-                                Airport:<span style={{ fontStyle: 'italic', color: 'gray', marginRight: '2px' }}>(Optional)</span>
-                            </div>
+                        <div className="dark:text-white relative group">
+        Airport
+        <span 
+            className="cursor-help text-red-500 ml-1 relative group"
+        >
+            *
+            <span className="absolute hidden group-hover:block bg-black text-white text-xs p-2 rounded -mt-12 -ml-2 w-64 z-10">
+                The airport has to be a tracked airport in order to retrieve weather information.
+            </span>
+        </span>
+        <span style={{ fontStyle: 'italic', color: 'gray', marginRight: '2px' }}>
+            (Optional)
+        </span>
+    </div>
 
-                            <NewChoiceListbox
+                            {/**<NewChoiceListbox
                                 value={airport}
                                 choices={['', ...combinedAirports]}
                                 callback={setAirport}
                                 reset={resetListBox}
                                 resetCallback={resetListbox2Handler}
                                 placeholder="Select airport"
-                                allowManualInput={true}
+                               // allowManualInput={true}
                                 key={`airport-${resetKey}`}
-                                className="dark:bg-gray-800 dark:text-white" // Add dark mode styling
+                            /> */}
+
+
+                            <ManualInputListbox
+                                value={airport}
+                                choices={['', ...combinedAirports]}
+                                callback={setAirport}
+                                reset={resetListBox}
+                                resetCallback={resetListbox2Handler}
+                                placeholder="Select airport"
+                                key={`airport-${resetKey}`}
                             />
                         </div>
 
@@ -466,8 +488,7 @@ const SecondPageCrosswindCalculator = () => {
                                                     <option
                                                         key={runway}
                                                         value={runway}
-                                                        className={isTailwind ? 'bg-orange-200' : ''}
-                                                    >
+                                                        className={isTailwind ? 'bg-orange-200 text-black' : ''}                                                    >
                                                         {runway}
                                                     </option>
                                                 );

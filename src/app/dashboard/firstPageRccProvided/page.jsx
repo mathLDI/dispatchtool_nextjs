@@ -134,7 +134,7 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2 ">
-                            <div  className="dark:text-white">Corrected TLR Landing Distance:</div>
+                            <div  className="dark:text-white pr-2">Corrected TLR Landing Distance:</div>
                             <input
                                 className="flex dark:bg-black"
                                 type="number"

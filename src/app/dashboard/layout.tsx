@@ -85,7 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     fontFamily: 'Roboto, sans-serif',
     fontSize: '12px',
     lineHeight: '1.25',
-    backgroundColor: darkMode ? '#121212' : 'white',
+    backgroundColor: darkMode ? '#121212' : '#d6dbdc',
     color: darkMode ? 'white' : 'black',
     transition: 'background-color 0.3s ease, color 0.3s ease',
   };

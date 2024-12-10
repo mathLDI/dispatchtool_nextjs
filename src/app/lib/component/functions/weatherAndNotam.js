@@ -388,7 +388,7 @@ export const renderNotamsW = (notams, title, searchTerm) => {
 
   return (
     <div>
-      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>      {notamsToRender.length === 0 ? (
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>      {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
         notamsToRender.map((notam, index) => {
@@ -451,7 +451,7 @@ export const renderNotamsE = (notams, title, searchTerm) => {
 
   return (
     <div>
-      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">{title}</h2>
+      <h2 className="font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2">{title}</h2>
       {notamsToRender.length === 0 ? (
         <p>No Applicable NOTAMs</p>
       ) : (
