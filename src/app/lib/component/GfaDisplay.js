@@ -1,26 +1,54 @@
-import React from 'react';
-import Image from 'next/image';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from "next/legacy/image";
 
 const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
-  if (!gfaData || gfaData.data.length === 0) {
-    return <p>No GFA data available</p>;
-  }
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState('');
+  const [frameLists, setFrameLists] = useState(null);
+  const [lastFrames, setLastFrames] = useState(null);
 
-  const frameLists = JSON.parse(gfaData.data[0].text).frame_lists;
+  // Parse frameLists when gfaData changes
+  useEffect(() => {
+    try {
+      if (gfaData?.data?.[0]?.text) {
+        const parsed = JSON.parse(gfaData.data[0].text).frame_lists;
+        setFrameLists(parsed);
+        const lastFrameList = parsed[parsed.length - 1];
+        setLastFrames(lastFrameList.frames);
+        setError(null);
+      }
+    } catch (err) {
+      setError('Failed to parse GFA data');
+      console.error('GFA parse error:', err);
+    }
+  }, [gfaData]);
 
-  const getLastFrames = (frameLists) => {
-    const lastFrameList = frameLists[frameLists.length - 1];
-    return lastFrameList.frames;
-  };
-
-  const getImageUrl = () => {
-    if (!gfaData || !gfaData.data || gfaData.data.length === 0) return '';
-
-    const lastFrames = getLastFrames(frameLists);
+  // Reset states when image URL changes or gfaData changes
+  useEffect(() => {
+    if (!lastFrames) return;
+    
     const selectedFrame = lastFrames[selectedTimestamp];
     const imageId = selectedFrame?.images[0]?.id;
+    const newUrl = imageId ? `https://plan.navcanada.ca/weather/images/${imageId}.image` : '';
 
-    return imageId ? `https://plan.navcanada.ca/weather/images/${imageId}.image` : '';
+    if (newUrl !== currentImageUrl) {
+      setIsLoading(true);
+      setError(null);
+      setCurrentImageUrl(newUrl);
+    }
+  }, [selectedTimestamp, lastFrames, currentImageUrl]);
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setError(null);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setError('Failed to load GFA image');
   };
 
   const formatValidityTime = (frame) => {
@@ -35,40 +63,52 @@ const GfaDisplay = ({ gfaData, selectedTimestamp, setSelectedTimestamp }) => {
     return `${dayStr} ${monthStr} @ ${utcHours}00Z`;
   };
 
+  if (!lastFrames) {
+    return <div className="text-center p-4">Loading GFA data...</div>;
+  }
+
   return (
     <div className="flex flex-col h-full">
-     
-     <div className="flex justify-center mb-1 space-x-2">
-        {getLastFrames(frameLists).map((frame, index) => (
+      <div className="flex justify-center mb-1 space-x-2">
+        {lastFrames.map((frame, index) => (
           <button
             key={index}
             onClick={() => setSelectedTimestamp(index)}
-            className={`px-4 py-2 rounded ${selectedTimestamp === index
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+            className={`px-4 py-2 rounded transition-colors ${
+              selectedTimestamp === index
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
+            }`}
           >
             {formatValidityTime(frame)}
           </button>
         ))}
       </div>
-      <div className="flex justify-center items-center flex-grow" style={{ position: 'relative', width: '100%', height: '100%' }}>
-        <div style={{
-          position: 'relative',
-          width: '100%',          // The container takes full width of the parent
-          maxWidth: '1200px',     // Max width of the image to scale up
-          height: 'auto',         // Keep the aspect ratio intact
-          aspectRatio: '379 / 304', // Maintain the original aspect ratio
-          margin: '0 auto',       // Center the container
-        }}>
+      <div className="relative flex justify-center items-center flex-grow w-full h-full">
+        <div className="relative w-full max-w-[1200px] h-auto aspect-[379/304] mx-auto">
           <Image
-            src={getImageUrl()}
+            src={currentImageUrl}
             alt="GFA Image"
-            width={758}            // Original width of the image
-            height={608}           // Original height of the image
-            layout="responsive"    // Allow the image to resize responsively
-            style={{ objectFit: 'contain' }}  // Ensure the image fits within the container without distortion
+            width={758}
+            height={608}
+            layout="responsive"
+            priority
+            onLoadingComplete={handleImageLoad}
+            onError={handleImageError}
+            style={{ objectFit: 'contain' }}
           />
+          
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            </div>
+          )}
+          
+          {error && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-red-100/50">
+              <p className="text-red-500">{error}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

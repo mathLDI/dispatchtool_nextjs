@@ -625,18 +625,34 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     };
   }, [isResizing, handleMouseMove]);
 
-  useEffect(() => {
-    if (selectedAirport && gfaType) {
-      fetchGFA(selectedAirport.code, gfaType).then((data) => {
-        setGfaData(data);
-      });
-    }
-  }, [selectedAirport, gfaType, fetchGFA, setGfaData]);
+// In src/app/dashboard/weather/client-component.jsx
+// Around line 625 where the existing GFA useEffect is
 
-  {/**  useEffect(() => {
-    if (weatherData) {
+useEffect(() => {
+  if (selectedAirport && gfaType) {
+    fetchGFA(selectedAirport.code, gfaType).then((data) => {
+      setGfaData(data);
+    });
+  }
+}, [selectedAirport, gfaType, fetchGFA, setGfaData]);
+
+// Add the new periodic fetch effect here
+useEffect(() => {
+  const fetchGfaData = async () => {
+    if (selectedAirport && gfaType) {
+      const data = await fetchGFA(selectedAirport.code, gfaType);
+      setGfaData(data);
     }
-  }, [weatherData]); */}
+  };
+
+  // Initial fetch
+  fetchGfaData();
+
+  // Refresh every 5 minutes
+  const intervalId = setInterval(fetchGfaData, 5 * 60 * 1000);
+
+  return () => clearInterval(intervalId);
+}, [selectedAirport, gfaType, fetchGFA, setGfaData]);
 
 
   const categorizedNotams = weatherData
