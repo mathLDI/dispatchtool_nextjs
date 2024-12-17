@@ -398,20 +398,20 @@ const SecondPageCrosswindCalculator = () => {
                     <div className="flex flex-col">
 
                         <div className="flex justify-between items-center mb-2">
-                        <div className="dark:text-white relative group">
-        Airport
-        <span 
-            className="cursor-help text-red-500 ml-1 relative group"
-        >
-            *
-            <span className="absolute hidden group-hover:block bg-black text-white text-xs p-2 rounded -mt-12 -ml-2 w-64 z-10">
-                The airport has to be a tracked airport in order to retrieve weather information.
-            </span>
-        </span>
-        <span style={{ fontStyle: 'italic', color: 'gray', marginRight: '2px' }}>
-            (Optional)
-        </span>
-    </div>
+                            <div className="dark:text-white relative group">
+                                Airport
+                                <span
+                                    className="cursor-help text-red-500 ml-1 relative group"
+                                >
+                                    *
+                                    <span className="absolute hidden group-hover:block bg-black text-white text-xs p-2 rounded -mt-12 -ml-2 w-64 z-10">
+                                        The airport has to be a tracked airport in order to retrieve weather information.
+                                    </span>
+                                </span>
+                                <span style={{ fontStyle: 'italic', color: 'gray', marginRight: '2px' }}>
+                                    (Optional)
+                                </span>
+                            </div>
 
                             {/**<NewChoiceListbox
                                 value={airport}
@@ -672,15 +672,16 @@ const SecondPageCrosswindCalculator = () => {
                     </div>
                 )}
 
-                {aircraftType === "ATR-72" && integerWindSpeed > 40 && (
+                {/**   {aircraftType === "ATR-72" && integerWindSpeed > 40 && (
                     <div className="bg-red-600 rounded-md p-2 text-white text-center">
                         Over Max Speed on the Ground for ATR-72
                     </div>
                 )}
+ */}
 
-                {aircraftType === "ATR-72" && integerWindSpeed > 35 && (
+                {aircraftType === "ATR-72" && integerWindSpeed > 45 && (
                     <div className="bg-orange-400 rounded-md p-2 text-white text-center">
-                        Over Max Cargo Door Wind Speed Operation for ATR-72
+                        Do not operate cargo door with lateral wind of more than 45kt on the ATR-72
                     </div>
                 )}
 
