@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
-    const isDark = localStorage.getItem('darkMode') === 'true' || 
+    const isDark = localStorage.getItem('darkMode') === 'true' ||
       window.matchMedia('(prefers-color-scheme: dark)').matches;
     setDarkMode(isDark);
     if (isDark) {
@@ -111,6 +111,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (changedAirports.includes(airportCode)) return false;
       if (timeSinceLastChange < fiftyNineMinutes) return false;
 
+      // Additional barrier to prevent warnings for VFR and MVFR
+      if (newCategory === 'VFR' || newCategory === 'MVFR') return false;
+
       const hasChanged = (
         prevCategory !== newCategory &&
         (prevCategory === 'VFR' || prevCategory === 'MVFR') &&
@@ -131,7 +134,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     previousCategoriesRef.current = { ...airportCategories };
   }, [airportCategories, changedAirports, setChangedAirports]);
-
   const handleCloseModal = () => {
     setChangedAirports([]);
     setHasShownWarning(false);
@@ -170,7 +172,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           showWeatherAndRcam={true}
           showLogo={true}
           savedRoutings={[]}
-          onDeleteRouting={() => {}}
+          onDeleteRouting={() => { }}
           airportCategories={airportCategories}
         />
 
@@ -188,8 +190,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="fixed bottom-4 right-4 flex space-x-4">
           {/* Dark Mode Toggle Button */}
 
-          
-              <button
+
+          <button
             onClick={toggleDarkMode}
             className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 text-yellow-300' : 'bg-gray-200 text-gray-700'}`}
             aria-label="Toggle dark mode"
@@ -200,19 +202,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <MoonIcon className="h-5 w-5" />
             )}
           </button>
-        
 
-      
+
+
 
           <button
             onClick={() => setIsXWindModalOpen(!isXWindModalOpen)}
-            className={`px-4 py-2 rounded ${
-              isXWindModalOpen 
-                ? 'bg-blue-500 text-white' 
-                : darkMode 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+            className={`px-4 py-2 rounded ${isXWindModalOpen
+                ? 'bg-blue-500 text-white'
+                : darkMode
+                  ? 'bg-gray-700 text-white hover:bg-gray-600'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
+              }`}
           >
             <span className="flex items-center">
               X-Wind
@@ -222,13 +223,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <button
             onClick={() => setIsRccNotProvidedModalOpen(!isRccNotProvidedModalOpen)}
-            className={`px-4 py-2 rounded ${
-              isRccNotProvidedModalOpen 
-                ? 'bg-blue-500 text-white' 
-                : darkMode 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+            className={`px-4 py-2 rounded ${isRccNotProvidedModalOpen
+                ? 'bg-blue-500 text-white'
+                : darkMode
+                  ? 'bg-gray-700 text-white hover:bg-gray-600'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
+              }`}
           >
             <span className="flex items-center">
               RCC Not Provided
@@ -238,13 +238,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <button
             onClick={() => setIsRccProvidedModalOpen(!isRccProvidedModalOpen)}
-            className={`px-4 py-2 rounded ${
-              isRccProvidedModalOpen 
-                ? 'bg-blue-500 text-white' 
-                : darkMode 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+            className={`px-4 py-2 rounded ${isRccProvidedModalOpen
+                ? 'bg-blue-500 text-white'
+                : darkMode
+                  ? 'bg-gray-700 text-white hover:bg-gray-600'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
+              }`}
           >
             <span className="flex items-center">
               RCC Provided
@@ -254,13 +253,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <button
             onClick={() => setIsQuickSearchModalOpen(!isQuickSearchModalOpen)}
-            className={`px-4 py-2 rounded ${
-              isQuickSearchModalOpen 
-                ? 'bg-blue-500 text-white' 
-                : darkMode 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+            className={`px-4 py-2 rounded ${isQuickSearchModalOpen
+                ? 'bg-blue-500 text-white'
+                : darkMode
+                  ? 'bg-gray-700 text-white hover:bg-gray-600'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
+              }`}
           >
             <span className="flex items-center">
               Quick Search
@@ -272,37 +270,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Add modal container div */}
       <div ref={modalContainerRef} className="modal-container">
-      {/* Render modals using renderModal helper */}
+        {/* Render modals using renderModal helper */}
         {renderModal(
           isXWindModalOpen,
-          <GlobalModalContent 
-            onClose={() => setIsXWindModalOpen(false)} 
-            contentType="x-wind" 
+          <GlobalModalContent
+            onClose={() => setIsXWindModalOpen(false)}
+            contentType="x-wind"
           />
         )}
         {renderModal(
           isRccNotProvidedModalOpen,
-          <GlobalModalContent 
-            onClose={() => setIsRccNotProvidedModalOpen(false)} 
-            contentType="rcc-not-provided" 
+          <GlobalModalContent
+            onClose={() => setIsRccNotProvidedModalOpen(false)}
+            contentType="rcc-not-provided"
           />
         )}
         {renderModal(
           isRccProvidedModalOpen,
-          <GlobalModalContent 
-            onClose={() => setIsRccProvidedModalOpen(false)} 
-            contentType="rcc-provided" 
+          <GlobalModalContent
+            onClose={() => setIsRccProvidedModalOpen(false)}
+            contentType="rcc-provided"
           />
         )}
         {renderModal(
           isQuickSearchModalOpen,
-          <GlobalModalContent 
-            onClose={() => setIsQuickSearchModalOpen(false)} 
-            contentType="Quick Search" 
+          <GlobalModalContent
+            onClose={() => setIsQuickSearchModalOpen(false)}
+            contentType="Quick Search"
           />
         )}
         {renderModal(
-          changedAirports.length > 0 && hasShownWarning,
+          changedAirports.length > 0 && hasShownWarning && changedAirports.some(code =>
+            airportCategories[code]?.category === 'IFR' || airportCategories[code]?.category === 'LIFR'
+          ),
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white'} p-6 rounded shadow-lg space-y-4`}>
               <h2 className="text-lg font-bold mb-4">Airport Category Changes</h2>
@@ -316,11 +316,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               ))}
               <button
                 onClick={handleCloseModal}
-                className={`mt-4 px-4 py-2 ${
-                  darkMode 
-                    ? 'bg-blue-600 hover:bg-blue-700' 
+                className={`mt-4 px-4 py-2 ${darkMode
+                    ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-blue-500 hover:bg-blue-600'
-                } text-white rounded`}
+                  } text-white rounded`}
               >
                 Close
               </button>

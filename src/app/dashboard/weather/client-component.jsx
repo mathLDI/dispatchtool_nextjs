@@ -371,9 +371,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       setLastWeatherRefreshTime(now);
       setFormattedRefreshTime(formatRefreshTime(now));
     };
-
+    
     fetchAllWeatherData();
-    const intervalId = setInterval(fetchAllWeatherData, 120000); // Fetch every 2 minutes
+    const intervalId = setInterval(fetchAllWeatherData, 60000); // Fetch every 1 minute
 
     return () => clearInterval(intervalId);
   }, [savedRoutings, fetchWeather, setAllWeatherData]);

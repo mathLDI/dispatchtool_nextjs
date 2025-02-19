@@ -20,6 +20,21 @@ const links = [
     name: 'RCAM PDF',
     href: '/dashboard/rcam-pdf',
     icon: DocumentIcon
+  },
+  {
+    name: 'RCAM ATR',
+    href: '/dashboard/rcam-atr-pdf',
+    icon: DocumentIcon
+  },
+  {
+    name: 'ATR-72 Icing How-To',
+    href: '/dashboard/Atr72IcingHowTo',
+    icon: DocumentIcon
+  },
+  {
+    name: 'Max Icing FL',
+    href: '/dashboard/MaxFightLevelIcing',
+    icon: DocumentIcon
   }
 ];
 

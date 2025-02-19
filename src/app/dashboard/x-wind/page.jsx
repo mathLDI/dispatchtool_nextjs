@@ -447,63 +447,7 @@ const SecondPageCrosswindCalculator = () => {
                             />
                         </div>
 
-                        <div className="flex justify-between items-center mb-2">
-                            <div className="dark:text-white">Runway Heading:</div>
-                            <div className="flex flex-col space-y-1">
-                                <div className="flex space-x-2">
-                                    <input
-                                        className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
-                                        type="number"
-                                        max={360}
-                                        min={0}
-                                        value={runwayHeading}
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            if (!isNaN(v) && v >= 0 && v <= 360) {
-                                                setRunwayHeading(v);
-                                            }
-                                        }}
-                                    />
-                                    {airport && ( // Only show select when airport is selected
-                                        <select
-                                            className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
-                                            value={selectedRunway}
-                                            onChange={(e) => {
-                                                setSelectedRunway(e.target.value);
-                                                const heading = parseInt(e.target.value.split('/')[0].replace(/[LRC]/g, '')) * 10;
-                                                if (!isNaN(heading)) {
-                                                    setRunwayHeading(heading);
-                                                }
-                                            }}
-                                        >
-                                            <option value="">
-                                                {runways.length === 0 ? "No runways found" : "Select Runway"}
-                                            </option>
-                                            {splitRunwayPairs(runways).map((runway) => {
-                                                const heading = parseInt(runway.replace(/[LRC]/g, '')) * 10;
-                                                const headwindTailwindComp = calculateHeadwindTailwindComp(heading);
-                                                const isTailwind = headwindTailwindComp < 0;
-
-                                                return (
-                                                    <option
-                                                        key={runway}
-                                                        value={runway}
-                                                        className={isTailwind ? 'bg-orange-200 text-black' : ''}                                                    >
-                                                        {runway}
-                                                    </option>
-                                                );
-                                            })}
-                                        </select>
-                                    )}
-                                </div>
-                                {runwayWarning && (
-                                    <div className="text-red-500 text-sm">
-                                        {runwayWarning}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
+    
                         <div className="flex justify-between items-center mb-2">
                             <div className="dark:text-white">Magnetic Variation:</div>
                             <div className="flex flex-col">
@@ -570,7 +514,7 @@ const SecondPageCrosswindCalculator = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex justify-between items-center mb-2 ">
                             <div className="dark:text-white">Wind Speed:</div>
                             <div className="flex items-center space-x-2">
                                 <input
@@ -599,6 +543,63 @@ const SecondPageCrosswindCalculator = () => {
                                                 isGust={true}
                                             />
                                         )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2 ">
+                            <div className="dark:text-white">Runway Heading:</div>
+                            <div className="flex flex-col space-y-1">
+                                <div className="flex space-x-2">
+                                    <input
+                                        className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
+                                        type="number"
+                                        max={360}
+                                        min={0}
+                                        value={runwayHeading}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            if (!isNaN(v) && v >= 0 && v <= 360) {
+                                                setRunwayHeading(v);
+                                            }
+                                        }}
+                                    />
+                                    {airport && ( // Only show select when airport is selected
+                                        <select
+                                            className="bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600 rounded p-1 w-24"
+                                            value={selectedRunway}
+                                            onChange={(e) => {
+                                                setSelectedRunway(e.target.value);
+                                                const heading = parseInt(e.target.value.split('/')[0].replace(/[LRC]/g, '')) * 10;
+                                                if (!isNaN(heading)) {
+                                                    setRunwayHeading(heading);
+                                                }
+                                            }}
+                                        >
+                                            <option value="">
+                                                {runways.length === 0 ? "No runways found" : "Select Runway"}
+                                            </option>
+                                            {splitRunwayPairs(runways).map((runway) => {
+                                                const heading = parseInt(runway.replace(/[LRC]/g, '')) * 10;
+                                                const headwindTailwindComp = calculateHeadwindTailwindComp(heading);
+                                                const isTailwind = headwindTailwindComp < 0;
+
+                                                return (
+                                                    <option
+                                                        key={runway}
+                                                        value={runway}
+                                                        className={isTailwind ? 'bg-orange-200 text-black' : ''}                                                    >
+                                                        {runway}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    )}
+                                </div>
+                                {runwayWarning && (
+                                    <div className="text-red-500 text-sm">
+                                        {runwayWarning}
                                     </div>
                                 )}
                             </div>
