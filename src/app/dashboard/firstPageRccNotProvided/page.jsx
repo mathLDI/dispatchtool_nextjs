@@ -30,7 +30,7 @@ const FirstPageRccNotProvided = (props) => {
 
     const allGravelRunwayConditionDescription = [runwayConditionDescriptionGravel1, runwayConditionDescriptionGravel3];
     const allPavedRunwayConditionDescription = [runwayConditionDescriptionPaved2, runwayConditionDescriptionPaved4];
-    const buttonAircraftType = ["DHC-8", "HS-748", "ATR-72"];
+    const buttonAircraftType = ["DHC-8", "HS-748"];
     const contaminationCoverage2List = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
     const contaminationCoverage3List = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
     const [callDxp] = useState(null);
