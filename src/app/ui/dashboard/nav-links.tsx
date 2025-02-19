@@ -17,12 +17,12 @@ const links = [
     icon: CloudIcon
   },
   {
-    name: 'RCAM PDF',
+    name: 'RCAM',
     href: '/dashboard/rcam-pdf',
     icon: DocumentIcon
   },
   {
-    name: 'RCAM ATR',
+    name: 'ATR RCAM',
     href: '/dashboard/rcam-atr-pdf',
     icon: DocumentIcon
   },
@@ -32,7 +32,7 @@ const links = [
     icon: DocumentIcon
   },
   {
-    name: 'Max Icing FL',
+    name: 'ATR Max Icing FL',
     href: '/dashboard/MaxFightLevelIcing',
     icon: DocumentIcon
   }
