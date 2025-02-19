@@ -20,7 +20,7 @@ const MaxFightLevelIcing = () => {
         ref={iframeRef}
         className="flex-grow w-full"
         style={{ height: 'calc(100vh - 4rem)' }}
-        title="Max Icing FL"
+        title="ATR Max Icing FL"
       />
     </div>
   );
