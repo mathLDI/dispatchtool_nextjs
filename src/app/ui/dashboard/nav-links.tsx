@@ -32,11 +32,6 @@ const links = [
     icon: DocumentIcon
   },
   {
-    name: 'ATR Max Icing FL',
-    href: '/dashboard/MaxFightLevelIcing',
-    icon: DocumentIcon
-  },
-  {
     name: 'ATR Max Icing FL Calculator',
     href: '/dashboard/AtrIcingCalculator',
     icon: DocumentIcon
