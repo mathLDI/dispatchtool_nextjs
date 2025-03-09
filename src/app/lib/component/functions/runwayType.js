@@ -25,7 +25,7 @@ export const contaminent = [
     { description: "Dry Snow more than 1.0 in depth", code: 3, maxCrosswind: 20, callDxp: true, PavedOrGravel: "PAVED"  },
     { description: "Dry Snow 1.0 in or less depth", code: 5, maxCrosswind: 30, callDxp: false, PavedOrGravel: "PAVED"  },
     { description: "Wet Snow 0.13 in or less depth", code: 5, maxCrosswind: 30, callDxp: false, PavedOrGravel: "PAVED" },
-    { description: "Wet Snow greater than 0.13 in depth", code: 3, maxCrosswind: 20, callDxp: false, PavedOrGravel: "PAVED" },
+    { description: "Wet Snow greater than 0.13 in depth", code: 3, maxCrosswind: 20, callDxp: true, PavedOrGravel: "PAVED" },
     { description: "100% Compacted Snow: -15ºC and Colder OAT", code: 4, maxCrosswind: 25, callDxp: false, PavedOrGravel: "PAVED" },
     { description: "100% Compact Snow: Warmer than -15ºC OAT", code: 3, maxCrosswind: 20, callDxp: false, PavedOrGravel: "PAVED"  },
     { description: "Water Greater than 0.13 in depth", code: 2, maxCrosswind: 15, callDxp: true, PavedOrGravel: "PAVED"  },

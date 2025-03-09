@@ -9,7 +9,6 @@ import { contaminent } from '../../lib/component/functions/runwayType';
 import { useRccContext } from '../RccCalculatorContext'; // Use relative path
 import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
 
-
 const FirstPageRccProvided = (props) => {
     useAuth(); // Ensure only authenticated users can access this component
 
@@ -24,21 +23,19 @@ const FirstPageRccProvided = (props) => {
         runwayLength, setRunwayLength
     } = useRccContext();
 
-    
-
     const rwyccChoices = [6, 5, 4, 3, 2, 1, 0];
-    const buttonAircraftType = ["DHC-8", "HS-748","ATR-72"];
+    const buttonAircraftType = ["DHC-8", "HS-748", "ATR-72"];
     const [callDxp] = useState(null);
     const [resetListBox, setResetListBox] = useState(false);
     const integerRunwayLength = parseInt(runwayLength, 10);
     const integerCorrectedLandingDistance = parseInt(correctedLandingDistance, 10);
     const [isExpanded, setIsExpanded] = useState(false);
 
-
-
-
     const resetButtonHandler = () => {
         setResetListBox(true);
+        setTimeout(() => {
+            setResetListBox(false);
+        }, 0);
         setRwycc1(6);
         setRwycc2(6);
         setRwycc3(6);
@@ -55,17 +52,15 @@ const FirstPageRccProvided = (props) => {
 
     const enterDistances =
         integerCorrectedLandingDistance === 0 ||
-            integerRunwayLength === 0 ||
-            isNaN(integerCorrectedLandingDistance) ||
-            isNaN(integerRunwayLength)
+        integerRunwayLength === 0 ||
+        isNaN(integerCorrectedLandingDistance) ||
+        isNaN(integerRunwayLength)
             ? true
             : false;
 
-
-
     const CorrectedLandingRwyccToUse =
         integerCorrectedLandingDistance === 0 || integerRunwayLength === 0 ||
-            isNaN(integerCorrectedLandingDistance) || isNaN(integerRunwayLength)
+        isNaN(integerCorrectedLandingDistance) || isNaN(integerRunwayLength)
             ? undefined
             : integerCorrectedLandingDistance <= integerRunwayLength * 0.3333
                 ? rwycc1
@@ -75,8 +70,6 @@ const FirstPageRccProvided = (props) => {
                         ? Math.min(rwycc1, rwycc2, rwycc3)
                         : undefined;
 
-
-
     const lowestRcc = Math.min(rwycc1, rwycc2, rwycc3);
 
     const contam = contaminent;
@@ -85,20 +78,17 @@ const FirstPageRccProvided = (props) => {
 
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
-  
-
-
     return (
         <div className="flex flex-col flex-wrap p-4 space-x-4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
 
+            <div className="flex-1" name="calculator">
 
-            <div className="flex-1" name="calculator"  >
-
-                <Card cardTitle={"RWYCC Provided"} status={null} className=" w-full sm:w-auto">
+                <Card cardTitle={"RWYCC Provided"} status={null} className="w-full sm:w-auto">
                     <div>
                         <div className="flex flex-row justify-between items-center p-2">
-                        <div className="dark:text-white">Aircraft type:</div>
-                        <NewChoiceListbox
+                            <div className="dark:text-white">Aircraft type:</div>
+                            <NewChoiceListbox
+                                key={resetListBox ? 'reset-aircraft-type' : 'aircraft-type'}
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -108,8 +98,9 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div  className="dark:text-white">RWYCC: </div>
+                            <div className="dark:text-white">RWYCC: </div>
                             <NewChoiceListbox
+                                key={resetListBox ? 'reset-rwycc1' : 'rwycc1'}
                                 value={rwycc1}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc1(Number(value))}  // Ensure the value is a number
@@ -117,6 +108,7 @@ const FirstPageRccProvided = (props) => {
                                 resetCallback={resetListbox1Handler}
                             />
                             <NewChoiceListbox
+                                key={resetListBox ? 'reset-rwycc2' : 'rwycc2'}
                                 value={rwycc2}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc2(Number(value))}  // Ensure the value is a number
@@ -124,17 +116,17 @@ const FirstPageRccProvided = (props) => {
                                 resetCallback={resetListbox1Handler}
                             />
                             <NewChoiceListbox
+                                key={resetListBox ? 'reset-rwycc3' : 'rwycc3'}
                                 value={rwycc3}
                                 choices={rwyccChoices}
                                 callback={(value) => setRwycc3(Number(value))}  // Ensure the value is a number
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
                             />
-
                         </div>
 
-                        <div className="flex flex-row justify-between items-center p-2 ">
-                            <div  className="dark:text-white pr-2">Corrected TLR Landing Distance:</div>
+                        <div className="flex flex-row justify-between items-center p-2">
+                            <div className="dark:text-white pr-2">Corrected TLR Landing Distance:</div>
                             <input
                                 className="flex dark:bg-black"
                                 type="number"
@@ -153,7 +145,7 @@ const FirstPageRccProvided = (props) => {
                         </div>
 
                         <div className="flex flex-row justify-between items-center p-2">
-                            <div  className="dark:text-white">Landing Runway Length:</div>
+                            <div className="dark:text-white">Landing Runway Length:</div>
                             <input
                                 className="flex dark:bg-black"
                                 type="number"
@@ -182,7 +174,7 @@ const FirstPageRccProvided = (props) => {
                     <Card cardTitle={"Results Takeoff"} status={callDxp} className="w-full sm:w-auto">
                         <div>
                             <div className="flex flex-row justify-between p-2">
-                                <div  className="dark:text-white">RCC code:</div>
+                                <div className="dark:text-white">RCC code:</div>
                                 {CorrectedLandingRwyccToUse === "Corrected distance is longer than runway length!" || CorrectedLandingRwyccToUse === "Enter Distances" ? "" :
                                     <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
                                         {lowestRcc}
@@ -191,7 +183,7 @@ const FirstPageRccProvided = (props) => {
                             </div>
 
                             <div className="flex flex-row justify-between p-2">
-                                <div  className="dark:text-white">Max crosswind:</div>
+                                <div className="dark:text-white">Max crosswind:</div>
                                 <div className={`flex ${lowestRcc === 0 ? 'text-red-500' : ''}`}>
                                     {selectedRccToMaxXwindLandingTakeoff}
                                 </div>
@@ -204,14 +196,14 @@ const FirstPageRccProvided = (props) => {
                     <Card cardTitle={"Results Landing"} status={callDxp} className="w-full sm:w-auto">
                         <div>
                             <div className="flex flex-row justify-between p-2">
-                                <div  className="dark:text-white">RCC code:</div>
+                                <div className="dark:text-white">RCC code:</div>
                                 <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
                                     {CorrectedLandingRwyccToUse}
                                 </div>
                             </div>
 
                             <div className="flex flex-row justify-between p-2">
-                                <div  className="dark:text-white">Max crosswind:</div>
+                                <div className="dark:text-white">Max crosswind:</div>
                                 <div className={`flex ${CorrectedLandingRwyccToUse === 0 ? 'text-red-500' : ''}`}>
                                     {selectedRccToMaxXwindLanding}
                                 </div>
@@ -237,8 +229,7 @@ const FirstPageRccProvided = (props) => {
 
             <div className="flex-1" name="depth_info">
 
-          
-            <div className="text-center">
+                <div className="text-center">
                     <button onClick={() => setIsExpanded(!isExpanded)} className="text-blue-500 dark:text-blue-400 underline">
                         {isExpanded ? "Hide Depth Info" : "Show Depth Info"}
                     </button>
@@ -252,10 +243,7 @@ const FirstPageRccProvided = (props) => {
                     )}
                 </div>
 
-
             </div>
-
-
 
         </div>
     );
