@@ -43,6 +43,9 @@ const FirstPageRccNotProvided = (props) => {
 
     const resetButtonHandler = () => {
         setResetListBox(true);
+        setTimeout(() => {
+            setResetListBox(false);
+        }, 0);
         setContaminationCoverage1(0);
         setContaminationCoverage2(0);
         setContaminationCoverage3(0);
@@ -130,6 +133,7 @@ console.log("rcctouse from notprovided::", rcc);
                         <div className="flex flex-row justify-between items-center p-2">
                             <div className="dark:text-white">Aircraft type:</div>
                             <NewChoiceListbox
+                                key={resetListBox ? 'reset-aircraft-type' : 'aircraft-type'}
                                 value={aircraftType}
                                 choices={buttonAircraftType}
                                 callback={setAircraftType}
@@ -141,12 +145,12 @@ console.log("rcctouse from notprovided::", rcc);
                         <div className="flex flex-row justify-between items-center p-2">
                             <div className="dark:text-white">Runway type:</div>
                             <NewChoiceListbox
+                                key={resetListBox ? 'reset-runway-type' : 'runway-type'}
                                 value={dropDownPavedOrGravel}
                                 choices={["GRAVEL", "PAVED"]}
                                 callback={setDropDownPavedOrGravel}
                                 reset={resetListBox}
                                 resetCallback={resetListbox1Handler}
-
                             />
 
                         </div>
@@ -160,6 +164,7 @@ console.log("rcctouse from notprovided::", rcc);
 
                                 <div className="flex-grow  " style={{ minWidth: '300px' }}>
                                     <NewChoiceListbox
+                                        key={resetListBox ? 'reset-paved-contaminant1' : 'paved-contaminant1'}
                                         value={runwayConditionDescriptionPaved2}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionPaved2}
@@ -171,6 +176,8 @@ console.log("rcctouse from notprovided::", rcc);
                                 <div className="dark:text-white">% Coverage 1:</div>
                                 <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}>
                                     <NewChoiceListbox
+                                        key={resetListBox ? 'reset-paved-coverage1' : 'paved-coverage1'}
+
                                         value={contaminationCoverage2}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage2(Number(value))}
@@ -195,6 +202,8 @@ console.log("rcctouse from notprovided::", rcc);
                                     <div className="flex-grow" style={{ minWidth: '300px' }}>
 
                                         <NewChoiceListbox
+                                            key={resetListBox ? 'reset-paved-contaminant2' : 'paved-contaminant2'}
+
                                             value={runwayConditionDescriptionPaved4}
                                             choices={contaminantChoicesExclude100}
                                             callback={setRunwayConditionDescriptionPaved4}
@@ -207,6 +216,8 @@ console.log("rcctouse from notprovided::", rcc);
                                     <div className="dark:text-white">% Coverage 2:</div>
                                     <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}>
                                         <NewChoiceListbox
+                                            key={resetListBox ? 'reset-paved-coverage2' : 'paved-coverage2'}
+
                                             value={contaminationCoverage4}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage4(Number(value))}
@@ -223,6 +234,8 @@ console.log("rcctouse from notprovided::", rcc);
 
                                 <div className="flex-grow" style={{ minWidth: '300px' }}>
                                     <NewChoiceListbox
+                                        key={resetListBox ? 'reset-gravel-contaminant1' : 'gravel-contaminant1'}
+
                                         value={runwayConditionDescriptionGravel1}
                                         choices={contaminantChoices}
                                         callback={setRunwayConditionDescriptionGravel1}
@@ -236,6 +249,8 @@ console.log("rcctouse from notprovided::", rcc);
 
                                 <div className="flex-grow " style={{ minWidth: '100px', maxWidth: '100px' }}>
                                     <NewChoiceListbox
+                                        key={resetListBox ? 'reset-gravel-coverage1' : 'gravel-coverage1'}
+
                                         value={contaminationCoverage1}
                                         choices={contaminationCoverage2List}
                                         callback={(value) => setContaminationCoverage1(Number(value))}
@@ -256,6 +271,8 @@ console.log("rcctouse from notprovided::", rcc);
 
                                     <div className="flex-grow " style={{ minWidth: '300px' }}>
                                         <NewChoiceListbox
+                                            key={resetListBox ? 'reset-gravel-contaminant2' : 'gravel-contaminant2'}
+
                                             value={runwayConditionDescriptionGravel3}
                                             choices={contaminantChoices}
                                             callback={setRunwayConditionDescriptionGravel3}
@@ -269,6 +286,8 @@ console.log("rcctouse from notprovided::", rcc);
 
                                     <div className="flex-grow" style={{ minWidth: '100px', maxWidth: '100px' }}    >
                                         <NewChoiceListbox
+                                            key={resetListBox ? 'reset-gravel-coverage2' : 'gravel-coverage2'}
+
                                             value={contaminationCoverage3}
                                             choices={contaminationCoverage3List}
                                             callback={(value) => setContaminationCoverage3(Number(value))}
@@ -290,8 +309,8 @@ console.log("rcctouse from notprovided::", rcc);
                 <Card cardTitle={"Results"} status={callDxp} className="w-full sm:w-auto">
                     <div>
                         <div className="flex flex-wrap justify-between p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">RCC code:</div>                            
-                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                            <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">RCC code:</div>
+                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
                                 {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
                                     <div className="flex text-white dark:text-gray-900">
                                         {rcc.result}
@@ -303,8 +322,8 @@ console.log("rcctouse from notprovided::", rcc);
                         </div>
 
                         <div className="flex flex-wrap justify-between p-2">
-                        <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">Max crosswind:</div>                            
-                        <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
+                            <div className="w-full md:w-1/2 lg:w-1/3 dark:text-white">Max crosswind:</div>
+                            <div className={`flex w-full md:w-1/2 lg:w-2/3 ${rcc.result === 0 && SeventyPercentBareAndDryUpgrade === false ? 'text-red-500' : 'text-black dark:text-white'}`}>
                                 {runwayConditionDescriptionPaved2.includes("100") && contaminationCoverage2 !== 100 ? (
                                     <div className="text-white dark:text-gray-900">
                                         {selectedRccToMaxXwind} kts
