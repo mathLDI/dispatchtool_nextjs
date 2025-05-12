@@ -93,7 +93,9 @@ export default function QuickAirportWeatherDisplay({
         </button>
 
 
-        <button
+        {/**REMOVE NOTAM BUTTON DUE TO SOME POSSIBLE PROBLEM WITH NEW NOTAM APPEARING IN FUTURE */}
+        {/**
+ *   <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm 
     ${QuickselectedButton === 'NOTAMS'
               ? 'bg-sky-100 text-black dark:text-black'
@@ -102,6 +104,8 @@ export default function QuickAirportWeatherDisplay({
           onClick={() => setSelectedButtonQuick('NOTAMS')}>
           NOTAMS
         </button>
+ */}
+
 
 
         {/** <button
