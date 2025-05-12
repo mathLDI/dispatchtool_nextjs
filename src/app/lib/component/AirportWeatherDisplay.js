@@ -60,7 +60,9 @@ export default function AirportWeatherDisplay({
           METAR/TAF
         </button>
 
-        <button
+        {/**REMOVE THE NOTAM BUTTON DUE TO SOME POSSIBLE PROBLEMS WITH NOTAM APPEARING IN FUTURE WHILE NEW */}
+
+        {/**  <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm 
     ${selectedButton === 'NOTAMS'
               ? 'bg-sky-100 text-black dark:text-black'
@@ -68,7 +70,8 @@ export default function AirportWeatherDisplay({
             }`}
           onClick={() => setSelectedButton('NOTAMS')}>
           NOTAMS
-        </button>
+        </button> */}
+
 
         <button
           className={`flex justify-center items-center p-2 rounded-md shadow-sm 
@@ -243,8 +246,8 @@ export default function AirportWeatherDisplay({
                 <button
                   onClick={() => handleNotamTypeChange('AERODROME')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'AERODROME'
-                      ? 'bg-sky-100 dark:bg-white text-black'
-                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    ? 'bg-sky-100 dark:bg-white text-black'
+                    : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
                     } cursor-pointer`}
                 >
                   AERODROME | {countFilteredNotams(categorizedNotams.flat(), 'A', searchTerm, isCraneFilterActive)}
@@ -253,8 +256,8 @@ export default function AirportWeatherDisplay({
                 <button
                   onClick={() => handleNotamTypeChange('ENROUTE')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'ENROUTE'
-                      ? 'bg-sky-100 dark:bg-white text-black'
-                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    ? 'bg-sky-100 dark:bg-white text-black'
+                    : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
                     } cursor-pointer`}
                 >
                   ENROUTE | {countFilteredNotams(categorizedNotams.flat(), 'E', searchTerm, isCraneFilterActive)}
@@ -263,8 +266,8 @@ export default function AirportWeatherDisplay({
                 <button
                   onClick={() => handleNotamTypeChange('WARNING')}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${selectedNotamType === 'WARNING'
-                      ? 'bg-sky-100 dark:bg-white text-black'
-                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    ? 'bg-sky-100 dark:bg-white text-black'
+                    : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
                     } cursor-pointer`}
                 >
                   WARNING | {countFilteredNotams(categorizedNotams.flat(), 'W', searchTerm, isCraneFilterActive)}
@@ -273,8 +276,8 @@ export default function AirportWeatherDisplay({
                 <button
                   onClick={toggleCraneFilter}
                   className={`flex bg-gray-100 dark:bg-gray-700 justify-between items-center p-2 rounded-md shadow-sm ${isCraneFilterActive
-                      ? 'bg-sky-100 dark:bg-white text-black line-through'
-                      : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
+                    ? 'bg-sky-100 dark:bg-white text-black line-through'
+                    : 'text-black dark:text-white hover:bg-sky-100 dark:hover:bg-gray-600 hover:text-blue-600'
                     } cursor-pointer`}
                 >
                   CRANE & TOWER
