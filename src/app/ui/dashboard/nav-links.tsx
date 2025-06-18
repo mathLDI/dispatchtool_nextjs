@@ -12,7 +12,7 @@ import clsx from 'clsx';
 
 const links = [
   {
-    name: 'Weather',
+    name: 'Calculators',
     href: '/dashboard/weather',
     icon: CloudIcon
   },
