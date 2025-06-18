@@ -190,8 +190,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="fixed bottom-4 right-4 flex space-x-4">
           {/* Dark Mode Toggle Button */}
 
-
-          <button
+{/** removed the dark mode button
+ * 
+ *   <button
             onClick={toggleDarkMode}
             className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 text-yellow-300' : 'bg-gray-200 text-gray-700'}`}
             aria-label="Toggle dark mode"
@@ -202,6 +203,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <MoonIcon className="h-5 w-5" />
             )}
           </button>
+ * 
+*/}
+        
 
 
 
@@ -221,6 +225,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </span>
           </button>
 
+
           <button
             onClick={() => setIsRccNotProvidedModalOpen(!isRccNotProvidedModalOpen)}
             className={`px-4 py-2 rounded ${isRccNotProvidedModalOpen
@@ -235,6 +240,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <CalculatorIcon className="h-5 w-5 ml-2" />
             </span>
           </button>
+
+
+
+
 
           <button
             onClick={() => setIsRccProvidedModalOpen(!isRccProvidedModalOpen)}
@@ -251,7 +260,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </span>
           </button>
 
-          <button
+          {/**
+           * 
+           *     <button
             onClick={() => setIsQuickSearchModalOpen(!isQuickSearchModalOpen)}
             className={`px-4 py-2 rounded ${isQuickSearchModalOpen
                 ? 'bg-blue-500 text-white'
@@ -265,6 +276,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <CalculatorIcon className="h-5 w-5 ml-2" />
             </span>
           </button>
+           */}
+
+      
+
+
         </div>
       </div>
 

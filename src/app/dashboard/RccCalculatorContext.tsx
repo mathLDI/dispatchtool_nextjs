@@ -158,12 +158,21 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
 // Add this near the top of RccProvider component, with other state declarations
-const [darkMode, setDarkMode] = useState(() => {
+
+const [darkMode, setDarkMode] = useState(true); // Always enable dark mode
+
+
+{/**
+  Below is the previous dark mode on/off code. above code was modified as to always set dark mode to on
+  const [darkMode, setDarkMode] = useState(() => {
   if (typeof window !== 'undefined') {
     return localStorage.getItem('darkMode') === 'true';
   }
   return false;
-});
+}); */}
+
+
+
 
 // Move and update the darkMode effect to include darkMode in dependencies
 useEffect(() => {
