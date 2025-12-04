@@ -5,7 +5,7 @@ import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 export default function TimeDisplay() {
   const [utcTime, setUtcTime] = useState('');
   const [localTime, setLocalTime] = useState('');
-  const { lastUpdated } = useRccContext();
+  const { lastUpdated, darkMode } = useRccContext();
 
   // Function to get UTC time
   const getUtcTime = () => {
@@ -42,7 +42,7 @@ export default function TimeDisplay() {
       flexDirection: 'column', 
       alignItems: 'flex-end',
       fontSize: 12,
-      color: '#fff',
+      color: darkMode ? '#fff' : '#111',
       gap: 2
     }}>
       <div>UTC Time: {utcTime}</div>

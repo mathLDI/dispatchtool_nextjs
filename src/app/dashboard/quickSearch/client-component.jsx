@@ -17,7 +17,7 @@ import {
 } from './QuickWeatherAndNotam';
 
 // Auto-refresh configuration
-const AUTO_REFRESH_INTERVAL = 3 * 60 * 1000; // 3 minutes (matches backend polling)
+const AUTO_REFRESH_INTERVAL = 60 * 1000; // 1 minute (catch SPECI METARs faster)
 const DEBOUNCE_DELAY = 300; // Debounce rapid searches
 
 export default function ClientComponent({ fetchQuickWeather }) {
@@ -83,13 +83,28 @@ export default function ClientComponent({ fetchQuickWeather }) {
   }, []);
 
   const handleQuickAirportInputChange = (e) => {
-    const uppercaseValue = e.target.value.toUpperCase();
+    const uppercaseValue = e.target.value.toUpperCase().slice(0, 4); // Limit to 4 chars
     setQuickAirportInput(uppercaseValue);
+    
+    // Auto-fetch when 4 characters are entered
+    if (uppercaseValue.length === 4) {
+      // Debounce to prevent rapid fetches
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(async () => {
+        await fetchWeatherWithAutoRefresh(uppercaseValue);
+      }, DEBOUNCE_DELAY);
+    }
   };
 
   /**
    * Fetch weather with auto-refresh enabled
-   * Supports background polling for latest data
+   * Uses weatherService.ts with:
+   * - Intelligent 2-minute caching
+   * - Request deduplication
+   * - Automatic background polling every 3 minutes
    */
   const fetchWeatherWithAutoRefresh = useCallback(async (airportCode) => {
     if (!airportCode) return;
@@ -103,7 +118,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
       currentAirportRef.current = airportCode;
 
-      // Fetch initial data
+      // Fetch initial data using server action (weatherService.ts handles caching & deduplication)
       const data = await fetchQuickWeather(airportCode);
 
       if (setQuickWeatherData) {
@@ -118,6 +133,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
         autoRefreshTimeoutRef.current = setInterval(async () => {
           try {
             // Silently fetch fresh data in background
+            // weatherService.ts provides intelligent caching (2-min window)
             const freshData = await fetchQuickWeather(airportCode);
             setQuickWeatherData(freshData);
             console.log(`[Auto-Refresh] Updated weather for ${airportCode}`);
@@ -135,7 +151,8 @@ export default function ClientComponent({ fetchQuickWeather }) {
   const handleQuickAirportInputSubmit = async (e) => {
     e.preventDefault();
 
-    const quickAirportCode = quickAirportInput.toUpperCase();
+    // Use current airport from ref if input is empty, otherwise use input value
+    const quickAirportCode = quickAirportInput.toUpperCase() || currentAirportRef.current;
 
     if (!quickAirportCode) {
       return;
@@ -539,7 +556,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
         <div className="flex ">
           {/* Quick Airport Input Box */}
-          <form onSubmit={handleQuickAirportInputSubmit} className="flex justify-center items-center space-x-2">
+          <form onSubmit={(e) => e.preventDefault()} className="flex justify-center items-center space-x-2">
             <input
               ref={inputRef} // Attach the ref to the input element
               type="text"
@@ -548,8 +565,8 @@ export default function ClientComponent({ fetchQuickWeather }) {
               placeholder="Enter ICAO code"
               className="p-2 border border-gray-300 rounded-md"
               style={{ textTransform: 'uppercase' }} // Optional: visually enforce uppercase in the UI
+              maxLength={4} // Limit input to 4 characters
             />
-            <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">Submit</button>
 
             {/* Refresh Button */}
             <button

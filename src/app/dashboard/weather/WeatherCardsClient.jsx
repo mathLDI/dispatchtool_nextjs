@@ -3,6 +3,19 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 import { parseMETAR, parseVisibility } from '@/app/lib/component/functions/weatherAndNotam';
 
+// Get dark mode colors
+function getThemeColors(darkMode) {
+  return {
+    containerBg: darkMode ? '#1a1a1a' : '#ffffff',
+    cardBg: darkMode ? '#1a1a1a' : '#ffffff',
+    border: darkMode ? '#333' : '#ddd',
+    text: darkMode ? '#fff' : '#111',
+    mutedText: darkMode ? '#aaa' : '#666',
+    emptyStateBg: darkMode ? '#1a1a1a' : '#f5f5f5',
+    emptyStateBorder: darkMode ? '#444' : '#bbb'
+  };
+}
+
 const CATEGORY_COLORS = {
   VFR: '#07c502',
   MVFR: '#236ed8',
@@ -94,9 +107,13 @@ function formatTAF(tafText) {
   });
 }
 
+// Auto-polling configuration
+const AUTO_REFRESH_INTERVAL = 60 * 1000; // 1 minute for background updates (catch SPECI METARs faster)
+
 // Simple, reliable cards component — one card per airport in `airportValues`.
-export default function WeatherCardsClient({ searchQuery = '' }) {
-  const { airportValues, confirmedAirportCodes, allWeatherData, setAllWeatherData, setLastUpdated, expandedCards, setExpandedCards } = useRccContext();
+export default function WeatherCardsClient({ searchQuery = '', isExpandMode = false }) {
+  const { airportValues, confirmedAirportCodes, allWeatherData, setAllWeatherData, setLastUpdated, expandedCards, setExpandedCards, darkMode } = useRccContext();
+  const theme = getThemeColors(darkMode);
   const [categories, setCategories] = useState(() => {
     // Initialize categories from existing weather data
     const initialCategories = {};
@@ -125,6 +142,7 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
     return initialCategories;
   });
   const inFlightRef = useRef(new Set());
+  const autoRefreshIntervalsRef = useRef(new Map()); // Track auto-refresh intervals per airport
 
   // Combine persisted airportValues with temporary confirmed codes from the input
   const allCodes = React.useMemo(() => {
@@ -217,13 +235,29 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
     });
   };
 
+  // Auto-expand new cards when added while in expand mode
+  useEffect(() => {
+    if (isExpandMode) {
+      // Add any new codes that aren't already in expandedCards
+      const newCodesToExpand = allCodes.filter(code => !expandedCards.has(code));
+      if (newCodesToExpand.length > 0) {
+        setExpandedCards(prev => {
+          const newSet = new Set(prev);
+          newCodesToExpand.forEach(code => newSet.add(code));
+          return newSet;
+        });
+      }
+    }
+  }, [allCodes, isExpandMode, expandedCards, setExpandedCards]);
+
   // Fetch weather data for codes that don't have it yet
   useEffect(() => {
     allCodes.forEach(code => {
       if (allWeatherData?.[code] || inFlightRef.current.has(code)) return;
 
       inFlightRef.current.add(code);
-      fetch(`/api/weather?code=${encodeURIComponent(code)}`)
+      // Add timestamp to prevent browser caching, and force=true to bypass server cache
+      fetch(`/api/weather?code=${encodeURIComponent(code)}&t=${Date.now()}&force=true`)
         .then(r => r.json())
         .then((data) => {
           setAllWeatherData(prev => ({ ...(prev || {}), [code]: data }));
@@ -253,6 +287,48 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
               }));
             }
           }
+
+          // Set up auto-refresh polling for this code if not already set up
+          if (!autoRefreshIntervalsRef.current.has(code)) {
+            console.log(`[Auto-Refresh] Starting for ${code} every ${AUTO_REFRESH_INTERVAL}ms`);
+            const intervalId = setInterval(async () => {
+              try {
+                // Silently fetch fresh data in background (with timestamp to prevent browser caching)
+                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}&t=${Date.now()}`);
+                const freshData = await response.json();
+                setAllWeatherData(prev => ({ ...(prev || {}), [code]: freshData }));
+                setLastUpdated(Date.now());
+                
+                // Parse fresh METAR and update category
+                let freshMetarText = null;
+                if (freshData?.data && Array.isArray(freshData.data)) {
+                  const latest = freshData.data.find(item => item.type === 'metar' || item.type === 'speci');
+                  if (latest?.text) freshMetarText = latest.text;
+                }
+
+                if (freshMetarText) {
+                  try {
+                    const parsed = parseMETAR(freshMetarText);
+                    setCategories(prev => ({
+                      ...prev,
+                      [code]: {
+                        category: parsed.category || 'Unknown',
+                        color: CATEGORY_COLORS[parsed.category] || CATEGORY_COLORS.Unknown
+                      }
+                    }));
+                  } catch (err) {
+                    console.error(`[Auto-Refresh] Failed to parse METAR for ${code}:`, err);
+                  }
+                }
+                
+                console.log(`[Auto-Refresh] Updated weather for ${code}`);
+              } catch (error) {
+                console.error(`[Auto-Refresh] Failed for ${code}:`, error);
+                // Continue polling even on error
+              }
+            }, AUTO_REFRESH_INTERVAL);
+            autoRefreshIntervalsRef.current.set(code, intervalId);
+          }
         })
         .catch(err => {
           console.error('Failed to fetch weather for', code, err);
@@ -265,6 +341,17 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
           inFlightRef.current.delete(code);
         });
     });
+
+    // Cleanup: Clear intervals for codes that are no longer in allCodes
+    return () => {
+      autoRefreshIntervalsRef.current.forEach((intervalId, code) => {
+        if (!allCodes.includes(code)) {
+          clearInterval(intervalId);
+          autoRefreshIntervalsRef.current.delete(code);
+          console.log(`[Auto-Refresh] Cleared for ${code}`);
+        }
+      });
+    };
   }, [allCodes, allWeatherData, setAllWeatherData, setLastUpdated]);
 
   return (
@@ -273,9 +360,9 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
         <div style={{
           padding: 12,
           borderRadius: 6,
-          border: '1px dashed #bbb',
-          background: '#fafafaff',
-          color: '#222',
+          border: `1px dashed ${theme.emptyStateBorder}`,
+          background: theme.emptyStateBg,
+          color: theme.mutedText,
           width: '100%'
         }}>
           No airports added — cards will appear here.
@@ -284,9 +371,9 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
         <div style={{
           padding: 12,
           borderRadius: 6,
-          border: '1px dashed #bbb',
-          background: '#fafafaff',
-          color: '#222',
+          border: `1px dashed ${theme.emptyStateBorder}`,
+          background: theme.emptyStateBg,
+          color: theme.mutedText,
           width: '100%'
         }}>
           No airports match your search criteria.
@@ -320,9 +407,9 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
                       flex: isExpanded ? '1 1 400px' : '0 0 auto',
                       padding: 10,
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
-                      color: '#111',
+                      border: `1px solid ${theme.border}`,
+                      background: theme.cardBg,
+                      color: theme.text,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
@@ -363,7 +450,7 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
                     
                     {isExpanded && (
                       <>
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #eee' }}>
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${theme.border}` }}>
                           <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4 }}>METAR</div>
                           {metars.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -378,18 +465,18 @@ export default function WeatherCardsClient({ searchQuery = '' }) {
                               })}
                             </div>
                           ) : (
-                            <div style={{ fontSize: 11, color: '#999' }}>No METAR data available</div>
+                            <div style={{ fontSize: 11, color: theme.mutedText }}>No METAR data available</div>
                           )}
                         </div>
 
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #eee' }}>
+                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${theme.border}` }}>
                           <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4 }}>TAF</div>
                           {taf?.text ? (
                             <div style={{ fontSize: 11, fontFamily: 'monospace', lineHeight: 1.3 }}>
                               {formatTAF(taf.text)}
                             </div>
                           ) : (
-                            <div style={{ fontSize: 11, color: '#999' }}>No TAF data available</div>
+                            <div style={{ fontSize: 11, color: theme.mutedText }}>No TAF data available</div>
                           )}
                         </div>
                       </>

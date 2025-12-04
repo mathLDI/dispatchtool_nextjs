@@ -11,8 +11,20 @@ const CATEGORY_COLORS = {
   Unknown: '#6B7280', // gray (text-gray-500 equivalent)
 };
 
+function getThemeColors(darkMode) {
+  return {
+    inputBg: darkMode ? '#0b0b0b' : '#ffffff',
+    inputText: darkMode ? '#fff' : '#111',
+    inputBorder: darkMode ? '#333' : '#ddd',
+    chipBg: darkMode ? '#1a1a1a' : '#f0f0f0',
+    chipText: darkMode ? '#fff' : '#111',
+    warningBorder: '#ff4d4f'
+  };
+}
+
 export default function AirportInputClient() {
-  const { addAirportValue, removeAirportValue, airportValues, allWeatherData, setAllWeatherData, setConfirmedAirportCodes, setLastUpdated, confirmedAirportCodes } = useRccContext();
+  const { addAirportValue, removeAirportValue, airportValues, allWeatherData, setAllWeatherData, setConfirmedAirportCodes, setLastUpdated, confirmedAirportCodes, darkMode } = useRccContext();
+  const theme = getThemeColors(darkMode);
   
   // `value` is now the current typing token (partial). Confirmed completed 4-char tokens
   const [value, setValue] = useState('');
@@ -49,7 +61,7 @@ export default function AirportInputClient() {
     });
 
     if (tokens.length === 0) {
-      setConfirmed([]);
+      // Only clear the input value, NOT confirmed airports
       setValue('');
       if (showWarning) setShowWarning(false);
       return;
@@ -73,6 +85,12 @@ export default function AirportInputClient() {
   };
 
   const handleKeyDown = (e) => {
+    // Prevent Tab from interfering with the input
+    if (e.key === 'Tab') {
+      // Let Tab work normally for navigation, but don't trigger any deletion
+      return;
+    }
+    
     // Support backspace to delete last chip when input is empty
     if (e.key === 'Backspace') {
       if (value.trim() === '') {
@@ -196,8 +214,8 @@ export default function AirportInputClient() {
           maxWidth: '100%',
           padding: '8px',
           borderRadius: 8,
-          border: showWarning ? '1px solid #ff4d4f' : '1px solid #333',
-          background: '#0b0b0b',
+          border: showWarning ? `1px solid ${theme.warningBorder}` : `1px solid ${theme.inputBorder}`,
+          background: theme.inputBg,
           display: 'flex',
           flexDirection: 'row',
           flexWrap: 'wrap',
@@ -251,12 +269,7 @@ export default function AirportInputClient() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>{t}</div>
-                <div>
-                  <div style={{ padding: '6px 10px', borderRadius: 999, background: info.color, color: '#fff', fontWeight: 700, fontSize: 12 }}>
-                    {info.category}
-                  </div>
-                </div>
+                <div style={{ color: theme.chipText, fontWeight: 600, fontSize: 14 }}>{t}</div>
                 <button onClick={handleRemove} aria-label={`Remove ${t}`} title={`Remove ${t}`} style={{
                   marginLeft: 6,
                   background: 'transparent',
@@ -282,7 +295,7 @@ export default function AirportInputClient() {
               flex: 1,
               padding: '8px 10px',
               background: 'transparent',
-              color: '#fff',
+              color: theme.inputText,
               border: 'none',
               outline: 'none',
               fontSize: 14,

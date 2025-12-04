@@ -4,8 +4,8 @@
  */
 
 const WEATHER_API_URL = 'https://plan.navcanada.ca/weather/api/alpha/';
-const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes (fast refresh for aviation data)
-const POLL_INTERVAL = 3 * 60 * 1000; // 3 minutes for background updates
+const CACHE_DURATION = 1 * 60 * 1000; // 1 minute (faster refresh to catch SPECI METARs)
+const POLL_INTERVAL = 1 * 60 * 1000; // 1 minute for background updates (catch SPECI METARs faster)
 const REQUEST_TIMEOUT = 10 * 1000; // 10 seconds
 
 interface CacheEntry {
@@ -19,6 +19,7 @@ interface FetchOptions {
   includeMetar?: boolean;
   includeTaf?: boolean;
   autoRefresh?: boolean;
+  forceRefresh?: boolean; // Force bypass cache
 }
 
 // In-memory cache
@@ -92,10 +93,11 @@ export async function getWeather(
 ): Promise<any> {
   const normalizedLocation = location.toUpperCase();
   const cacheKey = normalizedLocation;
+  const { forceRefresh = false } = options;
 
-  // Check if we have a valid cached result
+  // Check if we have a valid cached result (skip if forceRefresh is true)
   const cached = weatherCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+  if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     console.log(`[Weather] Cache hit for ${normalizedLocation}`);
     return cached.data;
   }
