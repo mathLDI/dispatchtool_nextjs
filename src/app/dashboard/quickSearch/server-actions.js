@@ -1,10 +1,29 @@
 'use server';
 
-export const handleFetchWeather = async (location) => {
-  const apiUrl = `https://plan.navcanada.ca/weather/api/alpha/?site=${location}&alpha=notam&alpha=metar&alpha=taf&notam_choice=english&metar_choice=4&_=1719878376376`;
-  console.log(`Weather API URL: ${apiUrl}`);
+import { getWeather } from '@/app/lib/services/weatherService';
 
-  const response = await fetch(apiUrl, { next: { revalidate: 300 } });
-  const data = await response.json();
-  return data;
+/**
+ * Server action for fetching weather
+ * Uses optimized weather service with caching and deduplication
+ * @param location ICAO airport code (e.g., 'CYUL')
+ * @returns Weather data including METAR, TAF, and NOTAMs
+ */
+export const handleFetchWeather = async (location) => {
+  if (!location || typeof location !== 'string') {
+    throw new Error('Invalid location provided');
+  }
+
+  try {
+    const data = await getWeather(location.toUpperCase(), {
+      includeNotam: true,
+      includeMetar: true,
+      includeTaf: true,
+      autoRefresh: false, // Client will handle polling
+    });
+
+    return data;
+  } catch (error) {
+    console.error(`Error fetching weather for ${location}:`, error);
+    throw new Error(`Failed to fetch weather for ${location}`);
+  }
 };

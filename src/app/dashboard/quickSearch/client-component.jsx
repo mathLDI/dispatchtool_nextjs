@@ -16,8 +16,9 @@ import {
   highlightNotamTermsJSX,
 } from './QuickWeatherAndNotam';
 
-
-
+// Auto-refresh configuration
+const AUTO_REFRESH_INTERVAL = 3 * 60 * 1000; // 3 minutes (matches backend polling)
+const DEBOUNCE_DELAY = 300; // Debounce rapid searches
 
 export default function ClientComponent({ fetchQuickWeather }) {
   const {
@@ -39,6 +40,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
     flightDetails = {},
     quickWeatherData,
     setQuickWeatherData,
+    setSelectedAirport,
 
 
   } = useRccContext();
@@ -55,53 +57,98 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
 
   // Local state to store weather data if context doesn't provide it
-
   const [quickAirportInput, setQuickAirportInput] = useState('');
   const inputRef = useRef(null); // Create a ref for the input element
+  const autoRefreshTimeoutRef = useRef(null); // Track auto-refresh timer
+  const debounceTimeoutRef = useRef(null); // Track debounce timer
+  const currentAirportRef = useRef(null); // Track which airport is currently being polled
 
 
   // Automatically focus the input when the component mounts
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus(); // Focus on the input
+      inputRef.current.focus();
     }
+
+    // Cleanup auto-refresh and debounce on unmount
+    return () => {
+      if (autoRefreshTimeoutRef.current) {
+        clearInterval(autoRefreshTimeoutRef.current);
+      }
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      console.log('[Auto-Refresh] Cleanup on unmount');
+    };
   }, []);
 
   const handleQuickAirportInputChange = (e) => {
-    const uppercaseValue = e.target.value.toUpperCase();  // Convert to uppercase
-    setQuickAirportInput(uppercaseValue);  // Set the uppercase value in the state
+    const uppercaseValue = e.target.value.toUpperCase();
+    setQuickAirportInput(uppercaseValue);
   };
 
+  /**
+   * Fetch weather with auto-refresh enabled
+   * Supports background polling for latest data
+   */
+  const fetchWeatherWithAutoRefresh = useCallback(async (airportCode) => {
+    if (!airportCode) return;
+
+    try {
+      // Clean up previous auto-refresh if different airport
+      if (currentAirportRef.current !== airportCode && autoRefreshTimeoutRef.current) {
+        clearInterval(autoRefreshTimeoutRef.current);
+        autoRefreshTimeoutRef.current = null;
+      }
+
+      currentAirportRef.current = airportCode;
+
+      // Fetch initial data
+      const data = await fetchQuickWeather(airportCode);
+
+      if (setQuickWeatherData) {
+        setQuickWeatherData(data);
+      }
+
+      setSelectedAirport({ code: airportCode });
+
+      // Set up auto-refresh polling
+      if (!autoRefreshTimeoutRef.current) {
+        console.log(`[Auto-Refresh] Starting for ${airportCode} every ${AUTO_REFRESH_INTERVAL}ms`);
+        autoRefreshTimeoutRef.current = setInterval(async () => {
+          try {
+            // Silently fetch fresh data in background
+            const freshData = await fetchQuickWeather(airportCode);
+            setQuickWeatherData(freshData);
+            console.log(`[Auto-Refresh] Updated weather for ${airportCode}`);
+          } catch (error) {
+            console.error(`[Auto-Refresh] Failed for ${airportCode}:`, error);
+            // Continue polling even on error
+          }
+        }, AUTO_REFRESH_INTERVAL);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch weather data for ${airportCode}:`, error);
+    }
+  }, [fetchQuickWeather, setQuickWeatherData, setSelectedAirport]);
 
   const handleQuickAirportInputSubmit = async (e) => {
     e.preventDefault();
 
-    const quickAirportCode = quickAirportInput.toUpperCase();  // Capitalize the input
+    const quickAirportCode = quickAirportInput.toUpperCase();
 
-    // Ensure the input is not empty
     if (!quickAirportCode) {
       return;
     }
 
-    try {
-      // Log the input before making the request
-
-      // Fetch weather data for the input ICAO code
-      const data = await fetchQuickWeather(quickAirportCode);
-
-      // Use the local or context state to store the fetched weather data
-      if (setQuickWeatherData) {
-        setQuickWeatherData(data); // If setQuickWeatherData is available in the context, use it
-      } else {
-        setQuickWeatherData(data); // Otherwise, use the local state
-      }
-
-      setSelectedAirport({ code: quickAirportCode });
-
-    } catch (error) {
-      // Log any errors
-      console.error(`Failed to fetch weather data for ${quickAirportCode}:`, error);
+    // Debounce rapid submissions
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
+
+    debounceTimeoutRef.current = setTimeout(async () => {
+      await fetchWeatherWithAutoRefresh(quickAirportCode);
+    }, DEBOUNCE_DELAY);
   };
 
 
@@ -517,8 +564,14 @@ export default function ClientComponent({ fetchQuickWeather }) {
             <button
               type="button"
               onClick={() => {
-                setQuickAirportInput('');  // Clear the input field
-                setQuickWeatherData(null); // Clear the weather data
+                setQuickAirportInput('');
+                setQuickWeatherData(null);
+                currentAirportRef.current = null;
+                if (autoRefreshTimeoutRef.current) {
+                  clearInterval(autoRefreshTimeoutRef.current);
+                  autoRefreshTimeoutRef.current = null;
+                }
+                console.log('[Auto-Refresh] Stopped by user reset');
               }}
               className="bg-orange-400 text-white p-2 rounded-md"
             >

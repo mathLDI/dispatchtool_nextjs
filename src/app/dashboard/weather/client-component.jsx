@@ -11,7 +11,6 @@ import ConfirmModal from '../../lib/component/ConfirmModal';
 import AirportList from '../../lib/component/AirportList';
 import NewChoiceListbox from '../../lib/component/NewChoiceListbox'; // Updated import
 import { SearchIcon } from '@heroicons/react/outline';
-import AirportDotCategory from '../../lib/component/AirportDotCategory'; // Updated import
 
 import {
   formatLocalDate,
@@ -26,8 +25,8 @@ import {
   highlightNotamTermsJSX,
 } from '../../lib/component/functions/weatherAndNotam';
 
-const RoutingWXXForm = ({ onSave }) => {
-  const { flightDetails, setFlightDetails } = useRccContext();
+const RoutingWXXForm = ({ onSave, fetchWeather }) => {
+  const { flightDetails, setFlightDetails, addAirportValue, removeAirportValue, setAllWeatherData, setWeatherData, setSelectedAirport, airportValues, selectedAirport } = useRccContext();
   const [warnings, setWarnings] = useState({
     flightNumber: '',
     icaoAirports: '',
@@ -43,26 +42,6 @@ const RoutingWXXForm = ({ onSave }) => {
       [field]: value.length > 4 ? 'Airport code must be exactly 4 letters' : '',
     });
     setFlightDetails({ ...flightDetails, [field]: value });
-  };
-
-
-  const handleIcaoChange = (e) => {
-    const newIcao = e.target.value.toUpperCase(); // Get the new ICAO code
-    setFlightDetails((prevDetails) => ({
-      ...prevDetails,
-      icaoAirports: newIcao.split(' '), // Split input by spaces and store each ICAO code in an array
-    }));
-  };
-
-  const handleIcaoAltnChange = (e) => {
-    const newIcaoAltn = e.target.value.toUpperCase(); // Convert input to uppercase and split by space
-
-    // Update only the icaoAirportALTN field in the current routing
-    setFlightDetails((prevDetails) => ({
-      ...prevDetails,
-      icaoAirportALTN: newIcaoAltn.split(' '), // 
-    }));
-
   };
 
   const updateSavedRouting = (newIcaoAltn) => {
@@ -111,10 +90,72 @@ const RoutingWXXForm = ({ onSave }) => {
     });
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();  // Prevent form submission
-      window.alert('Click the "Save" Button');  // Show the popup message
+  // Add / Remove airports controls (placed below Save/Clear)
+  const [addInput, setAddInput] = useState('');
+
+  const handleAddSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const codes = addInput.split(/\s+/).map(c => c.trim().toUpperCase()).filter(Boolean);
+    if (codes.length === 0) return;
+
+    const weatherMap = {};
+    for (const code of codes) {
+      if (!/^[A-Za-z0-9]{4}$/.test(code)) continue;
+      if (airportValues.some(a => a.code === code)) continue; // skip duplicates
+      addAirportValue({ id: code, name: `Airport ${code}`, code });
+      try {
+        if (fetchWeather) {
+          const data = await fetchWeather(code);
+          if (data) weatherMap[code] = data;
+        }
+      } catch (err) {
+        console.error(`Failed to fetch weather for ${code}:`, err);
+      }
+    }
+
+    if (Object.keys(weatherMap).length > 0) {
+      setAllWeatherData(prev => ({ ...prev, ...weatherMap }));
+      const first = Object.keys(weatherMap)[0];
+      setWeatherData(weatherMap[first]);
+      setSelectedAirport({ id: first, name: `Airport ${first}`, code: first });
+    }
+
+    // Update flightDetails with newly added airports and save routing (flightNumber + airports)
+    const existingIcaos = Array.isArray(flightDetails.icaoAirports) ? [...flightDetails.icaoAirports] : [];
+    const newIcaos = [...existingIcaos, ...codes.filter(c => !existingIcaos.includes(c))];
+    const newFlightDetails = { ...flightDetails, icaoAirports: newIcaos };
+    setFlightDetails(newFlightDetails);
+
+    // Call onSave to persist the routing (will update savedRoutings and localStorage)
+    try {
+      onSave && onSave(newFlightDetails);
+    } catch (err) {
+      console.error('Failed to save routing after adding airports', err);
+    }
+
+    setAddInput('');
+  };
+
+  const handleRemoveAirport = (code) => {
+    removeAirportValue(code);
+    setAllWeatherData(prev => {
+      const copy = { ...prev };
+      delete copy[code];
+      return copy;
+    });
+    if (selectedAirport?.code === code) {
+      setSelectedAirport(null);
+      setWeatherData(null);
+    }
+    // Also remove from flightDetails and update saved routings
+    const existingIcaos = Array.isArray(flightDetails.icaoAirports) ? [...flightDetails.icaoAirports] : [];
+    const updatedIcaos = existingIcaos.filter(c => c !== code);
+    const newFlightDetails = { ...flightDetails, icaoAirports: updatedIcaos };
+    setFlightDetails(newFlightDetails);
+    try {
+      onSave && onSave(newFlightDetails);
+    } catch (err) {
+      console.error('Failed to save routing after removing airport', err);
     }
   };
 
@@ -139,40 +180,6 @@ const RoutingWXXForm = ({ onSave }) => {
           />
         </div>
 
-        {/**testing a list of airports********************************* */}
-
-        <div className="pt-2">
-          <form className="mb-2 relative">
-            <input
-              type="text"
-              value={(flightDetails.icaoAirports || []).join(' ') || ''}
-              onChange={handleIcaoChange}
-              onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
-              placeholder="Add ICAO Airports (use ICAO codes)"
-              className="border p-2 rounded w-full"
-              style={{ textTransform: 'uppercase' }}
-            />
-            {warnings.icaoAirports && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirports}</p>}
-          </form>
-        </div>
-
-        {/**add list of alternates */}
-
-        <div className="flex-1">
-          <form className="relative">
-            <input
-              type="text"
-              value={(flightDetails.icaoAirportALTN || []).join(' ') || ''}
-              onChange={handleIcaoAltnChange}
-              onKeyDown={handleKeyDown}  // Add onKeyDown event to detect Enter key press
-              placeholder="Add Alternate ICAO Airports (use ICAO codes)"
-              className="border p-2 rounded w-full"
-              style={{ textTransform: 'uppercase' }}
-            />
-            {warnings.icaoAirportALTN && <p className="bg-orange-400 text-red-700 mt-2">{warnings.icaoAirportALTN}</p>}
-          </form>
-        </div>
-
         <div className="flex items-center pt-1 ">
           <button
             onClick={handleSave}
@@ -186,6 +193,31 @@ const RoutingWXXForm = ({ onSave }) => {
           >
             Clear
           </button>
+        </div>
+
+        <div className="pt-3 w-full">
+          <form onSubmit={handleAddSubmit} className="flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="Add Airport(s) (space-separated ICAO)"
+              value={addInput}
+              onChange={(e) => setAddInput(e.target.value.toUpperCase())}
+              className="border p-2 rounded w-full text-center"
+              style={{ textTransform: 'uppercase' }}
+            />
+            <button type="submit" className="p-2 bg-green-500 text-white rounded-md">Add</button>
+          </form>
+
+          {airportValues && airportValues.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {airportValues.map((ap) => (
+                <div key={ap.code} className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 p-1 rounded">
+                  <span className="font-medium">{ap.code}</span>
+                  <button onClick={() => handleRemoveAirport(ap.code)} className="text-red-600 bg-transparent px-1">x</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
@@ -912,19 +944,14 @@ useEffect(() => {
 
 
           <div className='pb-1'>
-            <RoutingWXXForm onSave={handleSaveRouting} />
+            <RoutingWXXForm onSave={handleSaveRouting} fetchWeather={fetchWeather} />
           </div>
 
-
-
-          {/* AirportList is displayed when 'Routing Search' is selected */}
+          {/* AirportList - Shows ICAO airports with colored weather bubbles */}
           <div className='flex'>
-            {selectedForm === 'Routing Search' && (
-              <AirportList
-                airportsToShow={airportsToShow}
-                onAirportClick={handleAirportClick}
-              />
-            )}
+            <AirportList
+              onAirportClick={handleAirportClick}
+            />
           </div>
         </div>
 

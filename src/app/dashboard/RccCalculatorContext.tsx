@@ -87,6 +87,10 @@ interface RccContextType {
   setAirportValues: (values: Airport[]) => void;
   addAirportValue: (newAirport: Airport) => void;
   removeAirportValue: (airportCode: string) => void;
+  confirmedAirportCodes: string[];
+  setConfirmedAirportCodes: (codes: string[]) => void;
+  expandedCards: Set<string>;
+  setExpandedCards: (cards: Set<string>) => void;
   selectedAirport: Airport | null;
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
@@ -239,6 +243,23 @@ useEffect(() => {
     }
   }, [airportValues, isClient]);
 
+  const [confirmedAirportCodes, setConfirmedAirportCodes] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('confirmedAirportCodes');
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
+
+  // Save confirmedAirportCodes to localStorage
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem('confirmedAirportCodes', JSON.stringify(confirmedAirportCodes));
+    }
+  }, [confirmedAirportCodes, isClient]);
+
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
   const [selectedNotamTypeQuick, setSelectedNotamTypeQuick] = useState('AERODROME');
@@ -247,7 +268,22 @@ useEffect(() => {
   const [gfaType, setGfaType] = useState('CLDWX');
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
-  const [allWeatherData, setAllWeatherData] = useState<any>({});
+  
+  const [allWeatherData, setAllWeatherData] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('allWeatherData');
+      return stored ? JSON.parse(stored) : {};
+    }
+    return {};
+  });
+
+  // Save allWeatherData to localStorage
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem('allWeatherData', JSON.stringify(allWeatherData));
+    }
+  }, [allWeatherData, isClient]);
+
   const [airportCategories, setAirportCategories] = useState<Record<string, AirportCategory>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(true);
   const [isCraneFilterActiveQuick, setIsCraneFilterActiveQuick] = useState(true);
@@ -338,6 +374,8 @@ useEffect(() => {
       airportValues, setAirportValues,
       addAirportValue,
       removeAirportValue,
+      confirmedAirportCodes, setConfirmedAirportCodes,
+      expandedCards, setExpandedCards,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
       selectedNotamTypeQuick, setSelectedNotamTypeQuick,
