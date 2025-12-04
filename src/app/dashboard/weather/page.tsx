@@ -44,12 +44,15 @@ export default function Page() {
   return (
     <div style={{ background: theme.background, height: '100vh', width: '100%', color: theme.inputText, display: 'flex', flexDirection: 'column' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', justifyContent: 'center', padding: '8px', flexDirection: 'column', gap: 8, background: theme.headerBg }}>
-        {/* Time display in top right */}
-        <div style={{ position: 'absolute', top: 8, right: 12 }}>
-          <TimeDisplay />
+        {/* Time display and input wrapper */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, width: '100%' }}>
+          <div style={{ flex: 1 }}>
+            <AirportInputClient />
+          </div>
+          <div style={{ paddingTop: '8px', whiteSpace: 'nowrap' }}>
+            <TimeDisplay />
+          </div>
         </div>
-        
-        <AirportInputClient />
 
         {/* Secondary search box (UI-only for now) */}
         <div style={{ width: '100%', display: 'flex' }}>
