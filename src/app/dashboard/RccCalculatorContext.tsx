@@ -159,6 +159,10 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     setIsClient(true); // Ensures client-only logic
+    // Clear old weather data from localStorage to prevent stale data from blocking fresh API responses
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('allWeatherData');
+    }
   }, []);
 
 // Add this near the top of RccProvider component, with other state declarations
@@ -269,20 +273,12 @@ useEffect(() => {
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
   
-  const [allWeatherData, setAllWeatherData] = useState<any>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('allWeatherData');
-      return stored ? JSON.parse(stored) : {};
-    }
-    return {};
-  });
+  // Don't persist allWeatherData to localStorage - it gets updated every minute via auto-refresh
+  // Persisting causes stale data to load on page refresh, blocking fresh data from the API
+  const [allWeatherData, setAllWeatherData] = useState<any>({});
 
-  // Save allWeatherData to localStorage
-  useEffect(() => {
-    if (isClient) {
-      localStorage.setItem('allWeatherData', JSON.stringify(allWeatherData));
-    }
-  }, [allWeatherData, isClient]);
+  // Don't persist weather data to localStorage - let auto-refresh always fetch fresh data
+  // This prevents stale data from blocking new METARs/TAFs after page refresh
 
   const [airportCategories, setAirportCategories] = useState<Record<string, AirportCategory>>({});
   const [isCraneFilterActive, setIsCraneFilterActive] = useState(true);

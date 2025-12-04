@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../../firebaseConfig';
 import Image from "next/legacy/image";
@@ -9,11 +9,34 @@ import { setCookie } from 'cookies-next';
 
 const logo = '/logo.png';
 
+function getThemeColors(darkMode: boolean) {
+  return {
+    background: darkMode ? 'black' : '#f5f5f5',
+    text: darkMode ? '#fff' : '#111',
+    cardBg: darkMode ? '#0b0b0b' : 'white',
+    cardBorder: darkMode ? '#333' : '#ddd',
+    inputBg: darkMode ? '#0b0b0b' : 'white',
+    inputBorder: darkMode ? '#555' : '#ddd',
+    inputText: darkMode ? '#fff' : '#111',
+    placeholder: darkMode ? '#888' : '#999',
+    labelText: darkMode ? '#fff' : '#111'
+  };
+}
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [darkMode, setDarkMode] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+    // Read dark mode preference from localStorage
+    const saved = localStorage.getItem('darkMode');
+    setDarkMode(saved === 'true');
+  }, []);
 
   // Handle sign-in using Firebase Authentication
   const handleSignIn = async () => {
@@ -41,8 +64,21 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      paddingLeft: '24px',
+      paddingRight: '24px',
+      paddingTop: '48px',
+      paddingBottom: '48px',
+      background: getThemeColors(darkMode).background,
+      color: getThemeColors(darkMode).text,
+      transition: 'background-color 0.3s ease, color 0.3s ease'
+    }}>
+      <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '100%', maxWidth: '28rem' }}>
         <Image
           className="mx-auto"
           src={logo}
@@ -51,18 +87,31 @@ const Login = () => {
           height={200}
           priority
         />
-        <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '1.875rem',
+          fontWeight: 'bold',
+          lineHeight: 'normal',
+          letterSpacing: '0.025em',
+          color: getThemeColors(darkMode).text
+        }}>
           Sign in to your account
         </h2>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSubmit}>
+      <div style={{ marginTop: '2.5rem', marginLeft: 'auto', marginRight: 'auto', width: '100%', maxWidth: '28rem' }}>
+        <form style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+            <label htmlFor="email" style={{
+              display: 'block',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              lineHeight: '1.5',
+              color: getThemeColors(darkMode).labelText
+            }}>
               Email address
             </label>
-            <div className="mt-2">
+            <div style={{ marginTop: '8px' }}>
               <input
                 id="email"
                 name="email"
@@ -71,16 +120,40 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-md border-0 py-2.5 px-3 !bg-white !text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  borderRadius: '6px',
+                  border: 'none',
+                  paddingTop: '10px',
+                  paddingBottom: '10px',
+                  paddingLeft: '12px',
+                  paddingRight: '12px',
+                  background: getThemeColors(darkMode).inputBg,
+                  color: getThemeColors(darkMode).inputText,
+                  boxShadow: `0 1px 2px 0 rgba(0, 0, 0, 0.05)`,
+                  outlineWidth: '1px',
+                  outlineStyle: 'solid',
+                  outlineColor: getThemeColors(darkMode).inputBorder,
+                  fontSize: '0.875rem',
+                  lineHeight: '1.5'
+                }}
+                placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+            <label htmlFor="password" style={{
+              display: 'block',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              lineHeight: '1.5',
+              color: getThemeColors(darkMode).labelText
+            }}>
               Password
             </label>
-            <div className="mt-2">
+            <div style={{ marginTop: '8px' }}>
               <input
                 id="password"
                 name="password"
@@ -89,7 +162,25 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-0 py-2.5 px-3 !bg-white !text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  borderRadius: '6px',
+                  border: 'none',
+                  paddingTop: '10px',
+                  paddingBottom: '10px',
+                  paddingLeft: '12px',
+                  paddingRight: '12px',
+                  background: getThemeColors(darkMode).inputBg,
+                  color: getThemeColors(darkMode).inputText,
+                  boxShadow: `0 1px 2px 0 rgba(0, 0, 0, 0.05)`,
+                  outlineWidth: '1px',
+                  outlineStyle: 'solid',
+                  outlineColor: getThemeColors(darkMode).inputBorder,
+                  fontSize: '0.875rem',
+                  lineHeight: '1.5'
+                }}
+                placeholder="••••••••"
               />
             </div>
           </div>
@@ -97,14 +188,40 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: 'center',
+                borderRadius: '6px',
+                background: '#4f46e5',
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                paddingTop: '12px',
+                paddingBottom: '12px',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                lineHeight: '1.5',
+                color: 'white',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4338ca'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#4f46e5'}
             >
               Sign in
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 text-red-600 text-sm">{error}</div>
+            <div style={{
+              marginTop: '1rem',
+              color: '#dc2626',
+              fontSize: '0.875rem'
+            }}>
+              {error}
+            </div>
           )}
         </form>
       </div>
