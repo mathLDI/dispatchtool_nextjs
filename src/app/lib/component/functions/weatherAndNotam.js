@@ -208,15 +208,24 @@ export function getFlightCategory(ceiling, visibility, metarString = '') {
     return { category: 'LWIS', color: 'text-gray-500' };
   }
 
+  // LIFR: ceiling < 500 feet OR visibility < 1 mile
   if (ceiling < 500 || visibility < 1) {
     return { category: 'LIFR', color: 'text-custom-lifr' };
-  } else if (ceiling < 1000 || visibility < 3) {
+  }
+  // IFR: ceiling 500-999 feet OR visibility 1-2.99 miles
+  else if ((ceiling >= 500 && ceiling < 1000) || (visibility >= 1 && visibility < 3)) {
     return { category: 'IFR', color: 'text-custom-ifr' };
-  } else if (ceiling <= 3000 || visibility <= 5) {
+  }
+  // MVFR: ceiling 1000-3000 feet OR visibility 3-5 miles
+  else if ((ceiling >= 1000 && ceiling <= 3000) || (visibility >= 3 && visibility <= 5)) {
     return { category: 'MVFR', color: 'text-custom-mvfr' };
-  } else if (ceiling > 3000 && visibility > 5) {
+  }
+  // VFR: ceiling > 3000 feet AND visibility > 5 miles
+  else if (ceiling > 3000 && visibility > 5) {
     return { category: 'VFR', color: 'text-custom-vfr' };
-  } else {
+  }
+  // Unknown: when conditions cannot be determined
+  else {
     return { category: 'Unknown', color: 'text-gray-500' };
   }
 }

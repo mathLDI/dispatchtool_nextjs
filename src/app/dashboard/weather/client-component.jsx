@@ -166,7 +166,7 @@ const RoutingWXXForm = ({ onSave, fetchWeather }) => {
       <div className='flex flex-1 flex-col '>
 
         <div className="flex items-center">
-          <span className="p-2 bg-gray-200 text-black border border-gray-300 rounded-l-md">CRQ</span>
+          <span className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-l-lg font-medium">CRQ</span>
           <input
             type="text"
             placeholder="Enter Flight #"
@@ -175,21 +175,21 @@ const RoutingWXXForm = ({ onSave, fetchWeather }) => {
               const input = e.target.value.toUpperCase();
               setFlightDetails({ ...flightDetails, flightNumber: `CRQ${input}` }); // Always prepend 'CRQ'
             }}
-            className="p-2 border border-gray-300 rounded-r-md text-center"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-r-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:border-gray-400 dark:hover:border-gray-500 text-center"
             style={{ width: '150px', textTransform: 'uppercase' }}  // Ensures text is displayed in uppercase
           />
         </div>
 
-        <div className="flex items-center pt-1 ">
+        <div className="flex items-center pt-1 gap-2">
           <button
             onClick={handleSave}
-            className="p-2 bg-blue-500 text-white rounded-md"
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:scale-95"
           >
             Save
           </button>
           <button
             onClick={handleClear}
-            className="p-2 bg-gray-500 text-white rounded-md"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-lg font-medium transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:scale-95"
           >
             Clear
           </button>
@@ -202,18 +202,18 @@ const RoutingWXXForm = ({ onSave, fetchWeather }) => {
               placeholder="Add Airport(s) (space-separated ICAO)"
               value={addInput}
               onChange={(e) => setAddInput(e.target.value.toUpperCase())}
-              className="border p-2 rounded w-full text-center"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:border-gray-400 dark:hover:border-gray-500 w-full text-center"
               style={{ textTransform: 'uppercase' }}
             />
-            <button type="submit" className="p-2 bg-green-500 text-white rounded-md">Add</button>
+            <button type="submit" className="px-4 py-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:scale-95">Add</button>
           </form>
 
           {airportValues && airportValues.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {airportValues.map((ap) => (
-                <div key={ap.code} className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 p-1 rounded">
-                  <span className="font-medium">{ap.code}</span>
-                  <button onClick={() => handleRemoveAirport(ap.code)} className="text-red-600 bg-transparent px-1">x</button>
+                <div key={ap.code} className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{ap.code}</span>
+                  <button onClick={() => handleRemoveAirport(ap.code)} className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 bg-transparent px-1 transition-colors duration-150">×</button>
                 </div>
               ))}
             </div>

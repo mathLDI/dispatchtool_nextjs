@@ -11,13 +11,24 @@ const NewChoiceListbox = ({ value, choices, callback, reset, resetCallback, plac
     callback(newValue);
   };
 
+  // Modern Apple-inspired input styling
+  const baseInputStyles = `
+    w-full px-3 py-2 
+    border border-gray-300 dark:border-gray-600 
+    rounded-lg 
+    bg-white dark:bg-gray-800 
+    text-gray-900 dark:text-gray-100
+    transition-all duration-200 ease-in-out
+    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+    shadow-sm hover:border-gray-400 dark:hover:border-gray-500
+  `;
+
   const inputStyles = {
     WebkitCalendarPickerIndicator: 'none',
     WebkitAppearance: 'none',
     MozAppearance: 'none',
     appearance: 'none',
-    background: 'white',
-    paddingRight: '8px' // Prevent text from being hidden by the dropdown arrow
+    paddingRight: '8px'
   };
 
   return (
@@ -32,8 +43,8 @@ const NewChoiceListbox = ({ value, choices, callback, reset, resetCallback, plac
             onFocus={(e) => e.target.value = selected}
             onBlur={(e) => e.target.value = selected}
             placeholder={placeholder || "SELECT OR TYPE..."}
-            className="p-2 border border-gray-300 rounded-md w-full uppercase [&::-webkit-calendar-picker-indicator]:hidden"
-            autoComplete="new-password" // Prevent browser autocomplete
+            className={`${baseInputStyles} uppercase [&::-webkit-calendar-picker-indicator]:hidden`}
+            autoComplete="new-password"
             style={inputStyles}
           />
           <datalist id={listId} className="hidden">
@@ -48,7 +59,7 @@ const NewChoiceListbox = ({ value, choices, callback, reset, resetCallback, plac
         <select
           value={selected}
           onChange={handleChange}
-          className="p-2 border border-gray-300 rounded-md w-full"
+          className={baseInputStyles}
         >
           {choices.map((choice, idx) => (
             <option key={idx} value={choice}>

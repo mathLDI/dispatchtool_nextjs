@@ -27,6 +27,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -40,6 +41,8 @@ const Login = () => {
 
   // Handle sign-in using Firebase Authentication
   const handleSignIn = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -55,6 +58,7 @@ const Login = () => {
     } catch (error: any) {
       console.error("Login error:", error);
       setError(`Login failed: ${error.message}`);
+      setIsLoading(false);
     }
   };
 
@@ -188,12 +192,15 @@ const Login = () => {
           <div>
             <button
               type="submit"
+              disabled={isLoading}
               style={{
                 display: 'flex',
                 width: '100%',
                 justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
                 borderRadius: '6px',
-                background: '#4f46e5',
+                background: isLoading ? '#6366f1' : '#4f46e5',
                 paddingLeft: '12px',
                 paddingRight: '12px',
                 paddingTop: '12px',
@@ -204,14 +211,51 @@ const Login = () => {
                 color: 'white',
                 boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                 border: 'none',
-                cursor: 'pointer',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.8 : 1,
                 transition: 'background-color 0.2s ease'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#4338ca'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#4f46e5'}
+              onMouseEnter={(e) => !isLoading && (e.currentTarget.style.background = '#4338ca')}
+              onMouseLeave={(e) => !isLoading && (e.currentTarget.style.background = '#4f46e5')}
             >
-              Sign in
+              {isLoading && (
+                <svg
+                  style={{
+                    animation: 'spin 1s linear infinite',
+                    height: '16px',
+                    width: '16px'
+                  }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    style={{ opacity: 0.25 }}
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    style={{ opacity: 0.75 }}
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              )}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
+            <style jsx>{`
+              @keyframes spin {
+                from {
+                  transform: rotate(0deg);
+                }
+                to {
+                  transform: rotate(360deg);
+                }
+              }
+            `}</style>
           </div>
 
           {error && (

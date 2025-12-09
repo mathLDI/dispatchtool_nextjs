@@ -563,7 +563,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
               value={quickAirportInput} // Ensure this is bound to the state
               onChange={handleQuickAirportInputChange} // Handle the input change
               placeholder="Enter ICAO code"
-              className="p-2 border border-gray-300 rounded-md"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:border-gray-400 dark:hover:border-gray-500"
               style={{ textTransform: 'uppercase' }} // Optional: visually enforce uppercase in the UI
               maxLength={4} // Limit input to 4 characters
             />
@@ -572,7 +572,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
             <button
               type="button"
               onClick={handleQuickAirportInputSubmit}  // Calls the same function as submitting the form
-              className="bg-gray-500 text-white p-2 rounded-md"
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:scale-95"
             >
               Refresh
             </button>
@@ -590,7 +590,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
                 }
                 console.log('[Auto-Refresh] Stopped by user reset');
               }}
-              className="bg-orange-400 text-white p-2 rounded-md"
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 rounded-lg font-medium transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:scale-95"
             >
               Reset
             </button>

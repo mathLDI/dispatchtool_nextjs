@@ -57,6 +57,10 @@ interface RccContextType {
   setRwycc2: (value: number) => void;
   rwycc3: number;
   setRwycc3: (value: number) => void;
+  selectedRunway: string;
+  setSelectedRunway: (runway: string) => void;
+  selectedRwyccFromNotam: { rwycc1: number; rwycc2: number; rwycc3: number } | null;
+  setSelectedRwyccFromNotam: (rwycc: { rwycc1: number; rwycc2: number; rwycc3: number } | null) => void;
   correctedLandingDistance: number;
   setCorrectedLandingDistance: (value: number) => void;
   runwayLength: number;
@@ -91,10 +95,20 @@ interface RccContextType {
   setConfirmedAirportCodes: (codes: string[]) => void;
   expandedCards: Set<string>;
   setExpandedCards: (cards: Set<string>) => void;
+  cardViewMode: 'flightCategory' | 'airportList';
+  setCardViewMode: (mode: 'flightCategory' | 'airportList') => void;
+  expandedNotams: Set<string>;
+  setExpandedNotams: (notams: Set<string>) => void;
   selectedAirport: Airport | null;
   setSelectedAirport: (airport: Airport | null) => void;
   selectedNotamType: string;
   setSelectedNotamType: (type: string) => void;
+  selectedNotamTypePerAirport: Record<string, string>;
+  setSelectedNotamTypePerAirport: (types: Record<string, string>) => void;
+  notamSearchTerms: Record<string, string>;
+  setNotamSearchTerms: (terms: Record<string, string>) => void;
+  craneFilterActive: Record<string, boolean>;
+  setCraneFilterActive: (filters: Record<string, boolean>) => void;
   selectedNotamTypeQuick: string;
   setSelectedNotamTypeQuick: (type: string) => void;
   searchTerm: string;
@@ -107,6 +121,10 @@ interface RccContextType {
   setGfaData: (data: any) => void;
   selectedTimestamp: number;
   setSelectedTimestamp: (timestamp: number) => void;
+  allGFAData: any;
+  setAllGFAData: (data: any) => void;
+  expandedGfaView: Record<string, string>;
+  setExpandedGfaView: (view: Record<string, string>) => void;
   allWeatherData: any;
   setAllWeatherData: (data: any) => void;
   airportCategories: Record<string, AirportCategory>;
@@ -208,6 +226,8 @@ useEffect(() => {
   const [rwycc1, setRwycc1] = useState(6);
   const [rwycc2, setRwycc2] = useState(6);
   const [rwycc3, setRwycc3] = useState(6);
+  const [selectedRunway, setSelectedRunway] = useState('');
+  const [selectedRwyccFromNotam, setSelectedRwyccFromNotam] = useState<{ rwycc1: number; rwycc2: number; rwycc3: number } | null>(null);
   const [correctedLandingDistance, setCorrectedLandingDistance] = useState(0);
   const [runwayLength, setRunwayLength] = useState(0);
   const [initialAircraftType, setAircraftTypeHandler] = useState("");
@@ -263,15 +283,22 @@ useEffect(() => {
   }, [confirmedAirportCodes, isClient]);
 
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [cardViewMode, setCardViewMode] = useState<'flightCategory' | 'airportList'>('flightCategory');
+  const [expandedNotams, setExpandedNotams] = useState<Set<string>>(new Set());
 
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [selectedNotamType, setSelectedNotamType] = useState('AERODROME');
+  const [selectedNotamTypePerAirport, setSelectedNotamTypePerAirport] = useState<Record<string, string>>({});
+  const [notamSearchTerms, setNotamSearchTerms] = useState<Record<string, string>>({});
+  const [craneFilterActive, setCraneFilterActive] = useState<Record<string, boolean>>({});
   const [selectedNotamTypeQuick, setSelectedNotamTypeQuick] = useState('AERODROME');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchTermQuick, setSearchTermQuick] = useState('');
   const [gfaType, setGfaType] = useState('CLDWX');
   const [gfaData, setGfaData] = useState<any>(null);
   const [selectedTimestamp, setSelectedTimestamp] = useState(0);
+  const [allGFAData, setAllGFAData] = useState<any>({}); // Store GFA data per code (like allWeatherData)
+  const [expandedGfaView, setExpandedGfaView] = useState<Record<string, string>>({}); // Track which GFA section is expanded per code
   
   // Don't persist allWeatherData to localStorage - it gets updated every minute via auto-refresh
   // Persisting causes stale data to load on page refresh, blocking fresh data from the API
@@ -354,6 +381,8 @@ useEffect(() => {
       rwycc1, setRwycc1,
       rwycc2, setRwycc2,
       rwycc3, setRwycc3,
+      selectedRunway, setSelectedRunway,
+      selectedRwyccFromNotam, setSelectedRwyccFromNotam,
       correctedLandingDistance, setCorrectedLandingDistance,
       runwayLength, setRunwayLength,
       initialAircraftType, setAircraftTypeHandler,
@@ -372,14 +401,21 @@ useEffect(() => {
       removeAirportValue,
       confirmedAirportCodes, setConfirmedAirportCodes,
       expandedCards, setExpandedCards,
+      cardViewMode, setCardViewMode,
+      expandedNotams, setExpandedNotams,
       selectedAirport, setSelectedAirport,
       selectedNotamType, setSelectedNotamType,
+      selectedNotamTypePerAirport, setSelectedNotamTypePerAirport,
+      notamSearchTerms, setNotamSearchTerms,
+      craneFilterActive, setCraneFilterActive,
       selectedNotamTypeQuick, setSelectedNotamTypeQuick,
       searchTerm, setSearchTerm,
       searchTermQuick, setSearchTermQuick,
       gfaType, setGfaType,
       gfaData, setGfaData,
       selectedTimestamp, setSelectedTimestamp,
+      allGFAData, setAllGFAData,
+      expandedGfaView, setExpandedGfaView,
       allWeatherData, setAllWeatherData,
       airportCategories, setAirportCategories,
       isCraneFilterActive, setIsCraneFilterActive,
