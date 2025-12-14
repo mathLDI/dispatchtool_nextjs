@@ -126,7 +126,7 @@ const SecondPageCrosswindCalculator = () => {
         setResetListBox(false);
     };
 
-    const combinedAirports = [...flightDetails.icaoAirports, ...flightDetails.icaoAirportALTN];
+    const combinedAirports = Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports : [];
 
     // Add length check helper
     const isValidIcaoCode = (code) => {

@@ -181,18 +181,6 @@ export default function AirportWeatherDisplay({
                 </div>
               )}
 
-              {/* Loop through and render METAR for each ICAO Alternate Airport */}
-              {Array.isArray(flightDetails.icaoAirportALTN) && flightDetails.icaoAirportALTN.length > 0 && (
-                <div className="flex flex-col">
-                  {flightDetails.icaoAirportALTN.map((icaoAltn, index) => (
-                    <div key={index} className="flex">
-                      <Card title={`METAR - ICAO Alternate ${icaoAltn}`} status={null} className="h-full">
-                        <MetarDisplay weatherData={allWeatherData[icaoAltn]} />
-                      </Card>
-                    </div>
-                  ))}
-                </div>
-              )}
             </>
           )}
 

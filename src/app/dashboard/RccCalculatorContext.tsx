@@ -13,7 +13,6 @@ interface FlightDetails {
   departure: string;
   destination: string;
   icaoAirports: string[]; // Existing ICAO airports list
-  icaoAirportALTN: string[]; // New ICAO alternate airports list
 }
 
 interface Routing {
@@ -322,7 +321,6 @@ useEffect(() => {
         departure: '',
         destination: '',
         icaoAirports: [], // Initialize as empty array
-        icaoAirportALTN: [], // Initialize as empty array for alternate airports
       };
     }
     return {
@@ -330,7 +328,6 @@ useEffect(() => {
       departure: '',
       destination: '',
       icaoAirports: [], // Initialize as empty array
-      icaoAirportALTN: [], // Initialize as empty array for alternate airports
     };
   });
 

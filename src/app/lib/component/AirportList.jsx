@@ -12,7 +12,6 @@ const AirportList = ({ onAirportClick }) => {
 
   // Extract airports from flightDetails
   const icaoAirportsToShow = (flightDetails.icaoAirports || []).map((code) => ({ code }));
-  const icaoAirportALTNToShow = (flightDetails.icaoAirportALTN || []).map((code) => ({ code }));
 
   const handleRemoveClick = (e, airportCode) => {
     e.stopPropagation();
@@ -61,12 +60,6 @@ const AirportList = ({ onAirportClick }) => {
     <div className="flex flex-col rounded-lg w-full">
       <div className='flex-1 pb-1'>
         {renderAirportList(icaoAirportsToShow, '')}
-      </div>
-
-      <hr className="border-gray-300" />
-
-      <div className='flex-1'>
-        {renderAirportList(icaoAirportALTNToShow, '')}
       </div>
     </div>
   );

@@ -31,7 +31,6 @@ const RoutingWXXForm = ({ onSave, fetchWeather }) => {
     flightNumber: '',
     icaoAirports: '',
     alternates: '',
-    icaoAirportALTN: '', // Add this for icaoAirportALTN warnings
   });
 
 
@@ -44,21 +43,8 @@ const RoutingWXXForm = ({ onSave, fetchWeather }) => {
     setFlightDetails({ ...flightDetails, [field]: value });
   };
 
-  const updateSavedRouting = (newIcaoAltn) => {
-
-    setSavedRoutings((prevRoutings) =>
-      prevRoutings.map((routing) =>
-        routing.flightNumber === flightDetails.flightNumber &&
-          routing.departure === flightDetails.departure &&
-          routing.destination === flightDetails.destination
-          ? { ...routing, icaoAirportALTN: newIcaoAltn } // Update the icaoAirportALTN for the existing routing
-          : routing
-      )
-    );
-  };
-
   const handleSave = () => {
-    const icaoAirports = flightDetails.icaoAirports || []; // Default to empty array if undefined
+    const icaoAirports = Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports : []; // Default to empty array if undefined
 
     // Check if flightNumber and icaoAirports are valid
     if (flightDetails.flightNumber && icaoAirports.length > 0) {
@@ -332,8 +318,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       (routing.destination?.toUpperCase() || '').includes(term) ||   // Same for destination
       (routing.alternate1?.toUpperCase() || '').includes(term) ||    // Same for alternate1
       (routing.alternate2?.toUpperCase() || '').includes(term) ||    // Same for alternate2
-      (Array.isArray(routing.icaoAirports) && routing.icaoAirports.some(icao => icao?.toUpperCase().includes(term))) || // Check for icaoAirports
-      (Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.some(icao => icao?.toUpperCase().includes(term))) // Check for icaoAirportALTN
+      (Array.isArray(routing.icaoAirports) && routing.icaoAirports.some(icao => icao?.toUpperCase().includes(term))) // Check for icaoAirports
     );
   });
 
@@ -378,8 +363,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       const airportsToFetch = savedRoutings.flatMap((routing) => [
         routing.departure,
         routing.destination,
-        ...(routing.icaoAirports || []),
-        ...(routing.icaoAirportALTN || []),
+        ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports : []),
       ]).filter(Boolean);
 
       const uniqueAirports = [...new Set(airportsToFetch)];
@@ -417,7 +401,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     flightDetails.destination && { code: flightDetails.destination },
     flightDetails.alternate1 && { code: flightDetails.alternate1 },
     flightDetails.alternate2 && { code: flightDetails.alternate2 },
-    ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })),
+    ...(Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports.map(icao => ({ code: icao })) : []),
   ].filter(Boolean); // Show routing airports only
 
 
@@ -440,7 +424,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
         ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map((icao) => ({ code: icao })) : []),  // Ensure it's an array
-        ...(Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN.map((icao) => ({ code: icao })) : []),  // Include ICAO alternate airports
       ]).filter(Boolean);
 
       for (const airport of airports) {
@@ -475,15 +458,13 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         routing.alternate1 && { code: routing.alternate1 },
         routing.alternate2 && { code: routing.alternate2 },
         ...(Array.isArray(routing.icaoAirports) ? routing.icaoAirports.map(icao => ({ code: icao })) : []), // Ensure ICAO Airports are included only if it's an array
-        ...(Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN.map(icao => ({ code: icao })) : []) // Include ICAO Alternate Airports
       ]).filter(Boolean);  // Remove any null or undefined values
 
-      // Combine airports from saved routings, airportValues, icaoAirports, and icaoAirportALTN
+      // Combine airports from saved routings, airportValues, and icaoAirports
       const airportsToInclude = [
         ...airportValues, // Existing airport values
         ...airportsFromSavedRoutings, // Airports from saved routings
-        ...(flightDetails.icaoAirports || []).map(icao => ({ code: icao })), // Convert ICAO Airports to objects
-        ...(flightDetails.icaoAirportALTN || []).map(icao => ({ code: icao })) // Convert ICAO Alternate Airports to objects
+        ...(Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports.map(icao => ({ code: icao })) : []), // Convert ICAO Airports to objects
       ];
 
       // Ensure unique airports
@@ -500,7 +481,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
         ...newCategories,  // Add or update categories for new airports
       }));
     }
-  }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories, flightDetails.icaoAirportALTN]);
+  }, [allWeatherData, airportValues, savedRoutings, flightDetails.icaoAirports, setAirportCategories]);
 
 
   const handleSaveRouting = (newRouting) => {
@@ -511,11 +492,10 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     const hasInvalidAirports = (airports) => airports.some(airport => airport.trim() !== '' && !/^[A-Za-z0-9]{4}$/.test(airport.trim()));
 
     // Filter out invalid airports (not exactly 4 characters or whitespace)
-    const filteredIcaoAirports = filterValidAirports(flightDetails.icaoAirports || []);
-    const filteredIcaoAirportALTN = filterValidAirports(flightDetails.icaoAirportALTN || []); // Keep alternates filtered but don't compare with the main airports
+    const filteredIcaoAirports = filterValidAirports(Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports : []);
 
     // Check if there are any invalid airports (not 4 alphanumeric characters) and show a warning if found
-    if (hasInvalidAirports(flightDetails.icaoAirports)) {
+    if (hasInvalidAirports(Array.isArray(flightDetails.icaoAirports) ? flightDetails.icaoAirports : [])) {
       alert('Incorrect entry'); // Show warning message to the user for invalid (non-whitespace) entries
       return; // Exit early to prevent saving an invalid routing
     }
@@ -530,7 +510,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     const routingWithIcao = {
       ...newRouting,
       icaoAirports: filteredIcaoAirports, // Use the filtered main airports
-      icaoAirportALTN: filteredIcaoAirportALTN, // Keep alternates included but don't compare
     };
 
     let updatedRoutings;
@@ -542,23 +521,21 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
     if (existingRoutingIndex !== -1) {
       const existingRouting = savedRoutings[existingRoutingIndex];
+      const existingIcaoAirports = Array.isArray(existingRouting.icaoAirports) ? existingRouting.icaoAirports : [];
 
       // Check if the current icaoAirports are exactly the same as the existing routing's icaoAirports
       const isIcaoAirportsSame =
-        JSON.stringify(existingRouting.icaoAirports) === JSON.stringify(filteredIcaoAirports);
-
-      // If the ICAO airports haven't changed, and alternates have been added, don't show any warning
-      const hasAlternatesChanged = JSON.stringify(existingRouting.icaoAirportALTN) !== JSON.stringify(filteredIcaoAirportALTN);
+        JSON.stringify(existingIcaoAirports) === JSON.stringify(filteredIcaoAirports);
 
       // If no changes to main ICAO airports, show the "Routing already exists" message
-      if (isIcaoAirportsSame && !hasAlternatesChanged) {
+      if (isIcaoAirportsSame) {
         alert("Routing already exists.");
         return; // Exit early to prevent redundant saving
       }
 
       // Check if new ICAO airports are added (i.e., if the new list has airports that weren't in the existing routing)
       const newAirportsAdded = filteredIcaoAirports.some(
-        (airport) => !existingRouting.icaoAirports.includes(airport)
+        (airport) => !existingIcaoAirports.includes(airport)
       );
 
       // If new ICAO airports are added, show a confirmation prompt

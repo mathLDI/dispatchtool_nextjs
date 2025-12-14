@@ -9,7 +9,6 @@ type Routing = {
   departure: string;
   destination: string;
   icaoAirports?: string[];
-  icaoAirportALTN?: string[];
 };
 
 interface SideNavProps {
@@ -36,7 +35,6 @@ export default function SideNav({
       departure: routing.departure,
       destination: routing.destination,
       icaoAirports: Array.isArray(routing.icaoAirports) ? routing.icaoAirports : [],
-      icaoAirportALTN: Array.isArray(routing.icaoAirportALTN) ? routing.icaoAirportALTN : [],
     });
     setSelectedRouting(routing);
   };
@@ -79,21 +77,6 @@ export default function SideNav({
                         &#9679;
                       </span>
                     ))}
-                  </div>
-                )}
-                {Array.isArray(routing.icaoAirportALTN) && routing.icaoAirportALTN.length > 0 && (
-                  <div className="flex flex-col">
-                    <span>Alternate Airports:</span>
-                    <div className="flex flex-wrap" style={{ maxWidth: '100px' }}>
-                      {routing.icaoAirportALTN.map((icao, idx) => (
-                        <div key={idx} className="flex items-center">
-                          <span>{icao}</span>
-                          <span className={`${airportCategories?.[icao]?.color || 'text-gray-500'}`} style={{ fontSize: '1.5rem' }}>
-                            &#9679;
-                          </span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
