@@ -83,7 +83,8 @@ export default function NavLinks() {
           }
 
           const GroupIcon = item.icon;
-          const isOpen = openGroup === item.name;
+          const isPinned = pinnedGroups.has(item.name);
+          const isOpen = isPinned || openGroup === item.name;
 
           return (
             <div
@@ -91,7 +92,8 @@ export default function NavLinks() {
               className="relative"
               onMouseEnter={() => setOpenGroup(item.name)}
               onMouseLeave={() => {
-                if (!pinnedGroups.has(item.name)) {
+                // Keep group open when pinned; otherwise close on mouse leave
+                if (!isPinned) {
                   setOpenGroup(null);
                 }
               }}
@@ -107,6 +109,7 @@ export default function NavLinks() {
                   } else {
                     nextPinned.add(item.name);
                     setPinnedGroups(nextPinned);
+                    // Ensure open when pinned
                     setOpenGroup(item.name);
                   }
                 }}

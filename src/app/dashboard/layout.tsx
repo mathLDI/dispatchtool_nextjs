@@ -53,6 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isPinned, setIsPinned] = useState(true);
   const [hasShownWarning, setHasShownWarning] = useState(false);
   const previousCategoriesRef = useRef<Record<string, AirportCategory>>({});
+  const warningTimestampsRef = useRef<Record<string, number>>({});
 
   const togglePin = () => setIsPinned(!isPinned);
 
@@ -128,6 +129,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
 
     if (updatedAirports.length > 0) {
+      // Track when each warning was first shown
+      updatedAirports.forEach(code => {
+        if (!warningTimestampsRef.current[code]) {
+          warningTimestampsRef.current[code] = currentTime;
+        }
+      });
       setChangedAirports(Array.from(new Set([...changedAirports, ...updatedAirports])));
       setHasShownWarning(true);
     }
@@ -137,6 +144,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleCloseModal = () => {
     setChangedAirports([]);
     setHasShownWarning(false);
+    // Clear warning timestamps when modal is closed
+    warningTimestampsRef.current = {};
   };
 
   // UseEffect to listen for CTRL + Q shortcut to open/close Quick Search Modal
@@ -160,6 +169,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       setHasShownWarning(true);
     }
   }, [changedAirports, hasShownWarning]);
+
+  // Auto-dismiss warnings older than 59 minutes
+  useEffect(() => {
+    if (changedAirports.length === 0) return;
+
+    const autoDisposeTimer = setInterval(() => {
+      const currentTime = Date.now();
+      const fiftyNineMinutes = 59 * 60 * 1000;
+
+      const activeWarnings = changedAirports.filter(code => {
+        const warningTime = warningTimestampsRef.current[code];
+        if (!warningTime) return true;
+        return currentTime - warningTime < fiftyNineMinutes;
+      });
+
+      // If all warnings have expired, auto-dismiss
+      if (activeWarnings.length === 0 && changedAirports.length > 0) {
+        handleCloseModal();
+      } else if (activeWarnings.length < changedAirports.length) {
+        // Remove expired warnings from the list
+        setChangedAirports(activeWarnings);
+        activeWarnings.forEach(code => {
+          // Keep active warning timestamps
+        });
+        // Clean up expired timestamps
+        changedAirports.forEach(code => {
+          if (!activeWarnings.includes(code)) {
+            delete warningTimestampsRef.current[code];
+          }
+        });
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(autoDisposeTimer);
+  }, [changedAirports, setChangedAirports]);
 
   return (
     <div className={`flex min-h-screen ${roboto.className} ${darkMode ? 'dark' : ''}`}>

@@ -215,7 +215,7 @@ const FirstPageRccProvided = (props) => {
     const selectedRccToMaxXwindLanding = aircraftType === "HS-748" && CorrectedLandingRwyccToUse === 6 ? 30 : contam.find(item => item.code === CorrectedLandingRwyccToUse)?.maxCrosswind;
 
     return (
-        <div className="flex flex-col flex-wrap p-4 space-x-4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
+        <div className="flex flex-col flex-wrap p-4 space-x-4 text-black dark:text-white" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.25' }}>
 
             <div className="flex-1" name="calculator">
 

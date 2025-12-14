@@ -475,7 +475,7 @@ const getGfaRefreshInterval = () => {
 };
 
 // Simple, reliable cards component — one card per airport in `airportValues`.
-export default function WeatherCardsClient({ searchQuery = '', isExpandMode = false, viewMode = 'flightCategory' }) {
+export default function WeatherCardsClient({ searchQuery = '', isExpandMode = false, viewMode = 'flightCategory', activeNotamGfaView = {}, setActiveNotamGfaView }) {
   const { 
     airportValues, 
     confirmedAirportCodes, 
@@ -537,14 +537,6 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
   const autoRefreshIntervalsRef = useRef(new Map()); // Track auto-refresh intervals per airport
   const gfaAutoRefreshIntervalsRef = useRef(new Map()); // Track GFA auto-refresh intervals per airport
   const primedRef = useRef(false); // skip warnings until after initial categories are captured
-  const [activeNotamGfaView, setActiveNotamGfaView] = useState(() => {
-    // Load from localStorage if available
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('activeNotamGfaView');
-      return stored ? JSON.parse(stored) : {};
-    }
-    return {};
-  }); // Track NOTAM vs GFA view per code: { CYUL: 'NOTAM' | 'GFA' }
   const [gfaTypePerAirport, setGfaTypePerAirport] = useState(() => {
     // Load from localStorage if available
     if (typeof window !== 'undefined') {
@@ -565,15 +557,16 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
   // Save GFA state to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('activeNotamGfaView', JSON.stringify(activeNotamGfaView));
-    }
-  }, [activeNotamGfaView]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
       localStorage.setItem('gfaTypePerAirport', JSON.stringify(gfaTypePerAirport));
     }
   }, [gfaTypePerAirport]);
+
+  // Save activeNotamGfaView to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('activeNotamGfaView', JSON.stringify(activeNotamGfaView));
+    }
+  }, [activeNotamGfaView]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1414,18 +1407,39 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActiveNotamGfaView(prev => ({ ...prev, [code]: 'NOTAM' }));
+                              // Toggle NOTAM view - if already NOTAM, clear it (minimize)
+                              setActiveNotamGfaView(prev => {
+                                if (prev[code] === 'NOTAM') {
+                                  const newState = { ...prev };
+                                  delete newState[code];
+                                  return newState;
+                                } else {
+                                  return { ...prev, [code]: 'NOTAM' };
+                                }
+                              });
+                              // Also auto-expand NOTAMs when NOTAM button is clicked (if opening)
+                              if (activeNotamGfaView[code] !== 'NOTAM') {
+                                const notamKey = `${code}:0`;
+                                setExpandedNotams(prev => {
+                                  if (!prev.has(notamKey) && notams.length > 0) {
+                                    const newSet = new Set(prev);
+                                    newSet.add(notamKey);
+                                    return newSet;
+                                  }
+                                  return prev;
+                                });
+                              }
                             }}
                             style={{
                               flex: 1,
                               padding: '6px 10px',
                               fontSize: 12,
                               fontWeight: 600,
-                              border: `2px solid ${theme.border}`,
+                              border: activeNotamGfaView[code] === 'NOTAM' ? `2px solid ${theme.text}` : `2px solid ${theme.border}`,
                               borderRadius: 4,
                               cursor: 'pointer',
-                              backgroundColor: activeNotamGfaView[code] === 'GFA' ? theme.cardBg : theme.text,
-                              color: activeNotamGfaView[code] === 'GFA' ? theme.text : theme.cardBg,
+                              backgroundColor: activeNotamGfaView[code] === 'NOTAM' ? theme.text : 'transparent',
+                              color: activeNotamGfaView[code] === 'NOTAM' ? theme.cardBg : theme.text,
                               transition: 'all 0.2s ease'
                             }}
                           >
@@ -1434,9 +1448,18 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActiveNotamGfaView(prev => ({ ...prev, [code]: 'GFA' }));
-                              // Fetch GFA data for this airport if not already loaded
-                              if (!gfaTypePerAirport[code]) {
+                              // Toggle GFA view - if already GFA, clear it (minimize)
+                              setActiveNotamGfaView(prev => {
+                                if (prev[code] === 'GFA') {
+                                  const newState = { ...prev };
+                                  delete newState[code];
+                                  return newState;
+                                } else {
+                                  return { ...prev, [code]: 'GFA' };
+                                }
+                              });
+                              // Fetch GFA data for this airport if not already loaded (if opening)
+                              if (activeNotamGfaView[code] !== 'GFA' && !gfaTypePerAirport[code]) {
                                 setGfaTypePerAirport(prev => ({ ...prev, [code]: 'CLDWX' }));
                               }
                             }}
@@ -1445,10 +1468,10 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                               padding: '6px 10px',
                               fontSize: 12,
                               fontWeight: 600,
-                              border: `2px solid ${theme.border}`,
+                              border: activeNotamGfaView[code] === 'GFA' ? `2px solid ${theme.text}` : `2px solid ${theme.border}`,
                               borderRadius: 4,
                               cursor: 'pointer',
-                              backgroundColor: activeNotamGfaView[code] === 'GFA' ? theme.text : theme.cardBg,
+                              backgroundColor: activeNotamGfaView[code] === 'GFA' ? theme.text : 'transparent',
                               color: activeNotamGfaView[code] === 'GFA' ? theme.cardBg : theme.text,
                               transition: 'all 0.2s ease'
                             }}
@@ -1460,29 +1483,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                         {/* NOTAM Section */}
                         {activeNotamGfaView[code] === 'NOTAM' && (
                           <div>
-                        <div 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleNotam(code);
-                          }}
-                          style={{ 
-                            fontWeight: 600, 
-                            fontSize: 12, 
-                            marginBottom: 8,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            userSelect: 'none'
-                          }}
-                        >
-                          <span style={{ fontSize: 14 }}>
-                            {expandedNotams.has(`${code}:0`) ? '▼' : '▶'}
-                          </span>
-                          View NOTAMs
-                        </div>
-                        
-                        {expandedNotams.has(`${code}:0`) && notams.length > 0 ? (
+                        {notams.length > 0 && expandedNotams.has(`${code}:0`) ? (
                           <>
                             {/* NOTAM Controls Row */}
                             <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1732,7 +1733,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                               })()}
                             </div>
                           </>
-                        ) : !expandedNotams.has(`${code}:0`) && notams.length === 0 ? (
+                        ) : notams.length === 0 ? (
                           <div style={{ fontSize: 11, color: theme.mutedText }}>No NOTAM data available</div>
                         ) : null}
                           </div>

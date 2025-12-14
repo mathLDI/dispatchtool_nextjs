@@ -10,20 +10,21 @@ export default function TimeDisplay() {
   // Function to get UTC time
   const getUtcTime = () => {
     const now = new Date();
-    return now.toUTCString().split(' ')[4]; // Extract just the time part
+    // Show UTC in 24-hour HH:MM format
+    return now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
   };
 
   // Function to get Local time in 24-hour format
   const getLocalTime = () => {
     const now = new Date();
-    return now.toLocaleTimeString([], { hour12: false }); // 24-hour format
+    return now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }); // 24-hour HH:MM
   };
 
   // Function to format the last refresh time
   const formatRefreshTime = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour12: false }); // 24-hour format
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }); // 24-hour HH:MM
   };
 
   // Update the UTC and local time every second

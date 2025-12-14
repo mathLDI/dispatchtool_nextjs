@@ -39,8 +39,15 @@ const GlobalModalContent: React.FC<ModalContentProps> = ({ onClose, contentType 
           className="flex flex-col fixed z-50 rounded-lg shadow-lg bg-white dark:bg-gray-800 dark:text-white p-4"
           style={{ top: '20%', left: '30%', transform: 'translate(-50%, -50%)' }}
         >
-          <div className="drag-handle cursor-move mb-2 bg-gray-200 dark:bg-gray-700 p-2 rounded-t-lg">
+          <div className="drag-handle cursor-move mb-2 bg-gray-200 dark:bg-gray-700 p-2 rounded-t-lg flex items-center justify-between gap-2">
             <span>Drag Area</span>
+            <button
+              onClick={onClose}
+              className="non-draggable text-gray-700 dark:text-gray-100 hover:text-black dark:hover:text-white px-2"
+              aria-label="Close"
+            >
+              ×
+            </button>
           </div>
 
           <div className="non-draggable">

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AirportInputClient from './AirportInputClient';
 import WeatherCardsClient from './WeatherCardsClient';
 import TimeDisplay from './TimeDisplay';
@@ -22,6 +22,21 @@ export default function Page() {
   const theme = getThemeColors(darkMode);
   const [isExpandMode, setIsExpandMode] = useState(false); // Track expand/close mode
   const [showInput, setShowInput] = useState(true); // Track input visibility
+  const [activeNotamGfaView, setActiveNotamGfaView] = useState(() => {
+    // Initialize from localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('activeNotamGfaView');
+      return stored ? JSON.parse(stored) : {};
+    }
+    return {};
+  });
+
+  // Save activeNotamGfaView to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('activeNotamGfaView', JSON.stringify(activeNotamGfaView));
+    }
+  }, [activeNotamGfaView]);
 
   const allCodes = [
     ...(airportValues || []).map(a => a.code),
@@ -38,7 +53,8 @@ export default function Page() {
       setExpandedCards(new Set(uniqueCodes));
     } else {
       setExpandedCards(new Set());
-      setExpandedNotams(new Set()); // Also close all NOTAM sections
+      setExpandedNotams(new Set()); setActiveNotamGfaView({}); // Also close all NOTAM sections
+      setActiveNotamGfaView({}); // Close all NOTAM/GFA buttons (unpressed)
     }
   };
 
@@ -119,6 +135,7 @@ export default function Page() {
                 setIsExpandMode(false);
                 setExpandedCards(new Set());
                 setExpandedNotams(new Set());
+                setActiveNotamGfaView({});
               }}
               style={{
                 flex: 1,
@@ -214,7 +231,7 @@ export default function Page() {
           background: theme.containerBg,
           overflowY: 'auto'
         }}>
-          <WeatherCardsClient searchQuery={searchAirport} isExpandMode={isExpandMode} viewMode={cardViewMode} />
+          <WeatherCardsClient searchQuery={searchAirport} isExpandMode={isExpandMode} viewMode={cardViewMode} activeNotamGfaView={activeNotamGfaView} setActiveNotamGfaView={setActiveNotamGfaView} />
         </div>
       </div>
     </div>

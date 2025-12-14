@@ -549,7 +549,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
 
   return (
-    <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.0' }}>
+    <div className="flex flex-col text-black dark:text-white" style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', lineHeight: '1.0' }}>
 
 
       <div className="flex-1 " ref={containerRef}>
