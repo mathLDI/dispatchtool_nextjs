@@ -18,7 +18,7 @@ function getThemeColors(darkMode: boolean) {
 }
 
 export default function Page() {
-  const { airportValues, confirmedAirportCodes, expandedCards, setExpandedCards, darkMode, searchAirport, setSearchAirport, cardViewMode, setCardViewMode, expandedNotams, setExpandedNotams } = useRccContext();
+  const { airportValues, confirmedAirportCodes, expandedCards, setExpandedCards, darkMode, searchAirport, setSearchAirport, cardViewMode, setCardViewMode, expandedNotams, setExpandedNotams, flightCategoryWarningEnabled, setFlightCategoryWarningEnabled } = useRccContext();
   const theme = getThemeColors(darkMode);
   const [isExpandMode, setIsExpandMode] = useState(false); // Track expand/close mode
   const [showInput, setShowInput] = useState(true); // Track input visibility
@@ -215,6 +215,25 @@ export default function Page() {
                 }}
               >
                 Airport List View
+              </button>
+
+              <button
+                onClick={() => setFlightCategoryWarningEnabled(!flightCategoryWarningEnabled)}
+                style={{
+                  padding: '4px 6px',
+                  borderRadius: 4,
+                  border: `1px solid ${theme.inputBorder}`,
+                  background: 'transparent',
+                  color: !flightCategoryWarningEnabled ? '#fbbf24' : theme.inputText,
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  transition: 'color 0.2s ease',
+                  minWidth: 'auto',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                WXX WRNG: {flightCategoryWarningEnabled ? 'ON' : 'OFF'}
               </button>
             </div>
           </div>

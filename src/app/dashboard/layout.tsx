@@ -19,7 +19,7 @@ interface AirportCategory {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { airportCategories, changedAirports, setChangedAirports, darkMode, setDarkMode } = useRccContext();
+  const { airportCategories, changedAirports, setChangedAirports, darkMode, setDarkMode, flightCategoryWarningEnabled } = useRccContext();
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
@@ -100,17 +100,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
 
     const currentTime = Date.now();
-    const fiftyNineMinutes = 59 * 60 * 1000;
 
     const updatedAirports = Object.keys(airportCategories).filter(airportCode => {
       const prevCategory = previousCategoriesRef.current[airportCode]?.category;
       const newCategory = airportCategories[airportCode]?.category;
-      const lastChangeTime = categoryTimestampsRef.current[airportCode] || 0;
-      const timeSinceLastChange = currentTime - lastChangeTime;
+      // Note: we no longer gate initial warnings by elapsed time;
+      // auto-dismiss is handled separately below.
 
       if (!prevCategory || !newCategory) return false;
+      // Avoid duplicate warnings while active
       if (changedAirports.includes(airportCode)) return false;
-      if (timeSinceLastChange < fiftyNineMinutes) return false;
 
       // Additional barrier to prevent warnings for VFR and MVFR
       if (newCategory === 'VFR' || newCategory === 'MVFR') return false;
@@ -141,6 +140,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     previousCategoriesRef.current = { ...airportCategories };
   }, [airportCategories, changedAirports, setChangedAirports]);
+
+  // Remove warnings that have gone back to VFR
+  useEffect(() => {
+    if (changedAirports.length === 0) return;
+
+    const airportsToRemove = changedAirports.filter(code => {
+      const currentCategory = airportCategories[code]?.category;
+      return currentCategory === 'VFR';
+    });
+
+    if (airportsToRemove.length > 0) {
+      const filteredAirports = changedAirports.filter(code => !airportsToRemove.includes(code));
+      setChangedAirports(filteredAirports);
+      airportsToRemove.forEach(code => {
+        delete warningTimestampsRef.current[code];
+      });
+    }
+  }, [airportCategories, changedAirports, setChangedAirports]);
+
+  // Clear warnings when flight category warning is disabled
+  useEffect(() => {
+    if (!flightCategoryWarningEnabled && changedAirports.length > 0) {
+      setChangedAirports([]);
+      setHasShownWarning(false);
+      warningTimestampsRef.current = {};
+    }
+  }, [flightCategoryWarningEnabled, changedAirports, setChangedAirports]);
+
   const handleCloseModal = () => {
     setChangedAirports([]);
     setHasShownWarning(false);
@@ -190,9 +217,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       } else if (activeWarnings.length < changedAirports.length) {
         // Remove expired warnings from the list
         setChangedAirports(activeWarnings);
-        activeWarnings.forEach(code => {
-          // Keep active warning timestamps
-        });
         // Clean up expired timestamps
         changedAirports.forEach(code => {
           if (!activeWarnings.includes(code)) {
@@ -203,7 +227,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, 1000); // Check every second
 
     return () => clearInterval(autoDisposeTimer);
-  }, [changedAirports, setChangedAirports]);
+  }, [changedAirports, setChangedAirports, handleCloseModal]);
 
   return (
     <div className={`flex min-h-screen ${roboto.className} ${darkMode ? 'dark' : ''}`}>
@@ -345,7 +369,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         {renderModal(
-          changedAirports.length > 0 && hasShownWarning && changedAirports.some(code =>
+          flightCategoryWarningEnabled && changedAirports.length > 0 && hasShownWarning && changedAirports.some(code =>
             airportCategories[code]?.category === 'IFR' || airportCategories[code]?.category === 'LIFR'
           ),
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

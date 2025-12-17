@@ -25,6 +25,7 @@ const SecondPageCrosswindCalculator = () => {
         eastOrWestVar, setEastOrWestVar,
         flightDetails, setFlightDetails,
         allWeatherData,
+        setAllWeatherData,
     } = useRccContext();
 
     const [airport, setAirport] = useState(''); // Initialize as empty string
@@ -259,6 +260,24 @@ const SecondPageCrosswindCalculator = () => {
             fetchAirportData();
         }
     }, [airport, fetchDeclination]);
+
+    // On-demand weather fetch for selected airport when not preloaded
+    useEffect(() => {
+        const fetchWeatherIfNeeded = async () => {
+            const code = (airport || '').toUpperCase();
+            if (!code || code.length !== 4) return;
+            if (allWeatherData && allWeatherData[code]) return;
+            try {
+                const res = await fetch(`/api/weather?code=${code}&force=true`, { cache: 'no-store' });
+                if (!res.ok) return; // silently skip; do not break existing logic
+                const data = await res.json();
+                setAllWeatherData(prev => ({ ...(prev || {}), [code]: data }));
+            } catch (_e) {
+                // Do not alter existing weather logic; ignore failures
+            }
+        };
+        fetchWeatherIfNeeded();
+    }, [airport, allWeatherData, setAllWeatherData]);
 
 
 

@@ -492,7 +492,8 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     setNotamSearchTerms,
     craneFilterActive,
     setCraneFilterActive,
-    darkMode 
+    darkMode,
+    flightCategoryWarningEnabled 
   } = useRccContext();
   const theme = getThemeColors(darkMode);
   const [categories, setCategories] = useState(() => {
@@ -804,6 +805,21 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     };
   }, [allCodes, allWeatherData, setAllWeatherData, setLastUpdated]);
 
+  // Clear downgrade alerts when warning is disabled
+  useEffect(() => {
+    if (!flightCategoryWarningEnabled) {
+      downgradeAlertsRef.current = {};
+      setDowngradeAlerts({});
+      Object.keys(undoTimersRef.current).forEach(code => {
+        if (undoTimersRef.current[code]) {
+          clearTimeout(undoTimersRef.current[code]);
+        }
+      });
+      undoTimersRef.current = {};
+      pendingUndoRef.current = {};
+    }
+  }, [flightCategoryWarningEnabled]);
+
   // Track downgrades after initial load
   useEffect(() => {
     if (!categories) return;
@@ -820,7 +836,8 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
       // Skip warnings until we've seen at least one full pass
       if (!primedRef.current) return;
 
-      if (prevCat && isDowngrade(prevCat, nextCat)) {
+      // Only track downgrades if warning is enabled
+      if (flightCategoryWarningEnabled && prevCat && isDowngrade(prevCat, nextCat)) {
         const alert = { id: Date.now(), from: prevCat, to: nextCat, ts: Date.now() };
         const existing = downgradeAlertsRef.current[code] || [];
         const nextAlerts = [...existing, alert];
@@ -833,7 +850,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     if (!primedRef.current) {
       primedRef.current = true;
     }
-  }, [categories]);
+  }, [categories, flightCategoryWarningEnabled]);
 
   // Get GFA data - stored per airport to prevent cross-airport data mixing
   const [gfaDataPerAirport, setGfaDataPerAirport] = useState(() => {
@@ -1267,82 +1284,89 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                         </div>
                       )}
                     </div>
-                    {downgradeAlerts[code] && downgradeAlerts[code].length > 0 && (
-                      <div style={{
-                        marginTop: isExpanded ? 6 : 4,
-                        padding: '8px 10px',
-                        borderRadius: 6,
-                        backgroundColor: '#fbbf24',
-                        color: '#78350f',
-                        border: '1px solid #f59e0b',
-                        fontSize: 11,
-                        fontWeight: 600,
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 4
-                      }}>
-                        {downgradeAlerts[code].map((alert) => (
-                          <div key={alert.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                            <span>Flight Category changed from {alert.from} to {alert.to}</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              {pendingUndoRef.current[code] && alert.id === downgradeAlerts[code][downgradeAlerts[code].length - 1]?.id && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const restore = pendingUndoRef.current[code];
-                                    if (!restore) return;
-                                    if (undoTimersRef.current[code]) {
-                                      clearTimeout(undoTimersRef.current[code]);
-                                      undoTimersRef.current[code] = null;
-                                    }
-                                    pendingUndoRef.current[code] = null;
-                                    setDowngradeAlerts(prev => ({ ...prev, [code]: restore }));
-                                    downgradeAlertsRef.current[code] = restore;
-                                  }}
-                                  style={{
-                                    border: 'none',
-                                    background: '#0d6efd',
-                                    color: '#fff',
-                                    borderRadius: 4,
-                                    padding: '2px 6px',
-                                    fontSize: 10,
-                                    fontWeight: 700,
-                                    cursor: 'pointer'
-                                  }}
-                                  title="Undo close"
-                                >
-                                  Undo
-                                </button>
-                              )}
+                    {flightCategoryWarningEnabled && downgradeAlerts[code] && downgradeAlerts[code].length > 0 && (() => {
+                      // Build progression chain from alerts
+                      const alerts = downgradeAlerts[code];
+                      const progression = [alerts[0]?.from];
+                      alerts.forEach(alert => {
+                        if (!progression.includes(alert.to)) {
+                          progression.push(alert.to);
+                        }
+                      });
+                      const progressionText = progression.join(' → ');
+                      
+                      return (
+                        <div style={{
+                          marginTop: isExpanded ? 6 : 4,
+                          padding: '8px 10px',
+                          borderRadius: 6,
+                          backgroundColor: '#fbbf24',
+                          color: '#78350f',
+                          border: '1px solid #f59e0b',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 8
+                        }}>
+                          <span>Flight Category changed: {progressionText}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                            {pendingUndoRef.current[code] && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setDowngradeAlerts(prev => {
-                                    const list = prev[code] || [];
-                                    const filtered = list.filter(a => a.id !== alert.id);
-                                    const next = { ...prev, [code]: filtered };
-                                    downgradeAlertsRef.current[code] = filtered;
-                                    return next;
-                                  });
+                                  const restore = pendingUndoRef.current[code];
+                                  if (!restore) return;
+                                  if (undoTimersRef.current[code]) {
+                                    clearTimeout(undoTimersRef.current[code]);
+                                    undoTimersRef.current[code] = null;
+                                  }
+                                  pendingUndoRef.current[code] = null;
+                                  setDowngradeAlerts(prev => ({ ...prev, [code]: restore }));
+                                  downgradeAlertsRef.current[code] = restore;
                                 }}
                                 style={{
                                   border: 'none',
-                                  background: 'transparent',
-                                  color: '#78350f',
+                                  background: '#0d6efd',
+                                  color: '#fff',
+                                  borderRadius: 4,
+                                  padding: '2px 6px',
+                                  fontSize: 10,
                                   fontWeight: 700,
-                                  cursor: 'pointer',
-                                  padding: '2px 4px'
+                                  cursor: 'pointer'
                                 }}
-                                title="Dismiss warning"
+                                title="Undo close"
                               >
-                                ×
+                                Undo
                               </button>
-                            </div>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDowngradeAlerts(prev => ({
+                                  ...prev,
+                                  [code]: []
+                                }));
+                                downgradeAlertsRef.current[code] = [];
+                              }}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#78350f',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                padding: '2px 4px'
+                              }}
+                              title="Dismiss warning"
+                            >
+                              ×
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      );
+                    })()}
                     </div>
                     {isExpanded && (
                       <button

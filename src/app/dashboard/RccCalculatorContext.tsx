@@ -154,6 +154,8 @@ interface RccContextType {
   setWeatherDataUpdated: React.Dispatch<React.SetStateAction<boolean>>;
   darkMode: boolean;
   setDarkMode: (mode: boolean) => void;
+  flightCategoryWarningEnabled: boolean;
+  setFlightCategoryWarningEnabled: (enabled: boolean) => void;
 }
 
 // Create the context with a default value
@@ -246,6 +248,20 @@ useEffect(() => {
   const [changedAirports, setChangedAirports] = useState<string[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
   const [weatherDataUpdated, setWeatherDataUpdated] = useState(false);
+  const [flightCategoryWarningEnabled, setFlightCategoryWarningEnabledState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('flightCategoryWarningEnabled');
+      return stored ? JSON.parse(stored) : true;
+    }
+    return true;
+  });
+
+  const setFlightCategoryWarningEnabled = (enabled: boolean) => {
+    setFlightCategoryWarningEnabledState(enabled);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('flightCategoryWarningEnabled', JSON.stringify(enabled));
+    }
+  };
   useEffect(() => {
     setIsClient(true); // Ensures client-only logic
   }, []);
@@ -433,6 +449,8 @@ useEffect(() => {
       setWeatherDataUpdated,
       darkMode,
       setDarkMode,
+      flightCategoryWarningEnabled,
+      setFlightCategoryWarningEnabled,
     }}>
       {children}
     </RccContext.Provider>

@@ -23,6 +23,7 @@ const FirstPageRccProvided = (props) => {
         runwayLength, setRunwayLength,
         selectedAirport,
         allWeatherData,
+        setAllWeatherData,
     } = useRccContext();
 
     // Local airport input state (independent of x-wind calculator)
@@ -113,13 +114,34 @@ const FirstPageRccProvided = (props) => {
     };
 
     // Extract RWYCC from NOTAMs and show modal
-    const handleShowRwyccModal = () => {
-        if (!currentAirport || !allWeatherData?.[currentAirport]) {
+    const handleShowRwyccModal = async () => {
+        if (!currentAirport) {
             alert('No data available for this airport');
             return;
         }
 
-        const notams = allWeatherData[currentAirport].data.filter(item => item.type === 'notam');
+        // If weather data for this airport is not loaded yet, fetch it on demand
+        let weatherForAirport = allWeatherData?.[currentAirport];
+        if (!weatherForAirport) {
+            try {
+                const res = await fetch(`/api/weather?code=${currentAirport}&force=true`, { cache: 'no-store' });
+                if (!res.ok) {
+                    throw new Error(`Fetch failed: ${res.status}`);
+                }
+                const data = await res.json();
+                weatherForAirport = data;
+                // Store minimally under the same shape expected elsewhere
+                setAllWeatherData((prev) => ({
+                    ...(prev || {}),
+                    [currentAirport]: data,
+                }));
+            } catch (e) {
+                alert('No data available for this airport');
+                return;
+            }
+        }
+
+        const notams = weatherForAirport?.data ? weatherForAirport.data.filter(item => item.type === 'notam') : [];
         const rwyccMatches = [];
 
         notams.forEach(notam => {
