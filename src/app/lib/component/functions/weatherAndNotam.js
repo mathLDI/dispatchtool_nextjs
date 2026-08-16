@@ -408,7 +408,7 @@ export const renderNotamsW = (notams, title, searchTerm) => {
           const expirationMatch = notam.text.match(/C\)\s*(\d{10})/);
           const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
           const localExpirationDate = expirationDate
-            ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
+            ? new Date(expirationDate.getTime())
             : null;
 
           const lines = displayText.split('\n');
@@ -474,7 +474,7 @@ export const renderNotamsE = (notams, title, searchTerm) => {
             ? parseNotamDate(expirationMatch[1])
             : null;
           const localExpirationDate = expirationDate
-            ? new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)
+            ? new Date(expirationDate.getTime())
             : null;
 
           const lines = displayText.split('\n');

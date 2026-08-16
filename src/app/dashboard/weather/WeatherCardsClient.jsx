@@ -351,7 +351,7 @@ function renderNotamItem(notam, searchTerm, theme) {
     const expirationDate = expirationMatch ? parseNotamDate(expirationMatch[1]) : null;
     
     const localStartDate = startDate ? formatLocalDate(startDate) : null;
-    const localExpirationDate = expirationDate ? formatLocalDate(new Date(expirationDate.getTime() - expirationDate.getTimezoneOffset() * 60000)) : null;
+    const localExpirationDate = expirationDate ? formatLocalDate(new Date(expirationDate.getTime())) : null;
     
     const lines = displayText.split('\n');
     let inBold = false;

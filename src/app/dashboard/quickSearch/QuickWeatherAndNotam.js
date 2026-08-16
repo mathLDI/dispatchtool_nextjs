@@ -385,10 +385,7 @@ export const renderNotamsW = (notams, title) => {
             ? parseNotamDate(expirationMatch[1])
             : null;
           const localExpirationDate = expirationDate
-            ? new Date(
-              expirationDate.getTime() -
-              expirationDate.getTimezoneOffset() * 60000
-            )
+            ? new Date(expirationDate.getTime())
             : null;
 
           const lines = displayText.split('\n');
@@ -452,10 +449,7 @@ export const renderNotamsE = (notams, title) => {
             ? parseNotamDate(expirationMatch[1])
             : null;
           const localExpirationDate = expirationDate
-            ? new Date(
-              expirationDate.getTime() -
-              expirationDate.getTimezoneOffset() * 60000
-            )
+            ? new Date(expirationDate.getTime())
             : null;
 
           const lines = displayText.split('\n');
