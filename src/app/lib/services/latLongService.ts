@@ -3,6 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 
+// Data source note: airport latitude/longitude metadata used here comes from OurAirports
+// https://ourairports.com/
+// The data is stored locally as a CSV in src/app/lib/data/runways.csv.
+
 export interface AirportData {
   airport_ident: string;
   le_latitude_deg: number;

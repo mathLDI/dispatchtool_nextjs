@@ -3,6 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 
+// Data source note: airport and runway metadata used here comes from OurAirports
+// https://ourairports.com/
+// The data is stored locally as a CSV in src/app/lib/data/runways.csv.
+
 export interface RunwayData {
   airport_ident: string;
   le_ident: string;

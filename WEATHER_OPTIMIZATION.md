@@ -1,5 +1,10 @@
 # Weather Fetching Optimization Guide
 
+## Data Source Note
+The static airport and runway metadata used by this app comes from OurAirports: https://ourairports.com/
+
+The local CSV in this project, located at src/app/lib/data/runways.csv, is a downloaded copy of the airport/runway reference data from that source. This app uses that local CSV as the airport metadata source at runtime; it is not querying a live airport database.
+
 ## Overview
 The aviation weather fetching system has been completely refactored for **simplicity, performance, and real-time updates**. The new system ensures users always see the latest weather data with minimal API calls.
 
