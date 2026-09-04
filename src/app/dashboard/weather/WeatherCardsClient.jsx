@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 import { parseMETAR, parseVisibility, categorizeNotams, extractTextBeforeFR, filterAndHighlightNotams, parseNotamDate, formatLocalDate } from '@/app/lib/component/functions/weatherAndNotam';
 import GfaCardDisplay from './GfaCardDisplay';
+import { getGfaReleaseSlot, GFA_RELEASE_DELAY_MS } from '@/app/lib/services/gfaReleaseSlot';
 
 // Get dark mode colors
 function getThemeColors(darkMode) {
@@ -451,28 +452,7 @@ function renderNotamItem(notam, searchTerm, theme) {
 }
 
 // Auto-polling configuration
-const AUTO_REFRESH_INTERVAL = 60 * 1000; // 1 minute for background updates (catch SPECI METARs faster)
-const GFA_NORMAL_INTERVAL = 30 * 60 * 1000; // 30 minutes for normal GFA checks
-const GFA_PEAK_INTERVAL = 5 * 60 * 1000; // 5 minutes during release windows (0000-0030, 0600-0630, 1200-1230, 1800-1830 UTC)
-const GFA_PEAK_WINDOWS = [
-  { start: 0, end: 30 },     // 0000-0030 UTC
-  { start: 360, end: 390 },  // 0600-0630 UTC
-  { start: 720, end: 750 },  // 1200-1230 UTC
-  { start: 1080, end: 1110 } // 1800-1830 UTC
-];
-const GFA_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for GFA cache
-
-// Helper to check if current UTC time is within a GFA release window
-const isInGfaReleaseWindow = () => {
-  const now = new Date();
-  const utcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-  return GFA_PEAK_WINDOWS.some(window => utcMinutes >= window.start && utcMinutes < window.end);
-};
-
-// Helper to get appropriate GFA refresh interval
-const getGfaRefreshInterval = () => {
-  return isInGfaReleaseWindow() ? GFA_PEAK_INTERVAL : GFA_NORMAL_INTERVAL;
-};
+const AUTO_REFRESH_INTERVAL = 2 * 60 * 1000; // Check active airports every 2 minutes for METAR/SPECI and TAF AMDs
 
 // Simple, reliable cards component — one card per airport in `airportValues`.
 export default function WeatherCardsClient({ searchQuery = '', isExpandMode = false, viewMode = 'flightCategory', activeNotamGfaView = {}, setActiveNotamGfaView }) {
@@ -536,7 +516,8 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
   const cardRefs = useRef({}); // Store refs to cards for position calculation
   const inFlightRef = useRef(new Set());
   const autoRefreshIntervalsRef = useRef(new Map()); // Track auto-refresh intervals per airport
-  const gfaAutoRefreshIntervalsRef = useRef(new Map()); // Track GFA auto-refresh intervals per airport
+  const gfaAutoRefreshTimersRef = useRef(new Map());
+  const gfaInFlightRef = useRef(new Map());
   const primedRef = useRef(false); // skip warnings until after initial categories are captured
   const [gfaTypePerAirport, setGfaTypePerAirport] = useState(() => {
     // Load from localStorage if available
@@ -707,9 +688,11 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
       if (allWeatherData?.[code] || inFlightRef.current.has(code)) return;
 
       inFlightRef.current.add(code);
-      // Add timestamp to prevent browser caching, and force=true to bypass server cache
-      fetch(`/api/weather?code=${encodeURIComponent(code)}&t=${Date.now()}&force=true`)
-        .then(r => r.json())
+      fetch(`/api/weather?code=${encodeURIComponent(code)}`)
+        .then(async (response) => {
+          if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
+          return response.json();
+        })
         .then((data) => {
           setAllWeatherData(prev => ({ ...(prev || {}), [code]: data }));
           setLastUpdated(Date.now());
@@ -743,9 +726,11 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
           if (!autoRefreshIntervalsRef.current.has(code)) {
             console.log(`[Auto-Refresh] Starting for ${code} every ${AUTO_REFRESH_INTERVAL}ms`);
             const intervalId = setInterval(async () => {
+              if (document.visibilityState === 'hidden') return;
               try {
-                // Silently fetch fresh data in background (with timestamp to prevent browser caching)
-                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}&t=${Date.now()}`);
+                // Stable URL allows the Vercel edge cache to serve recent data.
+                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}`);
+                if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
                 const freshData = await response.json();
                 setAllWeatherData(prev => ({ ...(prev || {}), [code]: freshData }));
                 setLastUpdated(Date.now());
@@ -794,16 +779,28 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     });
 
     // Cleanup: Clear intervals for codes that are no longer in allCodes
+    const intervals = autoRefreshIntervalsRef.current;
     return () => {
-      autoRefreshIntervalsRef.current.forEach((intervalId, code) => {
+      intervals.forEach((intervalId, code) => {
         if (!allCodes.includes(code)) {
           clearInterval(intervalId);
-          autoRefreshIntervalsRef.current.delete(code);
+          intervals.delete(code);
           console.log(`[Auto-Refresh] Cleared for ${code}`);
         }
       });
     };
   }, [allCodes, allWeatherData, setAllWeatherData, setLastUpdated]);
+
+  useEffect(() => {
+    const intervals = autoRefreshIntervalsRef.current;
+    const timers = gfaAutoRefreshTimersRef.current;
+    return () => {
+      intervals.forEach(intervalId => clearInterval(intervalId));
+      intervals.clear();
+      timers.forEach(timerId => clearTimeout(timerId));
+      timers.clear();
+    };
+  }, []);
 
   // Clear downgrade alerts when warning is disabled
   useEffect(() => {
@@ -862,8 +859,6 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     return {};
   });
   const [gfaDataLoading, setGfaDataLoading] = useState(false);
-  const gfaFetchCache = useRef({}); // Cache GFA fetches per airport+type to avoid duplicate requests
-  const gfaLastUpdateRef = useRef({}); // Track last update timestamps to detect new releases
 
   // Save GFA data per airport to localStorage
   useEffect(() => {
@@ -872,101 +867,78 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
     }
   }, [gfaDataPerAirport]);
 
-  // Helper function to fetch GFA data - wrapped in useCallback to stabilize reference
-  const fetchGfaData = useCallback((code, gfaType) => {
+  const fetchGfaData = useCallback(async (code, gfaType) => {
+    const requestKey = `${code}:${gfaType}`;
+    if (gfaInFlightRef.current.has(requestKey)) {
+      return gfaInFlightRef.current.get(requestKey);
+    }
+
     setGfaDataLoading(true);
-    console.log(`[GFA] Fetching GFA data for type: ${gfaType} at airport: ${code}`);
-    fetch(`/api/gfa?type=${encodeURIComponent(gfaType)}&airport=${encodeURIComponent(code)}&t=${Date.now()}`)
+    const request = fetch(`/api/gfa?type=${encodeURIComponent(gfaType)}&airport=${encodeURIComponent(code)}`)
       .then(res => {
-        console.log(`[GFA] API response status: ${res.status}`);
         if (!res.ok) throw new Error(`GFA API returned ${res.status}`);
         return res.json();
       })
       .then(data => {
-        console.log(`[GFA] Received fresh GFA data for ${gfaType} at ${code}`);
-        const cacheKey = `${code}:${gfaType}`;
-        const newTimestamp = Date.now();
-        const lastUpdate = gfaLastUpdateRef.current[cacheKey];
-
-        // Check if this is a new update (different from last fetch)
-        if (lastUpdate && newTimestamp - lastUpdate > 5000) { // At least 5 seconds different
-          console.log(`[GFA] New GFA data detected for ${gfaType} at ${code}`);
-        }
-
-        gfaLastUpdateRef.current[cacheKey] = newTimestamp;
-        gfaFetchCache.current[cacheKey] = { data, timestamp: newTimestamp };
-        // Store data per airport, not globally
         setGfaDataPerAirport(prev => ({ ...prev, [code]: data }));
-        setGfaDataLoading(false);
+        return data;
       })
       .catch(err => {
-        console.error(`[GFA] Failed to fetch ${gfaType}:`, err);
+        console.error(`[GFA] Failed to fetch ${gfaType} for ${code}:`, err);
+        return null;
+      })
+      .finally(() => {
+        gfaInFlightRef.current.delete(requestKey);
         setGfaDataLoading(false);
       });
+
+    gfaInFlightRef.current.set(requestKey, request);
+    return request;
   }, []);
 
-  // Load GFA when needed and set up smart auto-refresh (per active airport)
+  // Fetch once per release slot and schedule the next release instead of polling.
   useEffect(() => {
+    const timers = gfaAutoRefreshTimersRef.current;
     const activeGfaCodes = Object.keys(activeNotamGfaView).filter(k => activeNotamGfaView[k] === 'GFA');
 
     activeGfaCodes.forEach((code) => {
       const gfaType = gfaTypePerAirport[code] || 'CLDWX';
-      const cacheKey = `${code}:${gfaType}`;
-
-      // Always invalidate cache and fetch fresh on view activation or type change
-      delete gfaFetchCache.current[cacheKey];
-      fetchGfaData(code, gfaType);
-
-      // Set up smart auto-refresh with dynamic intervals per airport
-      if (!gfaAutoRefreshIntervalsRef.current.has(code)) {
-        console.log(`[GFA Auto-Refresh] Starting smart refresh for ${code}`);
-
-        const setupRefreshInterval = () => {
-          const currentInterval = getGfaRefreshInterval();
-          const isInPeak = isInGfaReleaseWindow();
-          console.log(`[GFA Auto-Refresh] Using ${isInPeak ? 'PEAK' : 'NORMAL'} interval (${currentInterval}ms) for ${code}`);
-
-          const intervalId = setInterval(() => {
-            // Always invalidate cache during peak windows to catch updates
-            const cacheKey = `${code}:${gfaTypePerAirport[code] || 'CLDWX'}`;
-            const isNowInPeak = isInGfaReleaseWindow();
-
-            if (isNowInPeak) {
-              delete gfaFetchCache.current[cacheKey];
-            }
-
-            const currentGfaType = gfaTypePerAirport[code] || 'CLDWX';
-            fetchGfaData(code, currentGfaType);
-            console.log(`[GFA Auto-Refresh] Updated GFA for ${code}`);
-
-            // Re-schedule with potentially new interval if we're crossing window boundary
-            const nextInterval = getGfaRefreshInterval();
-            if (nextInterval !== currentInterval) {
-              console.log(`[GFA Auto-Refresh] Interval changed from ${currentInterval}ms to ${nextInterval}ms`);
-              clearInterval(intervalId);
-              gfaAutoRefreshIntervalsRef.current.delete(code);
-              setupRefreshInterval();
-            }
-          }, currentInterval);
-
-          gfaAutoRefreshIntervalsRef.current.set(code, intervalId);
-        };
-
-        setupRefreshInterval();
+      const cached = gfaDataPerAirport[code];
+      const currentSlot = getGfaReleaseSlot().key;
+      if (!cached?.gfaType || cached.gfaType !== gfaType || cached.releaseSlot !== currentSlot) {
+        fetchGfaData(code, gfaType);
       }
+
+      const timerKey = `${code}:${gfaType}`;
+      if (timers.has(timerKey)) {
+        clearTimeout(timers.get(timerKey));
+      }
+
+      const scheduleNextRelease = () => {
+        const slot = getGfaReleaseSlot();
+        const airportJitter = code.split('').reduce((sum, character) => sum + character.charCodeAt(0), 0) % (5 * 60 * 1000);
+        const delay = Math.max(1000, slot.nextIssuedAt.getTime() - Date.now() + GFA_RELEASE_DELAY_MS + airportJitter);
+        const timer = setTimeout(async () => {
+          await fetchGfaData(code, gfaType);
+          scheduleNextRelease();
+        }, delay);
+        timers.set(timerKey, timer);
+      };
+
+      scheduleNextRelease();
     });
 
-    // Cleanup: Clear intervals for codes that are no longer active
+    // Clear timers for closed views, removed airports, and type changes.
     return () => {
-      gfaAutoRefreshIntervalsRef.current.forEach((intervalId, code) => {
-        if (!activeGfaCodes.includes(code)) {
-          clearInterval(intervalId);
-          gfaAutoRefreshIntervalsRef.current.delete(code);
-          console.log(`[GFA Auto-Refresh] Cleared for ${code}`);
+      timers.forEach((timer, timerKey) => {
+        const [code, type] = timerKey.split(':');
+        if (!activeGfaCodes.includes(code) || type !== (gfaTypePerAirport[code] || 'CLDWX')) {
+          clearTimeout(timer);
+          timers.delete(timerKey);
         }
       });
     };
-  }, [fetchGfaData, gfaTypePerAirport, activeNotamGfaView]);
+  }, [fetchGfaData, gfaDataPerAirport, gfaTypePerAirport, activeNotamGfaView]);
 
   return (
     <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 16 }}>

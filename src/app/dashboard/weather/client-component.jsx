@@ -389,7 +389,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     };
     
     fetchAllWeatherData();
-    const intervalId = setInterval(fetchAllWeatherData, 60000); // Fetch every 1 minute
+    const intervalId = setInterval(fetchAllWeatherData, 2 * 60 * 1000); // Check every 2 minutes for METAR/SPECI and TAF amendments
 
     return () => clearInterval(intervalId);
   }, [savedRoutings, fetchWeather, setAllWeatherData]);
@@ -633,36 +633,6 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing, handleMouseMove]);
-
-// In src/app/dashboard/weather/client-component.jsx
-// Around line 625 where the existing GFA useEffect is
-
-useEffect(() => {
-  if (selectedAirport && gfaType) {
-    fetchGFA(selectedAirport.code, gfaType).then((data) => {
-      setGfaData(data);
-    });
-  }
-}, [selectedAirport, gfaType, fetchGFA, setGfaData]);
-
-// Add the new periodic fetch effect here
-useEffect(() => {
-  const fetchGfaData = async () => {
-    if (selectedAirport && gfaType) {
-      const data = await fetchGFA(selectedAirport.code, gfaType);
-      setGfaData(data);
-    }
-  };
-
-  // Initial fetch
-  fetchGfaData();
-
-  // Refresh every 5 minutes
-  const intervalId = setInterval(fetchGfaData, 5 * 60 * 1000);
-
-  return () => clearInterval(intervalId);
-}, [selectedAirport, gfaType, fetchGFA, setGfaData]);
-
 
   const categorizedNotams = weatherData
     ? categorizeNotams(weatherData.data.filter((item) => item.type === 'notam'))

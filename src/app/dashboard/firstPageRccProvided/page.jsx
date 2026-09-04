@@ -124,7 +124,7 @@ const FirstPageRccProvided = (props) => {
         let weatherForAirport = allWeatherData?.[currentAirport];
         if (!weatherForAirport) {
             try {
-                const res = await fetch(`/api/weather?code=${currentAirport}&force=true`, { cache: 'no-store' });
+                const res = await fetch(`/api/weather?code=${currentAirport}`);
                 if (!res.ok) {
                     throw new Error(`Fetch failed: ${res.status}`);
                 }

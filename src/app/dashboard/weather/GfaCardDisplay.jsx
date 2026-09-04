@@ -3,6 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Image from "next/legacy/image";
 
+const parseGfaTime = (value) => {
+  if (!value) return NaN;
+  const normalizedValue = value.endsWith('Z') ? value : `${value}Z`;
+  return Date.parse(normalizedValue);
+};
+
 const GfaCardDisplay = ({ gfaData, gfaType, selectedTimestamp, setSelectedTimestamp, theme, darkMode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,6 +30,13 @@ const GfaCardDisplay = ({ gfaData, gfaType, selectedTimestamp, setSelectedTimest
         const lastFrameList = frameLists[frameLists.length - 1];
         console.log('[GfaCardDisplay] Using last frame list:', lastFrameList);
         setLastFrames(lastFrameList.frames);
+        const now = Date.now();
+        const currentFrameIndex = lastFrameList.frames.findIndex((frame) => {
+          const startsAt = parseGfaTime(frame.sv);
+          const endsAt = parseGfaTime(frame.ev);
+          return startsAt <= now && now < endsAt;
+        });
+        setSelectedTimestamp(currentFrameIndex >= 0 ? currentFrameIndex : 0);
         setError(null);
       } else {
         console.warn('[GfaCardDisplay] Invalid gfaData structure:', gfaData);

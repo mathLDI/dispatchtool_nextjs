@@ -13,7 +13,15 @@ export interface RunwayData {
   he_ident: string;
 }
 
-export const getRunways = () => {
+type RunwayMap = Record<string, string[]>;
+
+let runwayMapCache: RunwayMap | null = null;
+
+function loadRunwayMap(): RunwayMap {
+  if (runwayMapCache) {
+    return runwayMapCache;
+  }
+
   const filePath = path.join(process.cwd(), 'src', 'app', 'lib', 'data', 'runways.csv');
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   
@@ -22,7 +30,7 @@ export const getRunways = () => {
     skip_empty_lines: true
   });
 
-  const runwayMap: { [key: string]: string[] } = {};
+  const runwayMap: RunwayMap = {};
   records.forEach((record: RunwayData) => {
     if (!runwayMap[record.airport_ident]) {
       runwayMap[record.airport_ident] = [];
@@ -30,5 +38,19 @@ export const getRunways = () => {
     runwayMap[record.airport_ident].push(`${record.le_ident}/${record.he_ident}`);
   });
 
+  runwayMapCache = runwayMap;
   return runwayMap;
+}
+
+export const getRunways = (airportCode?: string): RunwayMap => {
+  const runwayMap = loadRunwayMap();
+
+  if (!airportCode) {
+    return runwayMap;
+  }
+
+  const normalizedAirportCode = airportCode.toUpperCase();
+  return {
+    [normalizedAirportCode]: runwayMap[normalizedAirportCode] || [],
+  };
 };

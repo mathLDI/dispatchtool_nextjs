@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getWeather } from '@/app/lib/services/weatherService';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -11,18 +13,24 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'code query param required' }, { status: 400 });
     }
 
-    const data = await getWeather(code.toUpperCase(), { 
+    const normalizedCode = code.toUpperCase();
+    if (!/^[A-Z0-9]{4}$/.test(normalizedCode)) {
+      return NextResponse.json({ error: 'code must be a four-character ICAO code' }, { status: 400 });
+    }
+
+    const data = await getWeather(normalizedCode, {
       includeMetar: true, 
       includeTaf: true, 
       includeNotam: true,
       forceRefresh // Pass force refresh flag
     });
     
-    // Add cache control headers to ensure fresh data
     const response = NextResponse.json(data);
-    response.headers.set('Cache-Control', 'no-store, must-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
+    if (forceRefresh) {
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    } else {
+      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30');
+    }
     
     return response;
   } catch (err: any) {

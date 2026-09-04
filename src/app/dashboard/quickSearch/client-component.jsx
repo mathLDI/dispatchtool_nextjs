@@ -17,7 +17,7 @@ import {
 } from './QuickWeatherAndNotam';
 
 // Auto-refresh configuration
-const AUTO_REFRESH_INTERVAL = 60 * 1000; // 1 minute (catch SPECI METARs faster)
+const AUTO_REFRESH_INTERVAL = 2 * 60 * 1000; // 2 minutes for METAR/SPECI and TAF amendment checks
 const DEBOUNCE_DELAY = 300; // Debounce rapid searches
 
 export default function ClientComponent({ fetchQuickWeather }) {
@@ -131,6 +131,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
       if (!autoRefreshTimeoutRef.current) {
         console.log(`[Auto-Refresh] Starting for ${airportCode} every ${AUTO_REFRESH_INTERVAL}ms`);
         autoRefreshTimeoutRef.current = setInterval(async () => {
+          if (document.visibilityState === 'hidden') return;
           try {
             // Silently fetch fresh data in background
             // weatherService.ts provides intelligent caching (2-min window)

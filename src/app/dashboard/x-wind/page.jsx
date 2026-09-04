@@ -12,6 +12,8 @@ import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
 import { ChevronDoubleLeftIcon } from '@heroicons/react/solid';
 import ManualInputListbox from '../../lib/component/ManualInputListbox'; // Use the correct casing
 
+const runwayResponseCache = new Map();
+
 
 const SecondPageCrosswindCalculator = () => {
     useAuth(); // Ensure only authenticated users can access this component
@@ -204,16 +206,23 @@ const SecondPageCrosswindCalculator = () => {
                     const upperAirport = airport.toUpperCase();
                     console.log('Fetching data for airport:', upperAirport);
 
-                    const [runwayResponse, latLongResponse] = await Promise.all([
-                        fetch(`/api/runways?airport=${upperAirport}`),
+                    let runwayData = runwayResponseCache.get(upperAirport);
+                    const runwayRequest = runwayData
+                        ? Promise.resolve(runwayData)
+                        : fetch(`/api/runways?airport=${upperAirport}`).then(async (response) => {
+                            if (!response.ok) throw new Error(`Runway API returned ${response.status}`);
+                            const data = await response.json();
+                            runwayResponseCache.set(upperAirport, data);
+                            return data;
+                        });
+
+                    const [cachedRunwayData, latLongResponse] = await Promise.all([
+                        runwayRequest,
                         fetch(`/api/latlong?airport=${upperAirport}`)
                     ]);
 
-                    if (!runwayResponse.ok || !latLongResponse.ok) {
-                        throw new Error('Failed to fetch airport data');
-                    }
-
-                    const runwayData = await runwayResponse.json();
+                    runwayData = cachedRunwayData;
+                    if (!latLongResponse.ok) throw new Error('Failed to fetch airport data');
                     const latLongData = await latLongResponse.json();
 
                     const airportRunways = runwayData[upperAirport] || [];
@@ -268,7 +277,7 @@ const SecondPageCrosswindCalculator = () => {
             if (!code || code.length !== 4) return;
             if (allWeatherData && allWeatherData[code]) return;
             try {
-                const res = await fetch(`/api/weather?code=${code}&force=true`, { cache: 'no-store' });
+                const res = await fetch(`/api/weather?code=${code}`);
                 if (!res.ok) return; // silently skip; do not break existing logic
                 const data = await res.json();
                 setAllWeatherData(prev => ({ ...(prev || {}), [code]: data }));
