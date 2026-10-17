@@ -452,7 +452,7 @@ function renderNotamItem(notam, searchTerm, theme) {
 }
 
 // Auto-polling configuration
-const AUTO_REFRESH_INTERVAL = 2 * 60 * 1000; // Check active airports every 2 minutes for METAR/SPECI and TAF AMDs
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // Check active airports every 5 minutes for METAR/SPECI and TAF AMDs
 
 // Simple, reliable cards component — one card per airport in `airportValues`.
 export default function WeatherCardsClient({ searchQuery = '', isExpandMode = false, viewMode = 'flightCategory', activeNotamGfaView = {}, setActiveNotamGfaView }) {
@@ -688,7 +688,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
       if (allWeatherData?.[code] || inFlightRef.current.has(code)) return;
 
       inFlightRef.current.add(code);
-      fetch(`/api/weather?code=${encodeURIComponent(code)}`)
+      fetch(`/api/weather?code=${encodeURIComponent(code)}&force=true`)
         .then(async (response) => {
           if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
           return response.json();
@@ -728,8 +728,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
             const intervalId = setInterval(async () => {
               if (document.visibilityState === 'hidden') return;
               try {
-                // Stable URL allows the Vercel edge cache to serve recent data.
-                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}`);
+                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}&force=true`);
                 if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
                 const freshData = await response.json();
                 setAllWeatherData(prev => ({ ...(prev || {}), [code]: freshData }));

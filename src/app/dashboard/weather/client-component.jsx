@@ -389,7 +389,7 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
     };
     
     fetchAllWeatherData();
-    const intervalId = setInterval(fetchAllWeatherData, 2 * 60 * 1000); // Check every 2 minutes for METAR/SPECI and TAF amendments
+    const intervalId = setInterval(fetchAllWeatherData, 5 * 60 * 1000); // Check every 5 minutes for METAR/SPECI and TAF amendments
 
     return () => clearInterval(intervalId);
   }, [savedRoutings, fetchWeather, setAllWeatherData]);
@@ -883,6 +883,9 @@ export default function ClientComponent({ fetchWeather, fetchGFA }) {
 
               <div className='ml-auto'>
                 Last Weather Refresh: {formattedRefreshTime || 'N/A'}
+              </div>
+              <div className='ml-auto'>
+                auto refresh every 5 min
               </div>
             </div>
 

@@ -10,6 +10,7 @@ const CATEGORY_COLORS = {
   LIFR: '#ff40ff', // matches text-custom-lifr
   Unknown: '#6B7280', // gray (text-gray-500 equivalent)
 };
+const MAX_AIRPORTS = 20;
 
 function getThemeColors(darkMode) {
   return {
@@ -23,23 +24,15 @@ function getThemeColors(darkMode) {
 }
 
 export default function AirportInputClient() {
-  const { addAirportValue, removeAirportValue, airportValues, allWeatherData, setAllWeatherData, setConfirmedAirportCodes, setLastUpdated, confirmedAirportCodes, darkMode } = useRccContext();
+  const { addAirportValue, removeAirportValue, airportValues, allWeatherData, setAllWeatherData, setConfirmedAirportCodes: setConfirmed, setLastUpdated, confirmedAirportCodes: confirmed, darkMode } = useRccContext();
   const theme = getThemeColors(darkMode);
   
   // `value` is now the current typing token (partial). Confirmed completed 4-char tokens
   const [value, setValue] = useState('');
-  const [confirmed, setConfirmed] = useState(() => confirmedAirportCodes || []); // Initialize from context
   const [showWarning, setShowWarning] = useState(false);
   const [categories, setCategories] = useState({}); // { CODE: { category, color } }
   const inFlightRef = useRef(new Set());
   const debounceRef = useRef(null);
-
-  // Sync confirmed codes to context whenever they change
-  useEffect(() => {
-    if (setConfirmedAirportCodes) {
-      setConfirmedAirportCodes(confirmed);
-    }
-  }, [confirmed, setConfirmedAirportCodes]);
 
   // When typing, enforce uppercase, allowed chars, and max 4 chars per token
   const handleChange = (e) => {
@@ -67,21 +60,28 @@ export default function AirportInputClient() {
       return;
     }
 
-    // If last token is complete (length 4) then move it to confirmed and clear input
     const last = tokens[tokens.length - 1];
+    const completedTokens = last.length === 4 ? tokens : tokens.slice(0, -1);
+    const airportCodes = new Set([
+      ...(airportValues || []).map(airport => airport.code.toUpperCase()),
+      ...(confirmed || []).map(code => code.toUpperCase()),
+    ]);
+    const availableSlots = Math.max(0, MAX_AIRPORTS - airportCodes.size);
+    const newTokens = [...new Set(completedTokens.filter(code => !airportCodes.has(code)))];
+    const acceptedTokens = newTokens.slice(0, availableSlots);
+    const reachedLimit = newTokens.length > acceptedTokens.length;
+
+    // If last token is complete (length 4), confirm as many codes as fit.
     if (last.length === 4) {
-      // all tokens are complete; append to confirmed
-      const newConfirmed = Array.from(new Set([...(confirmed || []), ...tokens]));
+      const newConfirmed = Array.from(new Set([...(confirmed || []), ...acceptedTokens]));
       setConfirmed(newConfirmed);
       setValue('');
     } else {
-      // last is partial; confirmed are tokens except last
-      const newConfirmed = Array.from(new Set([...(confirmed || []), ...tokens.slice(0, -1)]));
+      const newConfirmed = Array.from(new Set([...(confirmed || []), ...acceptedTokens]));
       setConfirmed(newConfirmed);
       setValue(last);
     }
-    // Reset warning while editing
-    if (showWarning) setShowWarning(false);
+    setShowWarning(reachedLimit);
   };
 
   const handleKeyDown = (e) => {
@@ -307,7 +307,7 @@ export default function AirportInputClient() {
 
       {showWarning && (
         <div style={{ color: '#ff4d4f', marginTop: 8, fontSize: 12 }}>
-          One or more codes have fewer than 4 characters — please enter 4
+          max 20 airports
         </div>
       )}
     </div>

@@ -91,7 +91,7 @@ interface RccContextType {
   addAirportValue: (newAirport: Airport) => void;
   removeAirportValue: (airportCode: string) => void;
   confirmedAirportCodes: string[];
-  setConfirmedAirportCodes: (codes: string[]) => void;
+  setConfirmedAirportCodes: React.Dispatch<React.SetStateAction<string[]>>;
   expandedCards: Set<string>;
   setExpandedCards: (cards: Set<string>) => void;
   cardViewMode: 'flightCategory' | 'airportList';
@@ -177,7 +177,6 @@ export const RccProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true); // Ensures client-only logic
     // Clear old weather data from localStorage to prevent stale data from blocking fresh API responses
     if (typeof window !== 'undefined') {
       localStorage.removeItem('allWeatherData');
@@ -262,18 +261,7 @@ useEffect(() => {
       localStorage.setItem('flightCategoryWarningEnabled', JSON.stringify(enabled));
     }
   };
-  useEffect(() => {
-    setIsClient(true); // Ensures client-only logic
-  }, []);
-
-  
-  const [airportValues, setAirportValues] = useState<Airport[]>(() => {
-    if (typeof window !== 'undefined') {
-      const storedAirportValues = localStorage.getItem('airportValues');
-      return storedAirportValues ? JSON.parse(storedAirportValues) : [];
-    }
-    return [];
-  });
+  const [airportValues, setAirportValues] = useState<Airport[]>([]);
 
   // Client-side only useEffect for localStorage interactions
   useEffect(() => {
@@ -282,13 +270,17 @@ useEffect(() => {
     }
   }, [airportValues, isClient]);
 
-  const [confirmedAirportCodes, setConfirmedAirportCodes] = useState<string[]>(() => {
+  const [confirmedAirportCodes, setConfirmedAirportCodes] = useState<string[]>([]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('confirmedAirportCodes');
-      return stored ? JSON.parse(stored) : [];
+      const storedAirportValues = localStorage.getItem('airportValues');
+      const storedConfirmedAirportCodes = localStorage.getItem('confirmedAirportCodes');
+      if (storedAirportValues) setAirportValues(JSON.parse(storedAirportValues));
+      if (storedConfirmedAirportCodes) setConfirmedAirportCodes(JSON.parse(storedConfirmedAirportCodes));
     }
-    return [];
-  });
+    setIsClient(true);
+  }, []);
 
   // Save confirmedAirportCodes to localStorage
   useEffect(() => {

@@ -62,6 +62,7 @@ async function fetchWeatherFromAPI(
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     const response = await fetch(apiUrl, {
+      cache: 'no-store',
       signal: controller.signal,
       headers: {
         'Accept': 'application/json',

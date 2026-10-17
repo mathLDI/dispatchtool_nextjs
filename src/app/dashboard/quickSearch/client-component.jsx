@@ -17,7 +17,7 @@ import {
 } from './QuickWeatherAndNotam';
 
 // Auto-refresh configuration
-const AUTO_REFRESH_INTERVAL = 2 * 60 * 1000; // 2 minutes for METAR/SPECI and TAF amendment checks
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes for METAR/SPECI and TAF amendment checks
 const DEBOUNCE_DELAY = 300; // Debounce rapid searches
 
 export default function ClientComponent({ fetchQuickWeather }) {
