@@ -1393,15 +1393,11 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
                         <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4 }}>TAF</div>
                         {tafReports.current && (
                           <div style={{ fontSize: 11, fontFamily: 'monospace', lineHeight: 1.3 }}>
-                            <div style={{ fontWeight: 600, marginBottom: 4 }}>Current TAF</div>
                             {formatTAF(tafReports.current.text)}
                           </div>
                         )}
                         {tafReports.latest && tafReports.latest !== tafReports.current && (
                           <div style={{ fontSize: 11, fontFamily: 'monospace', lineHeight: 1.3, marginTop: 8 }}>
-                            <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                              Latest issued TAF{tafReports.current ? ' (not currently valid)' : ' (no currently valid TAF)'}
-                            </div>
                             {formatTAF(tafReports.latest.text)}
                           </div>
                         )}

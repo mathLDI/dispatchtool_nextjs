@@ -32,15 +32,11 @@ const TafDisplay = ({ weatherData }) => {
     <div>
       {tafReports.current && (
         <section>
-          <p className="mb-1 font-semibold">Current TAF</p>
           {formatTAF(tafReports.current.text)}
         </section>
       )}
       {tafReports.latest !== tafReports.current && (
         <section className={tafReports.current ? 'mt-3' : ''}>
-          <p className="mb-1 font-semibold">
-            Latest issued TAF{tafReports.current ? ' (not currently valid)' : ' (no currently valid TAF)'}
-          </p>
           {formatTAF(tafReports.latest.text)}
         </section>
       )}
