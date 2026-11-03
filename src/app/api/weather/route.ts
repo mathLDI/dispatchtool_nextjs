@@ -26,11 +26,7 @@ export async function GET(req: Request) {
     });
     
     const response = NextResponse.json(data);
-    if (forceRefresh) {
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    } else {
-      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30');
-    }
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     
     return response;
   } catch (err: any) {

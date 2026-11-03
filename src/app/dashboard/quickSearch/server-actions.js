@@ -18,7 +18,7 @@ export const handleFetchWeather = async (location) => {
       includeNotam: true,
       includeMetar: true,
       includeTaf: true,
-      autoRefresh: false, // Client will handle polling
+      forceRefresh: true,
     });
 
     return data;

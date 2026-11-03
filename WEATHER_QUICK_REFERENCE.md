@@ -4,7 +4,7 @@
 
 ### 🚀 Performance
 - **Before:** 5-min cache, manual refresh, multiple API calls
-- **After:** 2-min smart cache, auto-refresh every 3 min, request deduplication
+- **Current:** 1-minute in-memory cache for ordinary requests; live dashboard and quick search force-refresh every 5 minutes
 
 ### 📊 Code Simplification
 - **server-actions.js:** 15 lines → 12 lines (cleaner, no URLs)
@@ -18,21 +18,21 @@
 ```
 User enters CYUL
     ↓
-Check cache → HIT (return instantly) or MISS (fetch)
+Check cache → HIT for ordinary requests (up to 1 minute) or MISS / forced fetch
     ↓
 If fetching, show weather + start auto-refresh
     ↓
-Every 3 minutes: Silently fetch fresh data
+Every 5 minutes: Fetch fresh data while the view is open
     ↓
-User always sees latest weather
+METARs are ordered by UTC issue time; TAFs show the currently valid report and a distinct latest-issued report when they differ
 ```
 
 ---
 
 ## Key Features
 
-✅ **Auto-Refresh** - Updates every 3 minutes automatically  
-✅ **Smart Cache** - 2-minute cache window for fast repeated searches  
+✅ **Auto-Refresh** - Dashboard and quick search poll every 5 minutes
+✅ **Smart Cache** - 1-minute in-memory cache for ordinary requests; live refreshes bypass it
 ✅ **Deduplication** - Simultaneous requests for same airport use one API call  
 ✅ **Debouncing** - Rapid input doesn't trigger multiple API calls  
 ✅ **Timeout** - Never hangs (10-second protection)  
@@ -44,14 +44,14 @@ User always sees latest weather
 
 **In weatherService.ts:**
 ```typescript
-const CACHE_DURATION = 2 * 60 * 1000;      // 2 minutes (adjust as needed)
-const POLL_INTERVAL = 3 * 60 * 1000;       // 3 minutes auto-refresh
+const CACHE_DURATION = 1 * 60 * 1000;      // 1 minute
+const POLL_INTERVAL = 1 * 60 * 1000;       // Optional service-level polling
 const REQUEST_TIMEOUT = 10 * 1000;         // 10 second timeout
 ```
 
 **In client-component.jsx:**
 ```typescript
-const AUTO_REFRESH_INTERVAL = 3 * 60 * 1000;  // Match backend
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;  // Dashboard and quick search polling
 const DEBOUNCE_DELAY = 300;                    // 300ms input debounce
 ```
 
@@ -101,8 +101,8 @@ console.log(getWeatherCacheStats());
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Cache Hit | 300s (5 min) | 120s (2 min) |
-| Auto-Update | Manual only | Every 3 min |
+| Cache Hit | 60s (1 min) | 60s for ordinary requests; live views force refresh |
+| Auto-Update | Manual only | Every 5 min in weather dashboard and quick search |
 | Repeated Search | ~2s API call | ~0ms cache |
 | Deduplication | None | ✅ Built-in |
 | API Calls | Multiple | 1 per airport |
@@ -149,7 +149,7 @@ The system logs to console with prefixes:
 ```
 [Weather] Cache hit for CYUL
 [Weather] Fetching fresh data for CYUZ
-[Weather] Scheduled auto-refresh for CYUL every 180000ms
+[Weather] Scheduled auto-refresh for CYUL every 60000ms (optional service-level polling)
 [Auto-Refresh] Starting for CYUL...
 [Auto-Refresh] Updated weather for CYUL
 [Auto-Refresh] Failed for CYUL: (error)
@@ -164,7 +164,7 @@ Open DevTools Console to monitor in real-time.
 
 ### "Weather data not updating"
 → Check browser console for `[Auto-Refresh]` logs  
-→ Verify `AUTO_REFRESH_INTERVAL` is not too long  
+→ Verify `AUTO_REFRESH_INTERVAL` is 5 minutes and the page is open
 → Check if reset button was clicked (stops polling)
 
 ### "Getting old data"

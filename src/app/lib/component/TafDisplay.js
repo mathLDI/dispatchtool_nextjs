@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
 import { parseVisibility } from './functions/weatherAndNotam';
+import { getTafReports } from '../services/weatherReportUtils';
 
 
 const TafDisplay = ({ weatherData }) => {
@@ -19,13 +20,32 @@ const TafDisplay = ({ weatherData }) => {
     return <p>No TAF data available</p>;
   }
 
-  const tafText = weatherData.data.find((item) => item.type === 'taf')?.text;
+  const tafReports = getTafReports(
+    weatherData.data.filter((item) => item.type === 'taf')
+  );
 
-  if (!tafText) {
+  if (!tafReports.latest) {
     return <p>No TAF data available</p>;
   }
 
-  return <div>{formatTAF(tafText)}</div>;
+  return (
+    <div>
+      {tafReports.current && (
+        <section>
+          <p className="mb-1 font-semibold">Current TAF</p>
+          {formatTAF(tafReports.current.text)}
+        </section>
+      )}
+      {tafReports.latest !== tafReports.current && (
+        <section className={tafReports.current ? 'mt-3' : ''}>
+          <p className="mb-1 font-semibold">
+            Latest issued TAF{tafReports.current ? ' (not currently valid)' : ' (no currently valid TAF)'}
+          </p>
+          {formatTAF(tafReports.latest.text)}
+        </section>
+      )}
+    </div>
+  );
 };
 
 

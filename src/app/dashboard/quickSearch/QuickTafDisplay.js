@@ -1,5 +1,6 @@
 import React from 'react';
 import { parseVisibility } from '../../lib/component/functions/weatherAndNotam';
+import { getTafReports } from '../../lib/services/weatherReportUtils';
 
 
 
@@ -8,13 +9,32 @@ const QuickTafDisplay = ({ quickWeatherData }) => {
     return <p>No TAF data available</p>;
   }
 
-  const tafText = quickWeatherData.data.find((item) => item.type === 'taf')?.text;
+  const tafReports = getTafReports(
+    quickWeatherData.data.filter((item) => item.type === 'taf')
+  );
 
-  if (!tafText) {
+  if (!tafReports.latest) {
     return <p>No TAF data available</p>;
   }
 
-  return <div>{formatTAF(tafText)}</div>;
+  return (
+    <div>
+      {tafReports.current && (
+        <section>
+          <p className="mb-1 font-semibold">Current TAF</p>
+          {formatTAF(tafReports.current.text)}
+        </section>
+      )}
+      {tafReports.latest !== tafReports.current && (
+        <section className={tafReports.current ? 'mt-3' : ''}>
+          <p className="mb-1 font-semibold">
+            Latest issued TAF{tafReports.current ? ' (not currently valid)' : ' (no currently valid TAF)'}
+          </p>
+          {formatTAF(tafReports.latest.text)}
+        </section>
+      )}
+    </div>
+  );
 };
 
 function formatTAF(tafText) {

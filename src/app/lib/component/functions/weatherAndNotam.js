@@ -1,4 +1,4 @@
-
+import { getLatestReport } from '../../services/weatherReportUtils';
 
 
 // Transform allWeatherData into the format of airportValues with correct property order
@@ -49,8 +49,10 @@ export function allAirportsFlightCategory(airportValues, weatherData) {
   const airportCategories = {};
 
   airportValues.forEach((airport) => {
-    const latestMetar = weatherData[airport.code]?.data?.find(
-      (item) => item.type === 'metar' || item.type === 'speci'
+    const latestMetar = getLatestReport(
+      weatherData[airport.code]?.data?.filter(
+        (item) => item.type === 'metar' || item.type === 'speci'
+      )
     );
 
     if (latestMetar) {

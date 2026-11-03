@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import { parseMETAR } from '@/app/lib/component/functions/weatherAndNotam';
+import { getLatestReport } from '@/app/lib/services/weatherReportUtils';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 
 const CATEGORY_COLORS = {
@@ -165,7 +166,9 @@ export default function AirportInputClient() {
             // Try to locate METAR/speci text
             let metarText = null;
             if (data && data.data && Array.isArray(data.data)) {
-              const latest = data.data.find(item => item.type === 'metar' || item.type === 'speci');
+              const latest = getLatestReport(
+                data.data.filter(item => item.type === 'metar' || item.type === 'speci')
+              );
               if (latest && latest.text) metarText = latest.text;
             }
             // Fallback: some responses may include raw string

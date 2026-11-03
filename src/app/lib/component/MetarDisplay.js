@@ -5,6 +5,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { parseMETAR } from './functions/weatherAndNotam';
 import { useRccContext } from '../../dashboard/RccCalculatorContext';
+import { sortReportsByIssueTime } from '../services/weatherReportUtils';
 
 // Helper function to remove variable winds component
 function removeVariableWinds(metarString) {
@@ -25,13 +26,9 @@ const MetarDisplay = ({ weatherData }) => {
       return <p>No METAR data available</p>;
     }
 
-    return weatherData.data
-      .filter((item) => item.type === 'metar' || item.type === 'speci')
-      .sort((a, b) => {
-        const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
-        const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
-        return timeB.localeCompare(timeA);
-      })
+    return sortReportsByIssueTime(
+      weatherData.data.filter((item) => item.type === 'metar' || item.type === 'speci')
+    )
       .slice(0, 4)
       .map((metar, index) => {
         // Store original for display
@@ -173,4 +170,3 @@ function formatMetarTextJSX(metarText, ceiling, visibility, category) {
   return <>{result}</>;
 
 }
-

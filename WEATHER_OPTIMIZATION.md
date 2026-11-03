@@ -6,7 +6,7 @@ The static airport and runway metadata used by this app comes from OurAirports: 
 The local CSV in this project, located at src/app/lib/data/runways.csv, is a downloaded copy of the airport/runway reference data from that source. This app uses that local CSV as the airport metadata source at runtime; it is not querying a live airport database.
 
 ## Overview
-The aviation weather fetching system has been completely refactored for **simplicity, performance, and real-time updates**. The new system ensures users always see the latest weather data with minimal API calls.
+The app fetches METAR, SPECI, TAF, and NOTAM data from NavCanada. The service uses a one-minute in-memory cache for ordinary requests and supports forced upstream refreshes. Weather screens refresh on entry and poll while open; the source remains authoritative, so the app cannot guarantee a new report when NavCanada has not published one.
 
 ---
 
@@ -32,21 +32,22 @@ export const handleFetchWeather = async (location) => {
 
 ### 2. **Intelligent Caching** 🎯
 **weatherService.ts** provides:
-- **2-minute cache window** - Fast enough for rapid searches, smart enough for aviation data
+- **1-minute in-memory cache window** for ordinary requests
+- **Forced refreshes** bypass the service cache and the upstream fetch cache
 - **Request deduplication** - Multiple simultaneous requests for the same airport return one result
 - **In-flight request tracking** - Prevents thundering herd problem
 
 ```typescript
-// Same airport within 2 minutes? Uses cache
+// Same airport within 1 minute? Uses cache unless forceRefresh is set
 const weather1 = await getWeather('CYUL'); // ↳ API call
-const weather2 = await getWeather('CYUL'); // ↳ Cache hit (0ms)
+const weather2 = await getWeather('CYUL'); // ↳ Cache hit
 ```
 
 ### 3. **Automatic Real-Time Updates** 🔄
-**Auto-polling in the background every 3 minutes** - Users always see fresh data without clicking refresh:
+**Weather dashboard and quick search poll every 5 minutes** while open. The dashboard also fetches fresh data when opened, including when shared state already contains an older response:
 
 ```typescript
-// Automatically refreshes every 3 minutes
+// Automatically refreshes every 5 minutes
 fetchWeatherWithAutoRefresh('CYUL');
 
 // Running in background silently
@@ -122,7 +123,7 @@ prefetchWeatherForLocations(locations)
 **New Logic:**
 ```typescript
 // Auto-refresh configuration
-const AUTO_REFRESH_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const DEBOUNCE_DELAY = 300; // 300ms for input debouncing
 
 // Refs for managing timers
@@ -155,8 +156,8 @@ useEffect(() => {
 ### After Optimization
 | Metric | Value |
 |--------|-------|
-| Cache Duration | 120 seconds (2 min) |
-| Auto-Refresh | Every 3 minutes |
+| Cache Duration | 60 seconds for ordinary service requests |
+| Auto-Refresh | Every 5 minutes on weather dashboard and quick search |
 | Deduplication | ✅ Built-in |
 | Cache Hit Delay | ~0ms |
 | Typical Delay | <100ms (cached) |
@@ -176,7 +177,7 @@ const data = await getWeather('CYUL');
 
 ### 2. **With Auto-Refresh** (Client-side)
 ```typescript
-// Automatically polls every 3 minutes
+// Automatically polls every 5 minutes
 const fetchWeatherWithAutoRefresh = useCallback(async (airportCode) => {
   const data = await fetchQuickWeather(airportCode);
   setQuickWeatherData(data);
@@ -221,20 +222,20 @@ console.log(stats);
 
 **In weatherService.ts:**
 ```typescript
-const CACHE_DURATION = 2 * 60 * 1000;      // 2 minutes
-const POLL_INTERVAL = 3 * 60 * 1000;       // 3 minutes auto-refresh
+const CACHE_DURATION = 1 * 60 * 1000;       // 1 minute
+const POLL_INTERVAL = 1 * 60 * 1000;        // Optional service-level auto-refresh
 const REQUEST_TIMEOUT = 10 * 1000;         // 10 second timeout
 ```
 
 **In client-component.jsx:**
 ```typescript
-const AUTO_REFRESH_INTERVAL = 3 * 60 * 1000;  // 3 minutes
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;  // 5 minutes on dashboard and quick search
 const DEBOUNCE_DELAY = 300;                    // 300ms debounce
 ```
 
 **Recommendation for Aviation Weather:**
-- Keep cache at 2-3 minutes (weather changes frequently)
-- Keep auto-refresh at 3-5 minutes (not too aggressive on API)
+- Keep the ordinary server cache short; live views use forced refreshes
+- Keep visible-view polling at 5 minutes to balance freshness and upstream request volume
 - Keep debounce at 300ms (responsive input, no spam)
 
 ---
@@ -246,7 +247,7 @@ User Types Airport Code
     ↓
 Debounce 300ms
     ↓
-Check Cache (2-min window)
+Check the one-minute service cache (forced refreshes bypass it)
     ├─ HIT → Return cached data (0ms) ✅
     ├─ MISS & In-Flight → Return existing promise
     └─ MISS & Fresh → Fetch from API
@@ -261,7 +262,7 @@ Check Cache (2-min window)
         ↓
     Setup Auto-Refresh
         ↓
-    Every 3 minutes: Silently fetch fresh data
+    Every 5 minutes: Fetch fresh data while the view is open
         ↓
     Update display automatically
         ↓
@@ -336,7 +337,7 @@ try {
 | Aspect | Improvement |
 |--------|------------|
 | **Speed** | Cache hits in ~0ms (instant) |
-| **Freshness** | Auto-updates every 3 minutes |
+| **Freshness** | Weather dashboard and quick search poll every 5 minutes |
 | **Reliability** | Deduplication + retry logic |
 | **Code** | 50% simpler + more maintainable |
 | **UX** | No manual refresh needed |
@@ -352,7 +353,7 @@ try {
 1. Enter CYUL → See weather instantly
 2. Enter CYUL again → Instant cache hit
 3. Enter CYYZ → Fetch new weather
-4. Wait 3 minutes → Auto-refresh silently updates
+4. Wait 5 minutes → Auto-refresh requests fresh data
 5. Click Reset → All data cleared + auto-refresh stopped
 6. Enter CYUL while CYYZ pending → Dedup works
 ```

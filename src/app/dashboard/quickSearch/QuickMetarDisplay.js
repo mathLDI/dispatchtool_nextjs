@@ -1,5 +1,6 @@
 import React from 'react';
 import { parseMETAR } from './QuickWeatherAndNotam';
+import { sortReportsByIssueTime } from '../../lib/services/weatherReportUtils';
 
 // Helper function to remove variable winds component
 function removeVariableWinds(metarString) {
@@ -13,13 +14,9 @@ const QuickMetarDisplay = ({ quickWeatherData }) => {
 
   return (
     <div>
-      {quickWeatherData.data
-        .filter((item) => item.type === 'metar' || item.type === 'speci')
-        .sort((a, b) => {
-          const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
-          const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
-          return timeB.localeCompare(timeA);
-        })
+      {sortReportsByIssueTime(
+        quickWeatherData.data.filter((item) => item.type === 'metar' || item.type === 'speci')
+      )
         .slice(0, 4)
         .map((metar, index) => {
           const originalMetar = metar.text;

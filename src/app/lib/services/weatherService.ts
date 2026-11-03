@@ -61,22 +61,23 @@ async function fetchWeatherFromAPI(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-    const response = await fetch(apiUrl, {
-      cache: 'no-store',
-      signal: controller.signal,
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    try {
+      const response = await fetch(apiUrl, {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
 
-    clearTimeout(timeoutId);
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}: ${response.statusText}`);
+      return await response.json();
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const data = await response.json();
-    return data;
   } catch (error) {
     if (error instanceof Error) {
       console.error(`Weather fetch failed for ${location}:`, error.message);

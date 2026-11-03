@@ -11,6 +11,7 @@ import { HeadwindTailwindComponent } from '../../lib/component/functions/headwin
 import useAuth from '../../../hooks/useAuth'; // Import useAuth hook
 import { ChevronDoubleLeftIcon } from '@heroicons/react/solid';
 import ManualInputListbox from '../../lib/component/ManualInputListbox'; // Use the correct casing
+import { sortReportsByIssueTime } from '../../lib/services/weatherReportUtils';
 
 const runwayResponseCache = new Map();
 
@@ -270,23 +271,22 @@ const SecondPageCrosswindCalculator = () => {
         }
     }, [airport, fetchDeclination]);
 
-    // On-demand weather fetch for selected airport when not preloaded
+    // Refresh the selected airport even when shared context already has older data.
     useEffect(() => {
-        const fetchWeatherIfNeeded = async () => {
+        const fetchSelectedAirportWeather = async () => {
             const code = (airport || '').toUpperCase();
             if (!code || code.length !== 4) return;
-            if (allWeatherData && allWeatherData[code]) return;
             try {
-                const res = await fetch(`/api/weather?code=${code}`);
-                if (!res.ok) return; // silently skip; do not break existing logic
+                const res = await fetch(`/api/weather?code=${code}&force=true`);
+                if (!res.ok) throw new Error(`Weather API returned ${res.status}`);
                 const data = await res.json();
                 setAllWeatherData(prev => ({ ...(prev || {}), [code]: data }));
-            } catch (_e) {
-                // Do not alter existing weather logic; ignore failures
+            } catch (error) {
+                console.error(`Failed to refresh weather for ${code}:`, error);
             }
         };
-        fetchWeatherIfNeeded();
-    }, [airport, allWeatherData, setAllWeatherData]);
+        fetchSelectedAirportWeather();
+    }, [airport, setAllWeatherData]);
 
 
 
@@ -362,13 +362,9 @@ const SecondPageCrosswindCalculator = () => {
         if (!airport || !allWeatherData[airport]) return null;
 
         // Get latest METAR
-        const latestMetar = allWeatherData[airport].data
-            .filter(item => item.type === 'metar')
-            .sort((a, b) => {
-                const timeA = a.text.match(/\d{2}\d{4}Z/)[0];
-                const timeB = b.text.match(/\d{2}\d{4}Z/)[0];
-                return timeB.localeCompare(timeA);
-            })[0];
+        const latestMetar = sortReportsByIssueTime(
+            allWeatherData[airport].data.filter(item => item.type === 'metar' || item.type === 'speci')
+        )[0];
 
         if (!latestMetar) return null;
 

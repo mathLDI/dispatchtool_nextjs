@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRccContext } from '@/app/dashboard/RccCalculatorContext';
 import { parseMETAR, parseVisibility, categorizeNotams, extractTextBeforeFR, filterAndHighlightNotams, parseNotamDate, formatLocalDate } from '@/app/lib/component/functions/weatherAndNotam';
+import { getLatestReport, getTafReports, sortReportsByIssueTime } from '@/app/lib/services/weatherReportUtils';
 import GfaCardDisplay from './GfaCardDisplay';
 import { getGfaReleaseSlot, GFA_RELEASE_DELAY_MS } from '@/app/lib/services/gfaReleaseSlot';
 
@@ -484,7 +485,9 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
         const data = allWeatherData[code];
         let metarText = null;
         if (data?.data && Array.isArray(data.data)) {
-          const latest = data.data.find(item => item.type === 'metar' || item.type === 'speci');
+          const latest = getLatestReport(
+            data.data.filter(item => item.type === 'metar' || item.type === 'speci')
+          );
           if (latest?.text) metarText = latest.text;
         }
         
@@ -515,6 +518,7 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
   const pendingUndoRef = useRef({}); // Track last dismissed alerts per code for undo
   const cardRefs = useRef({}); // Store refs to cards for position calculation
   const inFlightRef = useRef(new Set());
+  const initialWeatherFetchesRef = useRef(new Set());
   const autoRefreshIntervalsRef = useRef(new Map()); // Track auto-refresh intervals per airport
   const gfaAutoRefreshTimersRef = useRef(new Map());
   const gfaInFlightRef = useRef(new Map());
@@ -685,7 +689,43 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
   // Fetch weather data for codes that don't have it yet
   useEffect(() => {
     allCodes.forEach(code => {
-      if (allWeatherData?.[code] || inFlightRef.current.has(code)) return;
+      if (initialWeatherFetchesRef.current.has(code) || inFlightRef.current.has(code)) return;
+
+      initialWeatherFetchesRef.current.add(code);
+      if (!autoRefreshIntervalsRef.current.has(code)) {
+        console.log(`[Auto-Refresh] Starting for ${code} every ${AUTO_REFRESH_INTERVAL}ms`);
+        const intervalId = setInterval(async () => {
+          if (document.visibilityState === 'hidden' || inFlightRef.current.has(code)) return;
+          inFlightRef.current.add(code);
+          try {
+            const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}&force=true`);
+            if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
+            const freshData = await response.json();
+            setAllWeatherData(prev => ({ ...(prev || {}), [code]: freshData }));
+            setLastUpdated(Date.now());
+
+            const latestMetar = getLatestReport(
+              freshData?.data?.filter(item => item.type === 'metar' || item.type === 'speci')
+            );
+            if (latestMetar?.text) {
+              const parsed = parseMETAR(latestMetar.text);
+              setCategories(prev => ({
+                ...prev,
+                [code]: {
+                  category: parsed.category || 'Unknown',
+                  color: CATEGORY_COLORS[parsed.category] || CATEGORY_COLORS.Unknown
+                }
+              }));
+            }
+            console.log(`[Auto-Refresh] Updated weather for ${code}`);
+          } catch (error) {
+            console.error(`[Auto-Refresh] Failed for ${code}:`, error);
+          } finally {
+            inFlightRef.current.delete(code);
+          }
+        }, AUTO_REFRESH_INTERVAL);
+        autoRefreshIntervalsRef.current.set(code, intervalId);
+      }
 
       inFlightRef.current.add(code);
       fetch(`/api/weather?code=${encodeURIComponent(code)}&force=true`)
@@ -700,7 +740,9 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
           // Parse METAR and store category
           let metarText = null;
           if (data?.data && Array.isArray(data.data)) {
-            const latest = data.data.find(item => item.type === 'metar' || item.type === 'speci');
+            const latest = getLatestReport(
+              data.data.filter(item => item.type === 'metar' || item.type === 'speci')
+            );
             if (latest?.text) metarText = latest.text;
           }
 
@@ -722,48 +764,6 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
             }
           }
 
-          // Set up auto-refresh polling for this code if not already set up
-          if (!autoRefreshIntervalsRef.current.has(code)) {
-            console.log(`[Auto-Refresh] Starting for ${code} every ${AUTO_REFRESH_INTERVAL}ms`);
-            const intervalId = setInterval(async () => {
-              if (document.visibilityState === 'hidden') return;
-              try {
-                const response = await fetch(`/api/weather?code=${encodeURIComponent(code)}&force=true`);
-                if (!response.ok) throw new Error(`Weather API returned ${response.status}`);
-                const freshData = await response.json();
-                setAllWeatherData(prev => ({ ...(prev || {}), [code]: freshData }));
-                setLastUpdated(Date.now());
-                
-                // Parse fresh METAR and update category
-                let freshMetarText = null;
-                if (freshData?.data && Array.isArray(freshData.data)) {
-                  const latest = freshData.data.find(item => item.type === 'metar' || item.type === 'speci');
-                  if (latest?.text) freshMetarText = latest.text;
-                }
-
-                if (freshMetarText) {
-                  try {
-                    const parsed = parseMETAR(freshMetarText);
-                    setCategories(prev => ({
-                      ...prev,
-                      [code]: {
-                        category: parsed.category || 'Unknown',
-                        color: CATEGORY_COLORS[parsed.category] || CATEGORY_COLORS.Unknown
-                      }
-                    }));
-                  } catch (err) {
-                    console.error(`[Auto-Refresh] Failed to parse METAR for ${code}:`, err);
-                  }
-                }
-                
-                console.log(`[Auto-Refresh] Updated weather for ${code}`);
-              } catch (error) {
-                console.error(`[Auto-Refresh] Failed for ${code}:`, error);
-                // Continue polling even on error
-              }
-            }, AUTO_REFRESH_INTERVAL);
-            autoRefreshIntervalsRef.current.set(code, intervalId);
-          }
         })
         .catch(err => {
           console.error('Failed to fetch weather for', code, err);
@@ -779,11 +779,13 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
 
     // Cleanup: Clear intervals for codes that are no longer in allCodes
     const intervals = autoRefreshIntervalsRef.current;
+    const initialFetches = initialWeatherFetchesRef.current;
     return () => {
       intervals.forEach((intervalId, code) => {
         if (!allCodes.includes(code)) {
           clearInterval(intervalId);
           intervals.delete(code);
+          initialFetches.delete(code);
           console.log(`[Auto-Refresh] Cleared for ${code}`);
         }
       });
@@ -998,11 +1000,13 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
             // Get weather data for this airport
             const weatherData = allWeatherData?.[code];
             const metars = weatherData?.data
-              ? weatherData.data.filter(item => item.type === 'metar' || item.type === 'speci').slice(0, 4)
+              ? sortReportsByIssueTime(
+                  weatherData.data.filter(item => item.type === 'metar' || item.type === 'speci')
+                ).slice(0, 4)
               : [];
-            const taf = weatherData?.data
-              ? weatherData.data.find(item => item.type === 'taf')
-              : null;
+            const tafReports = weatherData?.data
+              ? getTafReports(weatherData.data.filter(item => item.type === 'taf'))
+              : { current: null, latest: null };
             const notams = weatherData?.data
               ? weatherData.data.filter(item => item.type === 'notam')
               : [];
@@ -1387,11 +1391,21 @@ export default function WeatherCardsClient({ searchQuery = '', isExpandMode = fa
 
                       <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${theme.border}` }}>
                         <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 4 }}>TAF</div>
-                        {taf?.text ? (
+                        {tafReports.current && (
                           <div style={{ fontSize: 11, fontFamily: 'monospace', lineHeight: 1.3 }}>
-                            {formatTAF(taf.text)}
+                            <div style={{ fontWeight: 600, marginBottom: 4 }}>Current TAF</div>
+                            {formatTAF(tafReports.current.text)}
                           </div>
-                        ) : (
+                        )}
+                        {tafReports.latest && tafReports.latest !== tafReports.current && (
+                          <div style={{ fontSize: 11, fontFamily: 'monospace', lineHeight: 1.3, marginTop: 8 }}>
+                            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                              Latest issued TAF{tafReports.current ? ' (not currently valid)' : ' (no currently valid TAF)'}
+                            </div>
+                            {formatTAF(tafReports.latest.text)}
+                          </div>
+                        )}
+                        {!tafReports.latest && (
                           <div style={{ fontSize: 11, color: theme.mutedText }}>No TAF data available</div>
                         )}
                       </div>

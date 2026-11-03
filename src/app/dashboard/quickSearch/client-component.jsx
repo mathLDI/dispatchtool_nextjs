@@ -100,11 +100,7 @@ export default function ClientComponent({ fetchQuickWeather }) {
   };
 
   /**
-   * Fetch weather with auto-refresh enabled
-   * Uses weatherService.ts with:
-   * - Intelligent 2-minute caching
-   * - Request deduplication
-   * - Automatic background polling every 3 minutes
+   * Fetch weather and keep the selected airport refreshed while the view is open.
    */
   const fetchWeatherWithAutoRefresh = useCallback(async (airportCode) => {
     if (!airportCode) return;
@@ -118,8 +114,9 @@ export default function ClientComponent({ fetchQuickWeather }) {
 
       currentAirportRef.current = airportCode;
 
-      // Fetch initial data using server action (weatherService.ts handles caching & deduplication)
+      // Fetch initial data from the upstream weather service.
       const data = await fetchQuickWeather(airportCode);
+      if (currentAirportRef.current !== airportCode) return;
 
       if (setQuickWeatherData) {
         setQuickWeatherData(data);
@@ -132,10 +129,11 @@ export default function ClientComponent({ fetchQuickWeather }) {
         console.log(`[Auto-Refresh] Starting for ${airportCode} every ${AUTO_REFRESH_INTERVAL}ms`);
         autoRefreshTimeoutRef.current = setInterval(async () => {
           if (document.visibilityState === 'hidden') return;
+          if (currentAirportRef.current !== airportCode) return;
           try {
-            // Silently fetch fresh data in background
-            // weatherService.ts provides intelligent caching (2-min window)
+            // The server action bypasses the in-memory cache for each scheduled refresh.
             const freshData = await fetchQuickWeather(airportCode);
+            if (currentAirportRef.current !== airportCode) return;
             setQuickWeatherData(freshData);
             console.log(`[Auto-Refresh] Updated weather for ${airportCode}`);
           } catch (error) {
